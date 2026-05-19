@@ -134,7 +134,7 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(olly_request_duration_seconds_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(increase(olly_request_duration_seconds_bucket[$__range])) by (le))",
           "refId": "A"
         }
       ],
@@ -257,7 +257,7 @@
       "id": 9,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(olly_llm_duration_seconds_bucket[5m])) by (le, model, backend))",
+          "expr": "histogram_quantile(0.95, sum(increase(olly_llm_duration_seconds_bucket[$__range])) by (le, model, backend))",
           "legendFormat": "{{backend}} / {{model}}",
           "refId": "A"
         }
@@ -282,7 +282,7 @@
       "id": 10,
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(rate(olly_generation_tokens_per_second_bucket[5m])) by (le, model, backend))",
+          "expr": "histogram_quantile(0.50, sum(increase(olly_generation_tokens_per_second_bucket[$__range])) by (le, model, backend))",
           "legendFormat": "{{backend}} / {{model}}",
           "refId": "A"
         }
@@ -362,7 +362,7 @@
       "id": 13,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(olly_stage_duration_seconds_bucket[5m])) by (le, stage))",
+          "expr": "histogram_quantile(0.95, sum(increase(olly_stage_duration_seconds_bucket[$__range])) by (le, stage))",
           "legendFormat": "{{stage}}",
           "refId": "A"
         }

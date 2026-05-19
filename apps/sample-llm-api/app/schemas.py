@@ -14,6 +14,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     request_id: str
+    trace_id: str
     answer: str
     model: str
     feature: str

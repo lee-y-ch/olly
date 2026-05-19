@@ -2,7 +2,7 @@ groups:
   - name: olly-mvp-alerts
     rules:
       - alert: OllyHighP95Latency
-        expr: histogram_quantile(0.95, sum(rate(olly_request_duration_seconds_bucket[5m])) by (le)) > 3
+        expr: histogram_quantile(0.95, sum(increase(olly_request_duration_seconds_bucket[5m])) by (le)) > 3
         for: 1m
         labels:
           severity: warning
@@ -11,7 +11,7 @@ groups:
           description: "p95 latency has been above 3 seconds for at least 1 minute."
 
       - alert: OllyErrorRateHigh
-        expr: sum(rate(olly_errors_total[5m])) / clamp_min(sum(rate(olly_requests_total[5m])), 1) > 0.05
+        expr: sum(increase(olly_errors_total[5m])) / clamp_min(sum(increase(olly_requests_total[5m])), 1) > 0.05
         for: 1m
         labels:
           severity: warning
@@ -20,7 +20,7 @@ groups:
           description: "Error rate has been above 5% for at least 1 minute."
 
       - alert: OllyTokenUsageSpike
-        expr: sum(rate(olly_tokens_total[10m])) > 100
+        expr: sum(increase(olly_tokens_total[10m])) > 100
         for: 1m
         labels:
           severity: info
@@ -29,7 +29,7 @@ groups:
           description: "Token usage is above the MVP demo threshold."
 
       - alert: OllyRagRetrieveSlow
-        expr: histogram_quantile(0.95, sum(rate(olly_stage_duration_seconds_bucket{stage="retrieve"}[5m])) by (le)) > 2
+        expr: histogram_quantile(0.95, sum(increase(olly_stage_duration_seconds_bucket{stage="retrieve"}[5m])) by (le)) > 1.5
         for: 1m
         labels:
           severity: warning
@@ -38,7 +38,7 @@ groups:
           description: "RAG retrieve p95 latency has been above 2 seconds for at least 1 minute."
 
       - alert: OllyLocalInferenceCostSpike
-        expr: sum(rate(olly_infra_cost_usd_total[10m])) * 3600 > 0.1
+        expr: sum(increase(olly_infra_cost_usd_total[10m])) > 0.00005
         for: 1m
         labels:
           severity: info

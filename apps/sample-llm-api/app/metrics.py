@@ -65,6 +65,11 @@ TOKENS_PER_SECOND = Histogram(
     ["model", "feature", "scenario", "backend"],
     buckets=(1, 3, 5, 10, 20, 40, 80, 120),
 )
+REQUEST_INFO = Counter(
+    "olly_request_info_total",
+    "Sampled OLLY request metadata for dashboard drilldown",
+    ["request_id", "trace_id", "model", "feature", "scenario", "status"],
+)
 
 
 @dataclass(frozen=True)
@@ -105,12 +110,15 @@ def record_llm_duration(labels: RequestMetricLabels, elapsed_seconds: float, tok
 
 def record_success(
     labels: RequestMetricLabels,
+    request_id: str,
+    trace_id: str,
     input_tokens: int,
     output_tokens: int,
     cost: CostBreakdown,
     latency_seconds: float,
 ) -> None:
     REQUESTS_TOTAL.labels(labels.model, labels.feature, labels.scenario, "success").inc()
+    REQUEST_INFO.labels(request_id, trace_id, labels.model, labels.feature, labels.scenario, "success").inc()
     TOKENS_TOTAL.labels(labels.model, labels.feature, "input").inc(input_tokens)
     TOKENS_TOTAL.labels(labels.model, labels.feature, "output").inc(output_tokens)
     COST_TOTAL.labels(labels.model, labels.feature).inc(cost.total_usd)
@@ -122,7 +130,8 @@ def record_success(
     REQUEST_DURATION.labels(labels.model, labels.feature, labels.scenario, "success").observe(latency_seconds)
 
 
-def record_error(labels: RequestMetricLabels, latency_seconds: float) -> None:
+def record_error(labels: RequestMetricLabels, request_id: str, trace_id: str, latency_seconds: float) -> None:
     ERRORS_TOTAL.labels(labels.model, labels.feature, labels.scenario).inc()
     REQUESTS_TOTAL.labels(labels.model, labels.feature, labels.scenario, "error").inc()
+    REQUEST_INFO.labels(request_id, trace_id, labels.model, labels.feature, labels.scenario, "error").inc()
     REQUEST_DURATION.labels(labels.model, labels.feature, labels.scenario, "error").observe(latency_seconds)

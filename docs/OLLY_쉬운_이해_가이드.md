@@ -287,6 +287,24 @@ POST /chat
 | `high_token` | 토큰을 많이 쓰는 상황 |
 | `error` | 에러 상황 |
 
+응답에는 요청 추적을 위한 값도 포함된다.
+
+```json
+{
+  "request_id": "req_b93e8334",
+  "trace_id": "a2aa25c7f1488e0e24186443ef7a9e23",
+  "model": "gemma3:1b",
+  "feature": "chat"
+}
+```
+
+| 값 | 의미 |
+| --- | --- |
+| `request_id` | OLLY가 만든 요청 식별자 |
+| `trace_id` | Jaeger에서 해당 요청 trace를 찾을 수 있는 식별자 |
+
+자체 웹 대시보드를 만들 때는 최근 요청 목록에서 `trace_id`를 이용해 Jaeger 상세 화면으로 연결할 수 있다.
+
 ## 7. Grafana에서 봐야 하는 것
 
 주소:

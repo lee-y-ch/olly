@@ -3,6 +3,7 @@ import uuid
 
 from fastapi import FastAPI, HTTPException, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from opentelemetry import trace
 
 from app import mock_llm, ollama_llm
 from app.config import Settings
@@ -57,6 +58,7 @@ def metrics() -> Response:
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
     request_id = f"req_{uuid.uuid4().hex[:8]}"
+    trace_id = ""
     model_name = llm_client.model_name()
     metric_labels = RequestMetricLabels(
         model=model_name,
@@ -71,6 +73,13 @@ async def chat(request: ChatRequest) -> ChatResponse:
     cost = CostBreakdown(total_usd=0.0, token_usd=0.0, infra_usd=0.0, compute_seconds=0.0)
 
     try:
+        root_span = trace.get_current_span()
+        root_span.set_attribute("olly.request_id", request_id)
+        root_span.set_attribute("olly.feature", request.feature)
+        root_span.set_attribute("olly.scenario", request.scenario)
+        trace_id = format(root_span.get_span_context().trace_id, "032x")
+        root_span.set_attribute("olly.trace_id", trace_id)
+
         with tracer.start_as_current_span("retrieve") as span:
             span.set_attribute("olly.request_id", request_id)
             span.set_attribute("olly.feature", request.feature)
@@ -117,14 +126,15 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 answer = await postprocess(answer)
 
     except Exception as exc:
-        record_error(metric_labels, time.perf_counter() - start)
+        record_error(metric_labels, request_id, trace_id, time.perf_counter() - start)
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     latency_seconds = time.perf_counter() - start
-    record_success(metric_labels, input_tokens, output_tokens, cost, latency_seconds)
+    record_success(metric_labels, request_id, trace_id, input_tokens, output_tokens, cost, latency_seconds)
 
     return ChatResponse(
         request_id=request_id,
+        trace_id=trace_id,
         answer=answer,
         model=model_name,
         feature=request.feature,
