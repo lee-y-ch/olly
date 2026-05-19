@@ -12,6 +12,7 @@ OLLAMA_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
 MAX_NEW_TOKENS = int(os.getenv("OLLAMA_MAX_NEW_TOKENS", "256"))
 TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.2"))
 TOP_P = float(os.getenv("OLLAMA_TOP_P", "0.9"))
+_client: httpx.AsyncClient | None = None
 
 
 def model_name() -> str:
@@ -41,6 +42,23 @@ def build_user_prompt(request: ChatRequest, context: list[str]) -> str:
     )
 
 
+def get_client() -> httpx.AsyncClient:
+    global _client
+    if _client is None:
+        _client = httpx.AsyncClient(
+            timeout=OLLAMA_TIMEOUT_SECONDS,
+            limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+        )
+    return _client
+
+
+async def close() -> None:
+    global _client
+    if _client is not None:
+        await _client.aclose()
+        _client = None
+
+
 async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, int, dict[str, float]]:
     if request.scenario == "error":
         raise RuntimeError("forced Ollama failure scenario")
@@ -63,9 +81,8 @@ async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, 
 
     start = time.perf_counter()
     try:
-        async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT_SECONDS) as client:
-            response = await client.post(f"{OLLAMA_BASE_URL}/api/chat", json=payload)
-            response.raise_for_status()
+        response = await get_client().post(f"{OLLAMA_BASE_URL}/api/chat", json=payload)
+        response.raise_for_status()
     except httpx.ConnectError as exc:
         raise RuntimeError(
             f"Ollama server is not reachable at {OLLAMA_BASE_URL}. "
