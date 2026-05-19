@@ -1,0 +1,63 @@
+services:
+  sample-llm-api:
+    build:
+      context: ../apps/sample-llm-api
+    container_name: olly-sample-llm-api
+    environment:
+      OTEL_SERVICE_NAME: olly-sample-api
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    ports:
+      - "8001:8000"
+    depends_on:
+      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.116.1
+    container_name: olly-otel-collector
+    command: ["--config=/etc/otel-collector.yaml"]
+    volumes:
+      - ../observability/otel-collector.yaml:/etc/otel-collector.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.64.0
+    container_name: olly-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"
+      - "4319:4317"
+
+  prometheus:
+    image: prom/prometheus:v3.0.1
+    container_name: olly-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ../observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../observability/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - sample-llm-api
+      - otel-collector
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: olly-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ../observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus

@@ -1,0 +1,29 @@
+groups:
+  - name: olly-mvp-alerts
+    rules:
+      - alert: OllyHighP95Latency
+        expr: histogram_quantile(0.95, sum(rate(olly_request_duration_seconds_bucket[5m])) by (le)) > 3
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "OLLY p95 latency is high"
+          description: "p95 latency has been above 3 seconds for at least 1 minute."
+
+      - alert: OllyErrorRateHigh
+        expr: sum(rate(olly_errors_total[5m])) / clamp_min(sum(rate(olly_requests_total[5m])), 1) > 0.05
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "OLLY error rate is high"
+          description: "Error rate has been above 5% for at least 1 minute."
+
+      - alert: OllyTokenUsageSpike
+        expr: sum(rate(olly_tokens_total[10m])) > 100
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: "OLLY token usage spike"
+          description: "Token usage is above the MVP demo threshold."
