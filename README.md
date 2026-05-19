@@ -16,6 +16,7 @@ docker compose -f deploy/docker-compose.yml up --build
 
 | 도구 | 주소 |
 | --- | --- |
+| 사용자 챗봇 UI | http://localhost:8001/chat-ui |
 | Sample API | http://localhost:8001/docs |
 | OLLY 통합 웹 대시보드 | http://localhost:8001/dashboard |
 | Ollama | http://localhost:11434 |
@@ -32,6 +33,8 @@ curl -X POST http://localhost:8001/chat \
   -H "Content-Type: application/json" \
   -d '{"question":"OLLY가 뭐야?","feature":"chat","scenario":"normal"}'
 ```
+
+발표에서는 `/docs` 대신 `http://localhost:8001/chat-ui`에서 질문을 보내고, `http://localhost:8001/dashboard`에서 같은 요청의 비용, 토큰, latency, 병목 단계를 확인하는 흐름을 사용하면 됩니다.
 
 지원하는 `scenario` 값:
 

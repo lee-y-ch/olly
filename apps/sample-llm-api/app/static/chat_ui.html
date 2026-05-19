@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html class="dark" lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>OLLY Chat UI</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-surface-variant": "#c2c6d6",
+            "secondary-container": "#00a572",
+            "surface-container-high": "#272a31",
+            "on-secondary": "#003824",
+            "primary": "#adc6ff",
+            "on-surface": "#e1e2eb",
+            "surface": "#10131a",
+            "background": "#10131a",
+            "outline": "#8c909f",
+            "secondary": "#4edea3",
+            "primary-container": "#4d8eff",
+            "surface-container-low": "#191c22",
+            "tertiary": "#ffb95f",
+            "tertiary-container": "#ca8100",
+            "surface-container-lowest": "#0b0e14",
+            "surface-container-highest": "#32353c",
+            "surface-container": "#1d2026",
+            "error": "#ffb4ab",
+            "outline-variant": "#424754",
+            "error-container": "#93000a"
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px"
+          },
+          spacing: {
+            margin: "24px",
+            unit: "4px",
+            gutter: "16px",
+            "container-max": "1440px"
+          },
+          fontFamily: {
+            "label-xs": ["JetBrains Mono"],
+            "data-mono": ["JetBrains Mono"],
+            "headline-lg": ["Inter"],
+            "body-lg": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-md": ["Inter"]
+          },
+          fontSize: {
+            "label-xs": ["11px", { lineHeight: "1.2", fontWeight: "500" }],
+            "data-mono": ["13px", { lineHeight: "1.4", fontWeight: "400" }],
+            "headline-md": ["24px", { lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "600" }],
+            "body-md": ["14px", { lineHeight: "1.5", fontWeight: "400" }]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0b0e14;
+      color: #e1e2eb;
+      margin: 0;
+      overflow: hidden;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #10131a; }
+    ::-webkit-scrollbar-thumb { background: #32353c; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #424754; }
+    .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+    .scenario-active {
+      background: #00a572;
+      color: #00311f;
+      border-left: 4px solid #4edea3;
+    }
+    .scenario-idle {
+      color: #c2c6d6;
+      border-left: 4px solid transparent;
+    }
+  </style>
+</head>
+<body class="flex h-screen w-full bg-surface-container-lowest font-body-md text-body-md">
+  <nav class="fixed left-0 top-0 h-full flex flex-col z-40 bg-surface-container-low border-r border-outline-variant w-64">
+    <div class="px-margin py-6 border-b border-outline-variant flex flex-col gap-unit">
+      <h1 class="font-headline-md text-headline-md text-primary font-bold tracking-tighter">OLLY Chat</h1>
+      <p class="font-label-xs text-label-xs text-on-surface-variant">AI Service Observability Demo</p>
+    </div>
+
+    <div class="flex-1 overflow-y-auto py-4 flex flex-col gap-6">
+      <section class="px-4">
+        <h2 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider mb-2 px-2">Scenario Selection</h2>
+        <div class="flex flex-col gap-1" id="scenarioButtons">
+          <button data-scenario="normal" data-feature="chat" class="scenario-button flex items-center gap-3 px-4 py-3 hover:bg-surface-container-highest transition-colors w-full text-left scenario-active">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span>
+            <span class="font-body-md text-body-md font-medium">Normal Request</span>
+          </button>
+          <button data-scenario="slow_retrieve" data-feature="rag_qa" class="scenario-button flex items-center gap-3 px-4 py-3 hover:bg-surface-container-highest transition-colors w-full text-left scenario-idle">
+            <span class="material-symbols-outlined text-[18px]">hourglass_bottom</span>
+            <span class="font-body-md text-body-md">Slow Retrieval (RAG)</span>
+          </button>
+          <button data-scenario="slow_llm" data-feature="chat" class="scenario-button flex items-center gap-3 px-4 py-3 hover:bg-surface-container-highest transition-colors w-full text-left scenario-idle">
+            <span class="material-symbols-outlined text-[18px]">speed</span>
+            <span class="font-body-md text-body-md">Slow LLM Response</span>
+          </button>
+          <button data-scenario="high_token" data-feature="summary" class="scenario-button flex items-center gap-3 px-4 py-3 hover:bg-surface-container-highest transition-colors w-full text-left scenario-idle">
+            <span class="material-symbols-outlined text-[18px]">data_usage</span>
+            <span class="font-body-md text-body-md">High Token Usage</span>
+          </button>
+          <button data-scenario="error" data-feature="chat" class="scenario-button flex items-center gap-3 px-4 py-3 hover:bg-surface-container-highest transition-colors w-full text-left scenario-idle">
+            <span class="material-symbols-outlined text-[18px] text-error">error</span>
+            <span class="font-body-md text-body-md">Error Occurred</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="px-4">
+        <h2 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider mb-2 px-2">Example Questions</h2>
+        <div class="flex flex-col gap-2 px-2">
+          <button data-question="어제 왜 비용이 2배가 됐지?" class="question-button text-left font-body-md text-body-md text-on-surface bg-[#161B22] border border-[#30363D] p-2 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary">Why did cost double yesterday?</button>
+          <button data-question="어떤 기능이 토큰을 가장 많이 쓰지?" class="question-button text-left font-body-md text-body-md text-on-surface bg-[#161B22] border border-[#30363D] p-2 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary">Which feature uses most tokens?</button>
+          <button data-question="OpenAI가 느린 것인가, 우리 RAG가 느린 것인가?" class="question-button text-left font-body-md text-body-md text-on-surface bg-[#161B22] border border-[#30363D] p-2 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary">Is OpenAI slow or our RAG?</button>
+          <button data-question="응답이 느린 원인을 찾아줘." class="question-button text-left font-body-md text-body-md text-on-surface bg-[#161B22] border border-[#30363D] p-2 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary">Find the bottleneck.</button>
+          <button data-question="이 요청은 왜 실패했어?" class="question-button text-left font-body-md text-body-md text-on-surface bg-[#161B22] border border-[#30363D] p-2 hover:border-primary transition-colors focus:outline-none focus:ring-1 focus:ring-primary">Why did this fail?</button>
+        </div>
+      </section>
+    </div>
+  </nav>
+
+  <main class="ml-64 flex-1 flex flex-col h-screen bg-surface-container-lowest relative">
+    <header class="flex justify-between items-center w-full px-margin py-unit h-16 bg-surface border-b border-outline-variant z-10 shrink-0">
+      <div class="flex items-center gap-6 h-full">
+        <a class="h-full flex items-center text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md" href="/chat-ui">Chat UI</a>
+        <a class="h-full flex items-center text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors duration-150 px-2 font-body-md text-body-md" href="/dashboard">Operator Dashboard</a>
+      </div>
+      <div class="flex items-center gap-4 text-primary">
+        <a href="/docs" class="hover:bg-surface-container-high p-2 rounded transition-colors duration-150 active:opacity-80 active:scale-95" title="API Docs">
+          <span class="material-symbols-outlined">description</span>
+        </a>
+        <a href="/dashboard" class="hover:bg-surface-container-high p-2 rounded transition-colors duration-150 active:opacity-80 active:scale-95" title="Dashboard">
+          <span class="material-symbols-outlined">query_stats</span>
+        </a>
+        <button id="clearChat" class="hover:bg-surface-container-high p-2 rounded transition-colors duration-150 active:opacity-80 active:scale-95" title="Clear">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
+    </header>
+
+    <div id="chatHistory" class="flex-1 overflow-y-auto p-margin flex flex-col gap-6 pb-32">
+      <div class="flex justify-start w-full">
+        <div class="flex flex-col gap-2 max-w-[80%]">
+          <div class="bg-[#161B22] border border-[#30363D] p-4 rounded-tl-lg rounded-tr-lg rounded-br-lg">
+            <div class="flex items-center gap-2 mb-2 border-b border-[#30363D] pb-2">
+              <span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
+              <span class="font-label-xs text-label-xs text-on-surface-variant">OLLY Assistant</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface">질문을 보내면 OLLY가 답변과 함께 latency, tokens, cost, trace_id를 기록합니다. 왼쪽에서 발표용 시나리오를 고르고 질문을 전송해보세요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="absolute bottom-0 w-full bg-surface-container-lowest border-t border-outline-variant p-4">
+      <div class="max-w-4xl mx-auto flex items-end gap-2 bg-[#0B0E14] border border-[#30363D] rounded-lg p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+        <textarea id="questionInput" class="flex-1 bg-transparent border-none text-on-surface font-body-md text-body-md focus:ring-0 resize-none max-h-32 p-2 outline-none" placeholder="Ask OLLY to analyze a trace, cost, or error..." rows="1" style="min-height:44px;"></textarea>
+        <div class="flex flex-col items-end gap-1 shrink-0 p-1">
+          <span class="font-label-xs text-label-xs text-outline pr-1">Enter to send</span>
+          <button id="sendButton" class="bg-[#3B82F6] hover:bg-primary-container text-white p-2 rounded flex items-center justify-center transition-colors">
+            <span class="material-symbols-outlined text-[20px]">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const state = {
+      feature: "chat",
+      scenario: "normal",
+      busy: false,
+    };
+
+    const chatHistory = document.getElementById("chatHistory");
+    const questionInput = document.getElementById("questionInput");
+    const sendButton = document.getElementById("sendButton");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatUsd(value) {
+      return `$${Number(value || 0).toFixed(6)}`;
+    }
+
+    function scrollToBottom() {
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function setScenario(button) {
+      state.scenario = button.dataset.scenario;
+      state.feature = button.dataset.feature;
+      document.querySelectorAll(".scenario-button").forEach((item) => {
+        item.classList.remove("scenario-active");
+        item.classList.add("scenario-idle");
+      });
+      button.classList.add("scenario-active");
+      button.classList.remove("scenario-idle");
+    }
+
+    function addUserMessage(question) {
+      chatHistory.insertAdjacentHTML("beforeend", `
+        <div class="flex justify-end w-full">
+          <div class="bg-surface-container-highest border border-outline-variant max-w-[70%] p-4 rounded-tl-lg rounded-tr-lg rounded-bl-lg">
+            <p class="font-body-md text-body-md text-on-surface">${escapeHtml(question)}</p>
+          </div>
+        </div>
+      `);
+      scrollToBottom();
+    }
+
+    function addLoading() {
+      const id = `loading-${Date.now()}`;
+      chatHistory.insertAdjacentHTML("beforeend", `
+        <div id="${id}" class="flex justify-start w-full">
+          <div class="bg-[#161B22] border border-[#30363D] p-4 rounded-tl-lg rounded-tr-lg rounded-br-lg w-64">
+            <div class="flex gap-2 items-center">
+              <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay:0ms"></div>
+              <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay:150ms"></div>
+              <div class="w-2 h-2 bg-primary rounded-full animate-bounce" style="animation-delay:300ms"></div>
+            </div>
+          </div>
+        </div>
+      `);
+      scrollToBottom();
+      return id;
+    }
+
+    function metadataBar(data) {
+      const totalTokens = Number(data.input_tokens || 0) + Number(data.output_tokens || 0);
+      const latencyClass = Number(data.latency_ms || 0) >= 1000 ? "bg-tertiary-container/20 border border-tertiary px-1 rounded text-tertiary" : "text-secondary";
+      return `
+        <div class="bg-[#0B0E14] border border-[#30363D] px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-2 rounded">
+          <div class="flex items-center gap-1"><span class="font-label-xs text-label-xs text-on-surface-variant">REQ:</span><span class="font-data-mono text-data-mono text-on-surface">${escapeHtml(data.request_id)}</span></div>
+          <div class="flex items-center gap-1"><span class="font-label-xs text-label-xs text-on-surface-variant">TRACE:</span><span class="font-data-mono text-data-mono text-on-surface">${escapeHtml(data.trace_id)}</span></div>
+          <div class="flex items-center gap-1 ${latencyClass}"><span class="font-label-xs text-label-xs text-on-surface-variant">LATENCY:</span><span class="font-data-mono text-data-mono font-medium">${Number(data.latency_ms || 0)}ms</span></div>
+          <div class="flex items-center gap-1"><span class="font-label-xs text-label-xs text-on-surface-variant">TOKENS:</span><span class="font-data-mono text-data-mono text-on-surface">${totalTokens}</span></div>
+          <div class="flex items-center gap-1"><span class="font-label-xs text-label-xs text-on-surface-variant">COST:</span><span class="font-data-mono text-data-mono text-on-surface">${formatUsd(data.cost_usd)}</span></div>
+          <div class="flex items-center gap-1"><span class="font-label-xs text-label-xs text-on-surface-variant">MODEL:</span><span class="font-data-mono text-data-mono text-on-surface">${escapeHtml(data.model)}</span></div>
+          <a href="/dashboard" class="ml-auto text-primary font-label-xs text-label-xs hover:underline flex items-center gap-1">View in Dashboard <span class="material-symbols-outlined text-[14px]">open_in_new</span></a>
+        </div>
+      `;
+    }
+
+    function addAssistantMessage(data) {
+      chatHistory.insertAdjacentHTML("beforeend", `
+        <div class="flex justify-start w-full">
+          <div class="flex flex-col gap-2 max-w-[80%]">
+            <div class="bg-[#161B22] border border-[#30363D] p-4 rounded-tl-lg rounded-tr-lg rounded-br-lg">
+              <div class="flex items-center gap-2 mb-2 border-b border-[#30363D] pb-2">
+                <span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
+                <span class="font-label-xs text-label-xs text-on-surface-variant">OLLY Assistant</span>
+              </div>
+              <p class="font-body-md text-body-md text-on-surface whitespace-pre-wrap">${escapeHtml(data.answer)}</p>
+            </div>
+            ${metadataBar(data)}
+          </div>
+        </div>
+      `);
+      scrollToBottom();
+    }
+
+    function addErrorMessage(message) {
+      chatHistory.insertAdjacentHTML("beforeend", `
+        <div class="flex justify-start w-full">
+          <div class="flex flex-col gap-2 max-w-[80%]">
+            <div class="bg-error-container/10 border border-error p-4 rounded-tl-lg rounded-tr-lg rounded-br-lg">
+              <div class="flex items-center gap-2 mb-2 border-b border-error/30 pb-2">
+                <span class="material-symbols-outlined text-error text-[18px]">error</span>
+                <span class="font-label-xs text-label-xs text-error">Execution Failed</span>
+              </div>
+              <p class="font-body-md text-body-md text-error">${escapeHtml(message)}</p>
+            </div>
+            <div class="bg-[#0B0E14] border border-[#30363D] px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-2 rounded">
+              <div class="flex items-center gap-1 bg-error-container/20 border border-error px-1 rounded">
+                <span class="font-label-xs text-label-xs text-error">STATUS:</span>
+                <span class="font-data-mono text-data-mono text-error font-medium">ERROR</span>
+              </div>
+              <a href="/dashboard" class="ml-auto text-primary font-label-xs text-label-xs hover:underline flex items-center gap-1">View in Dashboard <span class="material-symbols-outlined text-[14px]">open_in_new</span></a>
+            </div>
+          </div>
+        </div>
+      `);
+      scrollToBottom();
+    }
+
+    async function sendQuestion() {
+      const question = questionInput.value.trim();
+      if (!question || state.busy) return;
+      state.busy = true;
+      sendButton.disabled = true;
+      addUserMessage(question);
+      questionInput.value = "";
+      questionInput.style.height = "44px";
+      const loadingId = addLoading();
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question,
+            feature: state.feature,
+            scenario: state.scenario,
+          }),
+        });
+        const payload = await response.json();
+        document.getElementById(loadingId)?.remove();
+        if (!response.ok) {
+          addErrorMessage(payload.detail || "Request failed");
+          return;
+        }
+        addAssistantMessage(payload);
+      } catch (error) {
+        document.getElementById(loadingId)?.remove();
+        addErrorMessage(error.message || "Network error");
+      } finally {
+        state.busy = false;
+        sendButton.disabled = false;
+      }
+    }
+
+    document.querySelectorAll(".scenario-button").forEach((button) => {
+      button.addEventListener("click", () => setScenario(button));
+    });
+    document.querySelectorAll(".question-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        questionInput.value = button.dataset.question;
+        questionInput.focus();
+      });
+    });
+    sendButton.addEventListener("click", sendQuestion);
+    questionInput.addEventListener("input", () => {
+      questionInput.style.height = "44px";
+      questionInput.style.height = `${Math.min(questionInput.scrollHeight, 128)}px`;
+    });
+    questionInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendQuestion();
+      }
+    });
+    document.getElementById("clearChat").addEventListener("click", () => {
+      chatHistory.innerHTML = "";
+      addAssistantMessage({
+        answer: "대화 기록을 지웠습니다. 새 질문을 보내면 OLLY가 다시 관측 데이터를 기록합니다.",
+        request_id: "-",
+        trace_id: "-",
+        latency_ms: 0,
+        input_tokens: 0,
+        output_tokens: 0,
+        cost_usd: 0,
+        model: "gemma3:1b",
+      });
+    });
+  </script>
+</body>
+</html>

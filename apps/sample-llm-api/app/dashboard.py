@@ -27,6 +27,12 @@ async def dashboard() -> HTMLResponse:
     return HTMLResponse(dashboard_path.read_text(encoding="utf-8"))
 
 
+@router.get("/chat-ui", response_class=HTMLResponse)
+async def chat_ui() -> HTMLResponse:
+    chat_ui_path = Path(__file__).parent / "static" / "chat_ui.html"
+    return HTMLResponse(chat_ui_path.read_text(encoding="utf-8"))
+
+
 @router.get("/api/dashboard/summary")
 async def dashboard_summary(window: str = Query("1h", pattern="^(15m|1h|6h|24h)$")) -> dict[str, Any]:
     async with httpx.AsyncClient(timeout=8.0) as client:
@@ -40,6 +46,10 @@ async def dashboard_summary(window: str = Query("1h", pattern="^(15m|1h|6h|24h)$
             "p95_latency_seconds": (
                 "histogram_quantile(0.95, "
                 f"sum by (le) (increase(olly_request_duration_seconds_bucket[{window}])))"
+            ),
+            "avg_latency_seconds": (
+                f"sum(increase(olly_request_duration_seconds_sum[{window}])) "
+                f"/ clamp_min(sum(increase(olly_request_duration_seconds_count[{window}])), 1)"
             ),
             "error_rate_percent": (
                 f"100 * sum(increase(olly_requests_total{{status=\"error\"}}[{window}])) "
