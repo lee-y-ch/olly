@@ -17,6 +17,7 @@ docker compose -f deploy/docker-compose.yml up --build
 | 도구 | 주소 |
 | --- | --- |
 | Sample API | http://localhost:8001/docs |
+| OLLY 통합 웹 대시보드 | http://localhost:8001/dashboard |
 | Ollama | http://localhost:11434 |
 | Prometheus | http://localhost:9090 |
 | Jaeger | http://localhost:16686 |

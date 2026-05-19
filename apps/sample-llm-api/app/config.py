@@ -17,6 +17,9 @@ class Settings:
     llm_backend: str
     local_compute_resource: str
     local_compute_hourly_usd: float
+    prometheus_url: str
+    jaeger_url: str
+    public_jaeger_url: str
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -24,4 +27,7 @@ class Settings:
             llm_backend=os.getenv("LLM_BACKEND", "mock").lower(),
             local_compute_resource=os.getenv("LOCAL_COMPUTE_RESOURCE", "cpu").lower(),
             local_compute_hourly_usd=_float_from_env("LOCAL_COMPUTE_HOURLY_USD", 0.05),
+            prometheus_url=os.getenv("PROMETHEUS_URL", "http://localhost:9090").rstrip("/"),
+            jaeger_url=os.getenv("JAEGER_URL", "http://localhost:16686").rstrip("/"),
+            public_jaeger_url=os.getenv("PUBLIC_JAEGER_URL", "http://localhost:16686").rstrip("/"),
         )

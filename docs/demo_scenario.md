@@ -13,6 +13,7 @@ docker compose -f deploy/docker-compose.yml up --build
 | 도구 | 주소 |
 | --- | --- |
 | API 문서 | http://localhost:8001/docs |
+| OLLY 통합 웹 대시보드 | http://localhost:8001/dashboard |
 | Ollama | http://localhost:11434 |
 | Prometheus | http://localhost:9090 |
 | Jaeger | http://localhost:16686 |
@@ -59,15 +60,15 @@ curl -X POST http://localhost:8001/chat \
 
 ## 7. 발표 흐름
 
-1. `/chat` API에 여러 시나리오 요청을 보낸다.
-2. Grafana에서 총 요청 수, 토큰 수, 예상 비용, p95 latency가 증가하는지 확인한다.
-3. `Cost Breakdown`에서 로컬 모델의 API 토큰 비용은 0이고, 추론 시간 기반 인프라 비용이 증가하는지 확인한다.
-4. `Bottleneck by Stage p95`에서 `retrieve`, `llm_call`, `postprocess` 중 어느 단계가 느린지 확인한다.
-5. Jaeger에서 `olly-sample-api` 서비스를 선택한다.
-6. 느린 trace를 하나 열고 `retrieve`, `llm_call`, `postprocess` span을 확인한다.
-7. `slow_retrieve` 요청에서는 retrieve 단계가 병목임을 설명한다.
-8. `high_token` 요청에서는 token과 cost metric이 증가하는 것을 설명한다.
-9. Grafana에서 `LLM p95 Duration`, `Generation Tokens/sec` 패널로 `gemma3:1b`의 로컬 생성 성능을 확인한다.
+1. `http://localhost:8001/dashboard`를 연다.
+2. 왼쪽의 `데모 요청 생성`에서 `normal`, `slow_retrieve`, `high_token`, `error`를 실행한다.
+3. 상단 카드에서 총 요청 수, 토큰 수, 예상 비용, p95 latency, 에러율이 바뀌는지 확인한다.
+4. `비용 분석`에서 기능별 비용과 로컬 추론 시간 기반 인프라 비용을 설명한다.
+5. `단계별 병목 분석`에서 `retrieve`, `llm_call`, `postprocess` 중 어느 단계가 느린지 확인한다.
+6. `최근 요청 내역`에서 느린 요청을 클릭한다.
+7. 오른쪽 상세 패널에서 요청 하나의 waterfall을 확인한다.
+8. 더 자세한 trace가 필요하면 `Open in Jaeger`를 눌러 Jaeger 원본 trace를 연다.
+9. 필요하면 Grafana, Prometheus, Jaeger를 각각 열어 원본 도구와 통합 대시보드가 같은 데이터를 보고 있음을 보여준다.
 
 ## 8. 발표 설명 예시
 

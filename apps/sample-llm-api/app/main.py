@@ -7,6 +7,7 @@ from opentelemetry import trace
 
 from app import mock_llm, ollama_llm
 from app.config import Settings
+from app.dashboard import router as dashboard_router
 from app.metrics import CostBreakdown, RequestMetricLabels, record_error, record_llm_duration, record_success
 from app.metrics import stage_timer
 from app.mock_llm import postprocess, retrieve
@@ -28,6 +29,7 @@ llm_client = LLM_CLIENTS[settings.llm_backend]
 
 
 app = FastAPI(title="OLLY Sample LLM API", version="0.1.0")
+app.include_router(dashboard_router)
 setup_telemetry(app)
 tracer = get_tracer()
 

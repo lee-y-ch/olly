@@ -9,6 +9,9 @@ services:
       OLLAMA_MODEL: gemma3:1b
       LOCAL_COMPUTE_RESOURCE: cpu
       LOCAL_COMPUTE_HOURLY_USD: "0.05"
+      PROMETHEUS_URL: http://prometheus:9090
+      JAEGER_URL: http://jaeger:16686
+      PUBLIC_JAEGER_URL: http://localhost:16686
       OTEL_SERVICE_NAME: olly-sample-api
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     ports:

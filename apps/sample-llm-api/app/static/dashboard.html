@@ -1,0 +1,1285 @@
+<!doctype html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OLLY LLM Observability Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,500,0,0&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background: #10131a;
+      --surface: #171a21;
+      --surface-low: #11151c;
+      --surface-high: #20242d;
+      --surface-highest: #2b303a;
+      --line: #414753;
+      --line-soft: rgba(141, 146, 160, 0.26);
+      --text: #e6e8ef;
+      --muted: #aeb5c4;
+      --faint: #7f8796;
+      --primary: #adc6ff;
+      --primary-strong: #4d8eff;
+      --secondary: #b7c8e1;
+      --tertiary: #ffb786;
+      --good: #4ade80;
+      --warn: #facc15;
+      --bad: #ffb4ab;
+      --bad-strong: #ef4444;
+      --radius: 8px;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background: var(--background);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+      height: 100vh;
+      min-width: 0;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 18px 12px;
+      border-right: 1px solid var(--line);
+      background: var(--surface-low);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 14px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 50%;
+      background: #274a87;
+      color: var(--primary);
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 800;
+    }
+
+    .brand-subtitle {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 38px;
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .nav-button.active {
+      background: #30445f;
+      color: #d3e4fe;
+    }
+
+    .nav-button:hover {
+      background: var(--surface-high);
+      color: var(--text);
+    }
+
+    .scenario-box {
+      margin-top: auto;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .scenario-box label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .scenario-box select,
+    .scenario-box button {
+      width: 100%;
+      min-height: 36px;
+      border-radius: 6px;
+    }
+
+    .scenario-box select {
+      margin-bottom: 8px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      background: var(--surface-high);
+      color: var(--text);
+    }
+
+    .primary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--primary);
+      color: #09234e;
+      font-weight: 800;
+    }
+
+    .main {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: var(--background);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .wordmark {
+      color: var(--primary);
+      font-size: 30px;
+      line-height: 36px;
+      font-weight: 800;
+    }
+
+    .divider {
+      width: 1px;
+      height: 24px;
+      background: var(--line);
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 700;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .select-shell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface-highest);
+    }
+
+    .select-shell select {
+      min-width: 110px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .icon-button {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .icon-button:hover {
+      background: var(--surface-high);
+      color: var(--text);
+    }
+
+    .canvas {
+      flex: 1;
+      overflow: auto;
+      padding: 24px;
+    }
+
+    .content {
+      display: flex;
+      max-width: 1600px;
+      min-width: 0;
+      margin: 0 auto;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 16px;
+    }
+
+    .card,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .card {
+      min-height: 112px;
+      padding: 16px;
+    }
+
+    .card.danger {
+      border-color: rgba(255, 180, 171, 0.75);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .card-title.danger {
+      color: var(--bad);
+    }
+
+    .metric-line {
+      display: flex;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .metric-value {
+      font-size: 30px;
+      line-height: 36px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .metric-note {
+      color: var(--faint);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      line-height: 15px;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      text-align: left;
+    }
+
+    .middle-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .panel {
+      min-height: 260px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(43, 48, 58, 0.42);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 17px;
+      line-height: 24px;
+      font-weight: 800;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    .bar-chart {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: end;
+      gap: 10px;
+      height: 150px;
+      padding: 8px 6px 0;
+      border-bottom: 1px dashed var(--line);
+    }
+
+    .bar-cell {
+      display: flex;
+      height: 100%;
+      min-width: 0;
+      flex-direction: column;
+      justify-content: end;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .bar {
+      width: 100%;
+      min-height: 2px;
+      border-radius: 5px 5px 0 0;
+      background: var(--primary-strong);
+    }
+
+    .bar.secondary { background: var(--secondary); }
+    .bar.tertiary { background: var(--tertiary); }
+    .bar.muted { background: var(--line); }
+
+    .bar-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .stage-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .track {
+      height: 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-low);
+    }
+
+    .fill {
+      height: 100%;
+      min-width: 2px;
+      border-radius: 999px;
+      background: var(--secondary);
+    }
+
+    .fill.hot { background: var(--bad-strong); }
+    .fill.warm { background: var(--tertiary); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid rgba(255, 180, 171, 0.35);
+      border-radius: 999px;
+      background: rgba(255, 180, 171, 0.12);
+      color: var(--bad);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .alert-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .alert-item {
+      min-height: 58px;
+      padding: 10px;
+      border: 1px solid rgba(250, 204, 21, 0.35);
+      border-radius: var(--radius);
+      background: rgba(250, 204, 21, 0.08);
+    }
+
+    .alert-name {
+      color: var(--warn);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .alert-desc {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .table-panel {
+      min-height: 330px;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .search {
+      width: 220px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      outline: 0;
+      background: var(--surface-low);
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th {
+      height: 40px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-low);
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    td {
+      height: 46px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line-soft);
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      cursor: pointer;
+    }
+
+    tbody tr:hover,
+    tbody tr.selected {
+      background: rgba(173, 198, 255, 0.08);
+    }
+
+    .right { text-align: right; }
+    .center { text-align: center; }
+    .mono { font-family: "JetBrains Mono", monospace; }
+    .muted { color: var(--muted); }
+    .primary { color: var(--primary); }
+    .bad { color: var(--bad); }
+
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--good);
+    }
+
+    .dot.error { background: var(--bad-strong); }
+
+    .link-button {
+      padding: 0;
+      background: transparent;
+      color: var(--primary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      width: 450px;
+      max-width: 90vw;
+      height: 100vh;
+      transform: translateX(0);
+      flex-direction: column;
+      padding: 22px;
+      border-left: 1px solid var(--line);
+      background: var(--surface-high);
+      box-shadow: -16px 0 34px rgba(0, 0, 0, 0.35);
+      transition: transform 160ms ease;
+    }
+
+    .drawer.hidden {
+      transform: translateX(100%);
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .drawer-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 800;
+    }
+
+    .trace-chip {
+      display: inline-flex;
+      max-width: 360px;
+      padding: 4px 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 183, 134, 0.35);
+      border-radius: 999px;
+      background: rgba(255, 183, 134, 0.11);
+      color: var(--tertiary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 0 12px;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tab.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(173, 198, 255, 0.08);
+    }
+
+    .drawer-scroll {
+      flex: 1;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 22px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .summary-label {
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .waterfall {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .log-box {
+      min-height: 130px;
+      padding: 12px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #0b0e15;
+      color: var(--muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      line-height: 18px;
+      white-space: pre;
+    }
+
+    .empty {
+      padding: 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .material-symbols-outlined {
+      font-family: "Material Symbols Outlined";
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-feature-settings: "liga";
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--background); }
+    ::-webkit-scrollbar-thumb { background: var(--surface-highest); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--line); }
+
+    @media (max-width: 1180px) {
+      .middle-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .topbar {
+        align-items: flex-start;
+        height: auto;
+        min-height: 64px;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px 24px;
+      }
+
+      .toolbar {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 72px minmax(0, 1fr);
+      }
+
+      .sidebar {
+        padding: 14px 8px;
+      }
+
+      .brand {
+        justify-content: center;
+        padding: 0 0 12px;
+      }
+
+      .brand > div:last-child,
+      .nav-button:not(.active)::after,
+      .nav-button span + text,
+      .scenario-box label,
+      .scenario-box select {
+        display: none;
+      }
+
+      .nav-button {
+        justify-content: center;
+      }
+
+      .nav-button {
+        font-size: 0;
+      }
+
+      .nav-button .material-symbols-outlined {
+        font-size: 22px;
+      }
+
+      .scenario-box {
+        padding: 8px;
+      }
+
+      .scenario-box button {
+        width: 44px;
+        padding: 0;
+        font-size: 0;
+      }
+
+      .scenario-box button .material-symbols-outlined {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><span class="material-symbols-outlined">monitor_heart</span></div>
+        <div>
+          <h2 class="brand-title">OLLY Engine</h2>
+          <p class="brand-subtitle">mvp-web-dashboard</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="OLLY navigation">
+        <button class="nav-button active"><span class="material-symbols-outlined">dashboard</span>통합 대시보드</button>
+        <button class="nav-button" data-scroll="cost"><span class="material-symbols-outlined">payments</span>비용 분석</button>
+        <button class="nav-button" data-scroll="trace"><span class="material-symbols-outlined">account_tree</span>트레이스</button>
+        <button class="nav-button" data-scroll="alerts"><span class="material-symbols-outlined">notifications_active</span>알림</button>
+      </nav>
+
+      <div class="scenario-box">
+        <label for="scenarioSelect">데모 요청 생성</label>
+        <select id="scenarioSelect">
+          <option value="normal">normal</option>
+          <option value="slow_retrieve">slow_retrieve</option>
+          <option value="slow_llm">slow_llm</option>
+          <option value="high_token">high_token</option>
+          <option value="error">error</option>
+        </select>
+        <button id="runScenario" class="primary-button">
+          <span class="material-symbols-outlined">play_arrow</span>
+          새 분석 시작
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="title-row">
+          <div class="wordmark">OLLY</div>
+          <div class="divider"></div>
+          <h1 class="page-title">LLM 관측성 대시보드</h1>
+        </div>
+        <div class="toolbar">
+          <div class="select-shell">
+            <select id="windowSelect" aria-label="시간 범위">
+              <option value="15m">Last 15m</option>
+              <option value="1h" selected>Last 1h</option>
+              <option value="6h">Last 6h</option>
+              <option value="24h">Last 24h</option>
+            </select>
+          </div>
+          <div class="select-shell">
+            <select id="modelSelect" aria-label="모델 필터">
+              <option>All Models</option>
+            </select>
+          </div>
+          <button class="icon-button" id="refreshButton" title="Refresh">
+            <span class="material-symbols-outlined">refresh</span>
+          </button>
+          <button class="icon-button" title="Auto refresh 5s">
+            <span class="material-symbols-outlined">schedule</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="canvas">
+        <div class="content">
+          <section class="kpi-grid" aria-label="핵심 지표">
+            <article class="card">
+              <h3 class="card-title">전체 요청 수</h3>
+              <div class="metric-line">
+                <div class="metric-value" id="kpiRequests">-</div>
+                <div class="metric-note">선택 구간</div>
+              </div>
+            </article>
+            <article class="card">
+              <h3 class="card-title">전체 토큰 사용량</h3>
+              <div class="metric-line">
+                <div class="metric-value" id="kpiTokens">-</div>
+                <div class="metric-note">입력 + 출력</div>
+              </div>
+            </article>
+            <article class="card">
+              <h3 class="card-title">예상 비용</h3>
+              <div class="metric-line">
+                <div class="metric-value" id="kpiCost">-</div>
+                <div class="metric-note" id="kpiCostNote">토큰/인프라</div>
+              </div>
+            </article>
+            <article class="card danger">
+              <h3 class="card-title danger"><span class="material-symbols-outlined">warning</span>p95 Latency</h3>
+              <div class="metric-line">
+                <div class="metric-value" id="kpiLatency">-</div>
+                <div class="metric-note">느린 5%</div>
+              </div>
+            </article>
+            <article class="card">
+              <h3 class="card-title">Error Rate</h3>
+              <div class="metric-line">
+                <div class="metric-value" id="kpiErrorRate">-</div>
+                <div class="metric-note">실패 비율</div>
+              </div>
+            </article>
+          </section>
+
+          <section class="middle-grid">
+            <article class="panel" id="cost">
+              <div class="panel-header">
+                <h2 class="panel-title">비용 분석</h2>
+                <span class="badge" id="computeBadge">local compute</span>
+              </div>
+              <div class="panel-body">
+                <div class="bar-chart" id="costBars"></div>
+              </div>
+            </article>
+
+            <article class="panel" id="trace">
+              <div class="panel-header">
+                <h2 class="panel-title">단계별 병목 분석</h2>
+                <span class="badge" id="bottleneckBadge">stage p95</span>
+              </div>
+              <div class="panel-body">
+                <div class="stage-list" id="stageList"></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="middle-grid">
+            <article class="panel">
+              <div class="panel-header">
+                <h2 class="panel-title">기능별 사용량</h2>
+                <span class="muted mono" id="tpsBadge">tokens/sec -</span>
+              </div>
+              <div class="panel-body">
+                <div class="bar-chart" id="tokenBars"></div>
+              </div>
+            </article>
+
+            <article class="panel" id="alerts">
+              <div class="panel-header">
+                <h2 class="panel-title">실시간 알림</h2>
+                <span class="badge" id="alertCount">0 active</span>
+              </div>
+              <div class="panel-body">
+                <div class="alert-list" id="alertList"></div>
+              </div>
+            </article>
+          </section>
+
+          <section class="panel table-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">최근 요청 내역</h2>
+              <div class="table-toolbar">
+                <input id="traceSearch" class="search" placeholder="Trace ID 검색" />
+              </div>
+            </div>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="center">상태</th>
+                    <th>시간</th>
+                    <th>요청 ID</th>
+                    <th>기능</th>
+                    <th>모델</th>
+                    <th>시나리오</th>
+                    <th class="right">Latency</th>
+                    <th class="right">Tokens</th>
+                    <th class="right">Cost</th>
+                    <th class="center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="requestRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="drawer hidden" id="drawer" aria-label="요청 상세 정보">
+    <div class="drawer-header">
+      <div>
+        <h2 class="drawer-title">요청 상세 정보</h2>
+        <div class="trace-chip" id="drawerTrace">trace id</div>
+      </div>
+      <button class="icon-button" id="closeDrawer" title="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active"><span class="material-symbols-outlined">reorder</span>워터폴</button>
+      <button class="tab"><span class="material-symbols-outlined">data_object</span>메타데이터</button>
+      <button class="tab"><span class="material-symbols-outlined">info</span>연결</button>
+    </div>
+
+    <div class="drawer-scroll">
+      <div class="summary-grid">
+        <div>
+          <div class="summary-label">상태</div>
+          <div id="detailStatus">-</div>
+        </div>
+        <div>
+          <div class="summary-label">총 소요 시간</div>
+          <div id="detailLatency">-</div>
+        </div>
+        <div>
+          <div class="summary-label">토큰</div>
+          <div id="detailTokens">-</div>
+        </div>
+        <div>
+          <div class="summary-label">비용</div>
+          <div id="detailCost">-</div>
+        </div>
+      </div>
+
+      <h3 class="panel-title" style="margin-bottom:12px;">단계별 실행 시간</h3>
+      <div class="waterfall" id="detailStages"></div>
+
+      <h3 class="panel-title" style="margin-bottom:12px;">최근 로그</h3>
+      <div class="log-box" id="detailLogs"></div>
+    </div>
+  </aside>
+
+  <script>
+    const state = {
+      data: null,
+      selectedTraceId: null,
+      autoRefresh: null,
+    };
+
+    const scenarioQuestions = {
+      normal: "OLLY가 뭐야?",
+      slow_retrieve: "OpenAI가 느린 것인가, 우리 RAG가 느린 것인가?",
+      slow_llm: "왜 응답이 느려?",
+      high_token: "어제 왜 비용이 2배가 됐는지 자세히 분석해줘",
+      error: "에러 상황을 보여줘",
+    };
+
+    const fmt = {
+      number(value) {
+        const n = Number(value || 0);
+        if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(2)}B`;
+        if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+        if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+        return `${Math.round(n)}`;
+      },
+      usd(value) {
+        return `$${Number(value || 0).toFixed(6)}`;
+      },
+      ms(value) {
+        const ms = Number(value || 0);
+        if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`;
+        return `${ms.toFixed(0)}ms`;
+      },
+      seconds(value) {
+        return this.ms(Number(value || 0) * 1000);
+      },
+      percent(value) {
+        return `${Number(value || 0).toFixed(2)}%`;
+      },
+      time(us) {
+        if (!us) return "-";
+        return new Date(us / 1000).toLocaleTimeString("ko-KR", { hour12: false });
+      },
+    };
+
+    async function loadDashboard() {
+      const windowValue = document.getElementById("windowSelect").value;
+      const response = await fetch(`/api/dashboard/summary?window=${encodeURIComponent(windowValue)}`);
+      if (!response.ok) throw new Error(`dashboard API failed: ${response.status}`);
+      state.data = await response.json();
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const { kpis, breakdowns, alerts, recent_requests } = state.data;
+      document.getElementById("kpiRequests").textContent = fmt.number(kpis.total_requests);
+      document.getElementById("kpiTokens").textContent = fmt.number(kpis.total_tokens);
+      document.getElementById("kpiCost").textContent = fmt.usd(kpis.estimated_cost_usd);
+      document.getElementById("kpiCostNote").textContent = `${fmt.usd(kpis.token_cost_usd)} token / ${fmt.usd(kpis.infra_cost_usd)} infra`;
+      document.getElementById("kpiLatency").textContent = fmt.seconds(kpis.p95_latency_seconds);
+      document.getElementById("kpiErrorRate").textContent = fmt.percent(kpis.error_rate_percent);
+      document.getElementById("computeBadge").textContent = `${fmt.seconds(kpis.compute_seconds)} compute`;
+      document.getElementById("tpsBadge").textContent = `tokens/sec ${Number(kpis.tokens_per_second || 0).toFixed(2)}`;
+
+      renderBars("costBars", breakdowns.cost_by_feature, "cost");
+      renderBars("tokenBars", breakdowns.tokens_by_feature, "tokens");
+      renderStages(breakdowns.stage_p95_seconds);
+      renderAlerts(alerts);
+      renderRequests(recent_requests);
+      syncModelOptions(recent_requests);
+    }
+
+    function renderBars(id, rows, type) {
+      const el = document.getElementById(id);
+      const normalized = rows && rows.length ? rows.slice(0, 4) : [{ label: "no data", value: 0 }];
+      const max = Math.max(...normalized.map((row) => row.value), 0.000001);
+      const classes = ["", "secondary", "tertiary", "muted"];
+      el.innerHTML = normalized.map((row, index) => {
+        const height = Math.max(4, Math.round((row.value / max) * 100));
+        const value = type === "cost" ? fmt.usd(row.value) : fmt.number(row.value);
+        return `
+          <div class="bar-cell" title="${row.label}: ${value}">
+            <div class="bar ${classes[index] || "muted"}" style="height:${height}%"></div>
+            <div class="bar-label">${escapeHtml(row.label)}</div>
+            <div class="mono muted">${value}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderStages(rows) {
+      const el = document.getElementById("stageList");
+      const ordered = ["retrieve", "llm_call", "postprocess"].map((name) => {
+        return rows.find((row) => row.label === name) || { label: name, value: 0 };
+      });
+      const max = Math.max(...ordered.map((row) => row.value), 0.000001);
+      const bottleneck = ordered.reduce((maxRow, row) => row.value > maxRow.value ? row : maxRow, ordered[0]);
+      document.getElementById("bottleneckBadge").textContent = `${bottleneck.label} 병목 후보`;
+      el.innerHTML = ordered.map((row) => {
+        const width = Math.max(2, Math.round((row.value / max) * 100));
+        const tone = row.value === bottleneck.value && row.value > 0 ? "hot" : row.value > max * 0.55 ? "warm" : "";
+        return `
+          <div>
+            <div class="stage-head">
+              <span>${row.label}</span>
+              <span class="${tone === "hot" ? "bad" : "muted"}">${fmt.seconds(row.value)}</span>
+            </div>
+            <div class="track"><div class="fill ${tone}" style="width:${width}%"></div></div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAlerts(alerts) {
+      const el = document.getElementById("alertList");
+      document.getElementById("alertCount").textContent = `${alerts.length} active`;
+      if (!alerts.length) {
+        el.innerHTML = `<div class="empty" style="grid-column:1 / -1;">현재 활성화된 알림이 없습니다.</div>`;
+        return;
+      }
+      el.innerHTML = alerts.slice(0, 4).map((alert) => `
+        <div class="alert-item">
+          <div class="alert-name">${escapeHtml(alert.name)} · ${escapeHtml(alert.severity)}</div>
+          <div class="alert-desc">${escapeHtml(alert.summary || alert.state)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderRequests(rows) {
+      const body = document.getElementById("requestRows");
+      const search = document.getElementById("traceSearch").value.trim().toLowerCase();
+      const filtered = (rows || []).filter((row) => {
+        if (!search) return true;
+        return `${row.trace_id} ${row.request_id} ${row.feature} ${row.scenario}`.toLowerCase().includes(search);
+      });
+      if (!filtered.length) {
+        body.innerHTML = `<tr><td colspan="10" class="empty">최근 POST /chat trace가 없습니다. 왼쪽의 새 분석 시작을 눌러 데이터를 만들어보세요.</td></tr>`;
+        return;
+      }
+      body.innerHTML = filtered.map((row) => `
+        <tr data-trace="${escapeHtml(row.trace_id)}" class="${row.trace_id === state.selectedTraceId ? "selected" : ""}">
+          <td class="center"><span class="dot ${row.status === "error" ? "error" : ""}"></span></td>
+          <td class="muted">${fmt.time(row.start_time_us)}</td>
+          <td class="mono primary">${escapeHtml(row.request_id || row.trace_id.slice(0, 12))}</td>
+          <td>${escapeHtml(row.feature)}</td>
+          <td class="muted">${escapeHtml(row.model)}</td>
+          <td class="muted mono">${escapeHtml(row.scenario)}</td>
+          <td class="right ${row.latency_ms > 1000 ? "bad" : ""} mono">${fmt.ms(row.latency_ms)}</td>
+          <td class="right mono">${fmt.number(row.tokens)}</td>
+          <td class="right mono">${fmt.usd(row.cost_usd)}</td>
+          <td class="center"><button class="link-button" data-open="${escapeHtml(row.jaeger_url)}">Open in Jaeger</button></td>
+        </tr>
+      `).join("");
+    }
+
+    function syncModelOptions(rows) {
+      const select = document.getElementById("modelSelect");
+      const models = Array.from(new Set((rows || []).map((row) => row.model).filter(Boolean))).sort();
+      select.innerHTML = `<option>All Models</option>${models.map((model) => `<option>${escapeHtml(model)}</option>`).join("")}`;
+    }
+
+    async function openTrace(traceId) {
+      state.selectedTraceId = traceId;
+      renderRequests(state.data.recent_requests);
+      const cached = state.data.recent_requests.find((row) => row.trace_id === traceId);
+      renderDetail(cached);
+      document.getElementById("drawer").classList.remove("hidden");
+
+      try {
+        const response = await fetch(`/api/dashboard/traces/${encodeURIComponent(traceId)}`);
+        if (response.ok) {
+          const detail = await response.json();
+          if (detail.found) renderDetail(detail);
+        }
+      } catch (_) {
+        // The cached Jaeger search result is enough for the MVP drawer.
+      }
+    }
+
+    function renderDetail(trace) {
+      if (!trace) return;
+      document.getElementById("drawerTrace").textContent = trace.trace_id;
+      document.getElementById("detailStatus").innerHTML = trace.status === "error"
+        ? `<span class="bad">에러</span>`
+        : `<span style="color:var(--good)">성공</span>`;
+      document.getElementById("detailLatency").textContent = fmt.ms(trace.latency_ms);
+      document.getElementById("detailTokens").textContent = fmt.number(trace.tokens);
+      document.getElementById("detailCost").textContent = fmt.usd(trace.cost_usd);
+
+      const stages = trace.stages || [];
+      const max = Math.max(...stages.map((stage) => stage.duration_ms), 0.000001);
+      document.getElementById("detailStages").innerHTML = stages.map((stage) => {
+        const width = Math.max(2, Math.round((stage.duration_ms / max) * 100));
+        const hot = stage.duration_ms === max && stage.duration_ms > 0;
+        return `
+          <div>
+            <div class="stage-head">
+              <span>${escapeHtml(stage.name)}</span>
+              <span class="${hot ? "bad" : "muted"}">${fmt.ms(stage.duration_ms)}</span>
+            </div>
+            <div class="track"><div class="fill ${hot ? "hot" : ""}" style="width:${width}%"></div></div>
+          </div>
+        `;
+      }).join("");
+
+      const slowest = stages.reduce((maxStage, stage) => stage.duration_ms > maxStage.duration_ms ? stage : maxStage, { name: "-", duration_ms: 0 });
+      document.getElementById("detailLogs").textContent = [
+        `[${fmt.time(trace.start_time_us)}] INFO  request_id=${trace.request_id}`,
+        `[${fmt.time(trace.start_time_us)}] INFO  feature=${trace.feature} scenario=${trace.scenario}`,
+        `[${fmt.time(trace.start_time_us)}] INFO  model=${trace.model} tokens=${trace.tokens}`,
+        `[${fmt.time(trace.start_time_us)}] ${slowest.duration_ms > 1000 ? "WARN " : "INFO "} slowest_stage=${slowest.name} duration=${fmt.ms(slowest.duration_ms)}`,
+        `[link] ${trace.jaeger_url}`,
+      ].join("\n");
+    }
+
+    async function runScenario() {
+      const scenario = document.getElementById("scenarioSelect").value;
+      const button = document.getElementById("runScenario");
+      button.disabled = true;
+      button.textContent = "실행 중...";
+      try {
+        await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: scenarioQuestions[scenario],
+            feature: scenario === "slow_retrieve" ? "rag_qa" : "chat",
+            scenario,
+          }),
+        });
+      } catch (_) {
+        // The error scenario intentionally fails; metrics still get recorded.
+      } finally {
+        button.disabled = false;
+        button.innerHTML = `<span class="material-symbols-outlined">play_arrow</span>새 분석 시작`;
+        setTimeout(loadDashboard, 1200);
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.getElementById("windowSelect").addEventListener("change", loadDashboard);
+    document.getElementById("refreshButton").addEventListener("click", loadDashboard);
+    document.getElementById("runScenario").addEventListener("click", runScenario);
+    document.getElementById("traceSearch").addEventListener("input", () => renderRequests(state.data?.recent_requests || []));
+    document.getElementById("closeDrawer").addEventListener("click", () => document.getElementById("drawer").classList.add("hidden"));
+    document.querySelectorAll("[data-scroll]").forEach((button) => {
+      button.addEventListener("click", () => document.getElementById(button.dataset.scroll)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    });
+    document.getElementById("requestRows").addEventListener("click", (event) => {
+      const openButton = event.target.closest("[data-open]");
+      if (openButton) {
+        event.stopPropagation();
+        window.open(openButton.dataset.open, "_blank", "noopener");
+        return;
+      }
+      const row = event.target.closest("tr[data-trace]");
+      if (row) openTrace(row.dataset.trace);
+    });
+
+    loadDashboard().catch((error) => {
+      console.error(error);
+      document.getElementById("requestRows").innerHTML = `<tr><td colspan="10" class="empty">대시보드 데이터를 불러오지 못했습니다. Docker Compose 서비스 상태를 확인하세요.</td></tr>`;
+    });
+    state.autoRefresh = setInterval(() => loadDashboard().catch(console.error), 5000);
+  </script>
+</body>
+</html>
