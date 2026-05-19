@@ -4,12 +4,38 @@ services:
       context: ../apps/sample-llm-api
     container_name: olly-sample-llm-api
     environment:
+      LLM_BACKEND: ollama
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODEL: gemma3:1b
+      LOCAL_COMPUTE_RESOURCE: cpu
+      LOCAL_COMPUTE_HOURLY_USD: "0.05"
       OTEL_SERVICE_NAME: olly-sample-api
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     ports:
       - "8001:8000"
     depends_on:
-      - otel-collector
+      otel-collector:
+        condition: service_started
+      ollama-pull-gemma:
+        condition: service_completed_successfully
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: olly-ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+
+  ollama-pull-gemma:
+    image: ollama/ollama:latest
+    container_name: olly-ollama-pull-gemma
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["until ollama list >/dev/null 2>&1; do sleep 1; done; ollama pull gemma3:1b"]
+    depends_on:
+      - ollama
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.116.1
@@ -61,3 +87,6 @@ services:
       - "3001:3000"
     depends_on:
       - prometheus
+
+volumes:
+  ollama-data:

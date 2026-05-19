@@ -16,7 +16,11 @@ async def retrieve(request: ChatRequest) -> list[str]:
     ]
 
 
-async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, int]:
+def model_name() -> str:
+    return "gpt-4o-mini-mock"
+
+
+async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, int, dict[str, float]]:
     if request.scenario == "error":
         await asyncio.sleep(0.2)
         raise RuntimeError("mock LLM failure")
@@ -38,7 +42,10 @@ async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, 
     prompt = request.question + "\n" + "\n".join(context)
     input_tokens = estimate_tokens(prompt)
     output_tokens = estimate_tokens(answer)
-    return answer, input_tokens, output_tokens
+    return answer, input_tokens, output_tokens, {
+        "llm_elapsed_seconds": 2.0 if request.scenario == "slow_llm" else 0.35,
+        "tokens_per_second": 0.0,
+    }
 
 
 async def postprocess(answer: str) -> str:

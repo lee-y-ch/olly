@@ -17,8 +17,13 @@ class ChatResponse(BaseModel):
     answer: str
     model: str
     feature: str
+    llm_backend: str
     input_tokens: int
     output_tokens: int
     cost_usd: float
+    token_cost_usd: float
+    infra_cost_usd: float
+    compute_seconds: float
+    compute_resource: str
     latency_ms: int
     status: str

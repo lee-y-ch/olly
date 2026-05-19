@@ -105,7 +105,7 @@
           "refId": "A"
         }
       ],
-      "title": "Total Cost",
+      "title": "Total Estimated Cost",
       "type": "stat"
     },
     {
@@ -239,6 +239,202 @@
       ],
       "title": "Error Rate",
       "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "id": 9,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(olly_llm_duration_seconds_bucket[5m])) by (le, model, backend))",
+          "legendFormat": "{{backend}} / {{model}}",
+          "refId": "A"
+        }
+      ],
+      "title": "LLM p95 Duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "id": 10,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(olly_generation_tokens_per_second_bucket[5m])) by (le, model, backend))",
+          "legendFormat": "{{backend}} / {{model}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Generation Tokens/sec",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
+      "id": 11,
+      "targets": [
+        {
+          "expr": "sum(olly_token_cost_usd_total)",
+          "legendFormat": "token api cost",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(olly_infra_cost_usd_total)",
+          "legendFormat": "local infra cost",
+          "refId": "B"
+        }
+      ],
+      "title": "Cost Breakdown",
+      "type": "barchart"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "id": 12,
+      "targets": [
+        {
+          "expr": "sum(olly_inference_compute_seconds_total) by (resource, model)",
+          "legendFormat": "{{resource}} / {{model}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Local Compute Seconds",
+      "type": "barchart"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "id": 13,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(olly_stage_duration_seconds_bucket[5m])) by (le, stage))",
+          "legendFormat": "{{stage}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Bottleneck by Stage p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "id": 14,
+      "targets": [
+        {
+          "expr": "sum(olly_cost_usd_total) by (feature)",
+          "legendFormat": "{{feature}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Cost by Feature",
+      "type": "barchart"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 44
+      },
+      "id": 15,
+      "targets": [
+        {
+          "expr": "sum(ALERTS{alertstate=\"firing\"}) by (alertname)",
+          "legendFormat": "{{alertname}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Active Alerts",
+      "type": "barchart"
+    },
+    {
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 44
+      },
+      "id": 16,
+      "options": {
+        "content": "### Trace Drilldown\n\n1. Send `/chat` requests from the API docs.\n2. Check cost, token, latency, and alert panels here.\n3. Open Jaeger and search service `olly-sample-api` to inspect `retrieve`, `llm_call`, and `postprocess` spans.\n\n[Open Jaeger](http://localhost:16686/search?service=olly-sample-api)\n\nPrometheus and Jaeger are still separate backends, but Grafana is the main operator screen.",
+        "mode": "markdown"
+      },
+      "title": "Jaeger Trace Link",
+      "type": "text"
     }
   ],
   "refresh": "5s",

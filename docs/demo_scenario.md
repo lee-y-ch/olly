@@ -6,11 +6,14 @@
 docker compose -f deploy/docker-compose.yml up --build
 ```
 
+기본 LLM은 Ollama `gemma3:1b`입니다. 첫 실행에서는 모델 다운로드가 먼저 진행됩니다.
+
 ## 2. 접속 주소
 
 | 도구 | 주소 |
 | --- | --- |
 | API 문서 | http://localhost:8001/docs |
+| Ollama | http://localhost:11434 |
 | Prometheus | http://localhost:9090 |
 | Jaeger | http://localhost:16686 |
 | Grafana | http://localhost:3001 |
@@ -58,10 +61,13 @@ curl -X POST http://localhost:8001/chat \
 
 1. `/chat` API에 여러 시나리오 요청을 보낸다.
 2. Grafana에서 총 요청 수, 토큰 수, 예상 비용, p95 latency가 증가하는지 확인한다.
-3. Jaeger에서 `olly-sample-api` 서비스를 선택한다.
-4. 느린 trace를 하나 열고 `retrieve`, `llm_call`, `postprocess` span을 확인한다.
-5. `slow_retrieve` 요청에서는 retrieve 단계가 병목임을 설명한다.
-6. `high_token` 요청에서는 token과 cost metric이 증가하는 것을 설명한다.
+3. `Cost Breakdown`에서 로컬 모델의 API 토큰 비용은 0이고, 추론 시간 기반 인프라 비용이 증가하는지 확인한다.
+4. `Bottleneck by Stage p95`에서 `retrieve`, `llm_call`, `postprocess` 중 어느 단계가 느린지 확인한다.
+5. Jaeger에서 `olly-sample-api` 서비스를 선택한다.
+6. 느린 trace를 하나 열고 `retrieve`, `llm_call`, `postprocess` span을 확인한다.
+7. `slow_retrieve` 요청에서는 retrieve 단계가 병목임을 설명한다.
+8. `high_token` 요청에서는 token과 cost metric이 증가하는 것을 설명한다.
+9. Grafana에서 `LLM p95 Duration`, `Generation Tokens/sec` 패널로 `gemma3:1b`의 로컬 생성 성능을 확인한다.
 
 ## 8. 발표 설명 예시
 
