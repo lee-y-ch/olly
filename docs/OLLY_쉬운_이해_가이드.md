@@ -569,12 +569,20 @@ histogram_quantile(0.95, sum(rate(olly_stage_duration_seconds_bucket[5m])) by (l
 
 ## 13. 팀원 분업 전에 알아야 할 역할
 
+자세한 병렬 작업 계획은 아래 문서에 따로 정리되어 있다.
+
+```text
+docs/팀원_병렬작업_가이드.md
+```
+
+간단히 나누면 아래 4개 역할이다.
+
 | 역할 | 맡을 부분 |
 | --- | --- |
-| API 담당 | `/chat` API, Gemma/Ollama 호출, 응답 구조 |
-| 계측 담당 | OpenTelemetry span, Prometheus metric |
-| 대시보드 담당 | Grafana panel, PromQL query, alert |
-| 발표/문서 담당 | 데모 시나리오, 용어 설명, 실행 가이드 |
+| API / LLM 담당 | `/chat` API, Gemma/Ollama 호출, 응답 구조 |
+| 관측성 담당 | OpenTelemetry span, Prometheus metric, Jaeger trace |
+| 프론트엔드 / 대시보드 담당 | `/chat-ui`, `/dashboard`, 요청 상세 화면 |
+| 문서 / 발표 담당 | 데모 시나리오, 실행 가이드, 발표 흐름 |
 
 각 역할은 분리되어 있지만, 아래 이름은 반드시 같이 맞춰야 한다.
 
