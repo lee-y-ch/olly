@@ -29,6 +29,8 @@ OLLY는 이 질문에 답하기 위해 만든다.
 - 로컬 CPU/GPU 사용 시간 기반 비용 추정
 - 요청별 응답 시간 측정
 - `retrieve`, `llm_call`, `postprocess` 단계별 병목 추적
+- 사용자용 챗봇 화면
+- 운영자용 통합 웹 대시보드
 - Grafana 대시보드 시각화
 - Jaeger trace 상세 분석
 - Prometheus metric 저장
@@ -83,7 +85,9 @@ Grafana
 | OpenTelemetry Collector | 기록 데이터 중간 수집기 | trace/metric 데이터를 전달 |
 | Prometheus | 숫자 저장소 | 요청 수, 토큰 수, 비용, latency 저장 |
 | Jaeger | 요청 추적 도구 | 요청 하나가 어디서 느렸는지 확인 |
-| Grafana | 통합 대시보드 | 비용, 토큰, 속도, 알림을 화면으로 보여줌 |
+| OLLY Chat UI | 사용자 화면 | 일반 사용자가 질문을 보내는 화면 |
+| OLLY Operator Dashboard | 운영자 화면 | 비용, 토큰, 속도, 병목, 최근 요청을 한 화면에서 확인 |
+| Grafana | 외부 시각화 도구 | Prometheus metric을 검증하거나 보조로 확인 |
 | Docker Compose | 여러 서비스를 한 번에 실행하는 도구 | 전체 MVP를 한 명령으로 실행 |
 
 ## 5. 핵심 용어 정리
@@ -305,13 +309,176 @@ POST /chat
 
 자체 웹 대시보드를 만들 때는 최근 요청 목록에서 `trace_id`를 이용해 Jaeger 상세 화면으로 연결할 수 있다.
 
-## 7. Grafana에서 봐야 하는 것
+## 7. 화면을 어떻게 보면 되는가?
+
+발표와 시연에서는 아래 두 화면을 중심으로 보면 된다.
+
+```text
+사용자 화면: http://localhost:8001/chat-ui
+운영자 화면: http://localhost:8001/dashboard
+```
+
+`/docs`, Grafana, Jaeger, Prometheus는 보조 화면이다. 처음부터 모두 보여주면 복잡해 보이므로, 발표에서는 먼저 `/chat-ui`와 `/dashboard`만 사용하고 필요할 때 원본 도구를 보여주는 방식이 좋다.
+
+### 7.1 사용자 챗봇 화면
+
+주소:
+
+```text
+http://localhost:8001/chat-ui
+```
+
+이 화면은 실제 사용자가 보는 화면이다.
+
+사용자는 JSON을 몰라도 된다. 그냥 질문을 입력하고 전송하면 된다.
+
+화면에서 보는 것:
+
+| 영역 | 의미 |
+| --- | --- |
+| Scenario Selection | 발표용 상황 선택 |
+| Example Questions | 발표 때 바로 넣을 수 있는 예시 질문 |
+| Chat UI | 사용자가 질문하고 답변을 받는 영역 |
+| 응답 메타데이터 | 방금 요청의 request id, trace id, latency, tokens, cost |
+| Operator Dashboard 링크 | 운영자 대시보드로 이동 |
+
+왼쪽 시나리오의 의미:
+
+| 버튼 | 내부 설정 | 보여줄 수 있는 상황 |
+| --- | --- | --- |
+| Normal Request | `scenario=normal`, `feature=chat` | 정상 요청 |
+| Slow Retrieval (RAG) | `scenario=slow_retrieve`, `feature=rag_qa` | RAG 검색 단계가 느린 상황 |
+| Slow LLM Response | `scenario=slow_llm`, `feature=chat` | LLM 호출 단계가 느린 상황 |
+| High Token Usage | `scenario=high_token`, `feature=summary` | 토큰을 많이 쓰는 상황 |
+| Error Occurred | `scenario=error`, `feature=chat` | 실패 요청 |
+
+사용자가 질문을 전송하면 내부적으로는 `/chat` API가 호출된다.
+
+```text
+사용자 질문
+  ↓
+/chat-ui
+  ↓
+POST /chat
+  ↓
+gemma3:1b 로컬 LLM 호출
+  ↓
+답변 반환
+```
+
+동시에 OLLY는 아래 데이터를 자동으로 기록한다.
+
+```text
+request_id
+trace_id
+latency
+input_tokens
+output_tokens
+cost
+retrieve / llm_call / postprocess 단계별 시간
+```
+
+따라서 발표에서는 이렇게 말하면 된다.
+
+> 사용자는 일반 챗봇처럼 질문만 입력합니다. 하지만 OLLY는 뒤에서 이 요청의 비용, 토큰, 응답 시간, 병목 단계를 자동으로 기록합니다.
+
+### 7.2 운영자 대시보드 화면
+
+주소:
+
+```text
+http://localhost:8001/dashboard
+```
+
+이 화면은 운영자나 개발자가 보는 화면이다.
+
+`/chat-ui`에서 질문을 보낸 뒤 이 화면으로 이동하면, 방금 요청이 `Recent Requests`에 나타난다.
+
+화면에서 보는 것:
+
+| 영역 | 의미 |
+| --- | --- |
+| Avg Latency | 선택한 시간 동안 평균 응답 시간 |
+| Total Tokens | 전체 토큰 사용량 |
+| Total Cost | 로컬 추론 시간 기반 예상 비용 |
+| Success Rate | 성공 요청 비율 |
+| Recent Requests | 최근 `/chat` 요청 목록 |
+| Trace Detail | 선택한 요청의 단계별 처리 시간 |
+| Cost Analysis | 기능별 비용 추이 |
+| Active Alerts | 현재 활성화된 알림 |
+
+`Recent Requests`에서 요청 하나를 클릭하면 오른쪽 `Trace Detail`이 바뀐다.
+
+Trace Detail에서 보는 핵심 단계:
+
+| 단계 | 의미 |
+| --- | --- |
+| Retrieve | RAG 검색 또는 관련 문서 조회 단계 |
+| LLM Generation | 로컬 LLM이 답변을 생성하는 단계 |
+| Post-process | 응답 후처리 단계 |
+
+예를 들어 `Slow Retrieval (RAG)` 시나리오를 실행했는데 `Retrieve` 막대가 가장 길면 이렇게 설명하면 된다.
+
+> 이 요청은 LLM이 느린 것이 아니라, 답변 생성 전에 관련 문서를 찾는 retrieve 단계가 병목입니다.
+
+반대로 `Slow LLM Response`에서 `LLM Generation`이 가장 길면 이렇게 설명한다.
+
+> 이 요청은 검색보다 LLM 답변 생성 시간이 길어서 전체 응답이 느려졌습니다.
+
+### 7.3 실제 발표 순서
+
+추천 발표 순서는 아래와 같다.
+
+```text
+1. http://localhost:8001/chat-ui 를 연다.
+2. 왼쪽에서 Slow Retrieval (RAG)를 선택한다.
+3. Example Questions에서 "Is OpenAI slow or our RAG?"를 누른다.
+4. 질문을 전송한다.
+5. 답변 아래의 latency, tokens, cost, trace_id를 보여준다.
+6. Operator Dashboard를 클릭한다.
+7. http://localhost:8001/dashboard 에서 Recent Requests를 확인한다.
+8. 방금 요청을 클릭한다.
+9. 오른쪽 Trace Detail에서 Retrieve가 긴지 확인한다.
+10. "이 요청은 LLM보다 RAG 검색 단계가 병목이다"라고 결론을 말한다.
+```
+
+다른 시나리오도 같은 방식으로 보여주면 된다.
+
+| 보여주고 싶은 내용 | 선택할 시나리오 | 대시보드에서 볼 것 |
+| --- | --- | --- |
+| 정상 요청 | Normal Request | latency와 cost가 낮음 |
+| RAG 병목 | Slow Retrieval (RAG) | Retrieve 막대가 김 |
+| LLM 병목 | Slow LLM Response | LLM Generation 막대가 김 |
+| 토큰 과다 | High Token Usage | Total Tokens와 Total Cost 증가 |
+| 실패 요청 | Error Occurred | Recent Requests에 ERROR 표시 |
+
+### 7.4 각 화면의 역할을 한 문장으로 설명하기
+
+발표 중 헷갈리지 않게 아래처럼 구분하면 된다.
+
+```text
+/chat-ui
+= 사용자가 질문하는 화면
+
+/dashboard
+= 운영자가 비용, 토큰, 속도, 병목을 확인하는 화면
+
+/docs
+= 개발자가 API를 직접 테스트하는 문서 화면
+
+Grafana / Jaeger / Prometheus
+= OLLY가 내부적으로 사용하는 원본 관측 도구
+```
+
+## 8. Grafana에서 봐야 하는 것
 
 주소:
 
 ```text
 http://localhost:3001/d/olly-mvp/olly-mvp-dashboard
 ```
+
+Grafana는 현재 발표의 메인 화면이 아니라 보조 검증 화면이다. OLLY 자체 웹 대시보드가 Prometheus 데이터를 잘 가져오는지 확인하거나, 기존 관측성 도구와 비교할 때 사용한다.
 
 주요 패널:
 
@@ -328,7 +495,7 @@ http://localhost:3001/d/olly-mvp/olly-mvp-dashboard
 | Active Alerts | 현재 발생 중인 알림 |
 | Jaeger Trace Link | Jaeger 상세 분석 화면 이동 |
 
-## 8. Jaeger에서 봐야 하는 것
+## 9. Jaeger에서 봐야 하는 것
 
 주소:
 
@@ -351,7 +518,7 @@ postprocess
 
 예를 들어 `slow_retrieve` 요청을 보냈는데 `retrieve` 막대가 길면, LLM이 느린 것이 아니라 RAG 검색 단계가 느린 것이다.
 
-## 9. Prometheus에서 봐야 하는 것
+## 10. Prometheus에서 봐야 하는 것
 
 주소:
 
@@ -381,26 +548,26 @@ sum(olly_infra_cost_usd_total) by (resource, model)
 histogram_quantile(0.95, sum(rate(olly_stage_duration_seconds_bucket[5m])) by (le, stage))
 ```
 
-## 10. 발표에서 설명할 핵심 흐름
+## 11. 발표에서 설명할 핵심 흐름
 
 발표 흐름은 이렇게 잡으면 된다.
 
 ```text
-1. /chat API로 질문을 보낸다.
-2. Grafana에서 요청 수, 토큰 수, 비용, latency가 증가하는 것을 보여준다.
-3. slow_retrieve 요청을 보낸다.
-4. Grafana의 Bottleneck by Stage p95에서 retrieve가 느린 것을 보여준다.
-5. Jaeger에서 해당 trace를 열어 retrieve span이 긴 것을 보여준다.
-6. high_token 요청을 보낸다.
-7. Grafana에서 토큰 사용량과 비용이 증가하는 것을 보여준다.
+1. /chat-ui에서 사용자가 질문을 보낸다.
+2. 답변 아래에 latency, tokens, cost, trace_id가 생기는 것을 보여준다.
+3. /dashboard로 이동한다.
+4. Recent Requests에서 방금 요청을 선택한다.
+5. Trace Detail에서 retrieve, llm_call, postprocess 중 병목 단계를 확인한다.
+6. High Token Usage 시나리오로 토큰과 비용 증가를 보여준다.
+7. Error Occurred 시나리오로 실패 요청도 기록되는 것을 보여준다.
 8. 로컬 모델은 API 과금이 없고, CPU/GPU 실행 시간 기반 비용으로 계산한다고 설명한다.
 ```
 
-## 11. 발표용 한 문장
+## 12. 발표용 한 문장
 
-> OLLY는 LLM 서비스의 비용, 속도, 병목을 한 화면에서 확인할 수 있게 해주는 운영 대시보드입니다. OpenTelemetry로 요청 단계를 기록하고, Prometheus와 Jaeger에 저장한 뒤, Grafana에서 모델별 비용, 기능별 토큰 사용량, 요청 단위 병목, 알림 상태를 확인합니다.
+> OLLY는 LLM 서비스의 비용, 속도, 병목을 한 화면에서 확인할 수 있게 해주는 운영 대시보드입니다. 사용자는 챗봇 화면에서 질문만 입력하고, 운영자는 대시보드에서 모델별 비용, 기능별 토큰 사용량, 요청 단위 병목, 알림 상태를 확인합니다.
 
-## 12. 팀원 분업 전에 알아야 할 역할
+## 13. 팀원 분업 전에 알아야 할 역할
 
 | 역할 | 맡을 부분 |
 | --- | --- |
@@ -417,11 +584,14 @@ histogram_quantile(0.95, sum(rate(olly_stage_duration_seconds_bucket[5m])) by (l
 - Docker Compose 서비스 이름
 - Grafana panel 이름
 
-## 13. 지금 코드에서 중요한 파일
+## 14. 지금 코드에서 중요한 파일
 
 | 파일 | 역할 |
 | --- | --- |
 | `apps/sample-llm-api/app/main.py` | FastAPI API 흐름 |
+| `apps/sample-llm-api/app/dashboard.py` | `/chat-ui`, `/dashboard`, 대시보드 데이터 API |
+| `apps/sample-llm-api/app/static/chat_ui.html` | 사용자 챗봇 화면 |
+| `apps/sample-llm-api/app/static/dashboard.html` | 운영자 통합 대시보드 화면 |
 | `apps/sample-llm-api/app/ollama_llm.py` | Ollama Gemma 모델 호출 |
 | `apps/sample-llm-api/app/mock_llm.py` | 데모용 mock LLM |
 | `apps/sample-llm-api/app/metrics.py` | Prometheus metric 정의와 기록 |
@@ -430,10 +600,10 @@ histogram_quantile(0.95, sum(rate(olly_stage_duration_seconds_bucket[5m])) by (l
 | `observability/prometheus.yml` | Prometheus 수집 설정 |
 | `observability/alert-rules.yml` | 알림 규칙 |
 | `observability/otel-collector.yaml` | OpenTelemetry Collector 설정 |
-| `observability/grafana/dashboards/olly-mvp-dashboard.json` | Grafana 대시보드 |
+| `observability/grafana/dashboards/olly-mvp-dashboard.json` | 보조 Grafana 대시보드 |
 | `deploy/docker-compose.yml` | 전체 서비스 실행 설정 |
 
-## 14. 최종 정리
+## 15. 최종 정리
 
 OLLY의 핵심은 세 가지이다.
 
