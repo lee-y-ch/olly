@@ -1,5 +1,6 @@
 import asyncio
 
+from app.demo_answers import build_demo_answer, build_demo_context, estimate_demo_output_tokens
 from app.pricing import estimate_tokens
 from app.schemas import ChatRequest
 
@@ -10,10 +11,7 @@ async def retrieve(request: ChatRequest) -> list[str]:
     else:
         await asyncio.sleep(0.15)
 
-    return [
-        "OLLY는 LLM 서비스의 비용, 속도, 병목을 관측하는 플랫폼입니다.",
-        "OpenTelemetry, Prometheus, Jaeger, Grafana를 사용합니다.",
-    ]
+    return build_demo_context(request)
 
 
 def model_name() -> str:
@@ -30,18 +28,11 @@ async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, 
     else:
         await asyncio.sleep(0.35)
 
-    if request.scenario == "high_token":
-        answer = (
-            "OLLY는 LLM 운영 관측성 플랫폼입니다. "
-            "요청별 토큰 사용량, 예상 비용, 응답 시간, 처리 단계별 병목을 기록합니다. "
-            "운영자는 Grafana에서 전체 추세를 보고, Jaeger에서 느린 요청의 상세 흐름을 확인합니다. "
-        ) * 8
-    else:
-        answer = "OLLY는 LLM 서비스의 비용, 속도, 병목을 실시간으로 확인하는 관측성 플랫폼입니다."
+    answer = build_demo_answer(request)
 
     prompt = request.question + "\n" + "\n".join(context)
     input_tokens = estimate_tokens(prompt)
-    output_tokens = estimate_tokens(answer)
+    output_tokens = estimate_demo_output_tokens(answer)
     return answer, input_tokens, output_tokens, {
         "llm_elapsed_seconds": 2.0 if request.scenario == "slow_llm" else 0.35,
         "tokens_per_second": 0.0,

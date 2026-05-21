@@ -7,6 +7,7 @@ services:
       LLM_BACKEND: ollama
       OLLAMA_BASE_URL: http://ollama:11434
       OLLAMA_MODEL: gemma3:1b
+      STABLE_DEMO_ANSWERS: "true"
       LOCAL_COMPUTE_RESOURCE: cpu
       LOCAL_COMPUTE_HOURLY_USD: "0.05"
       PROMETHEUS_URL: http://prometheus:9090

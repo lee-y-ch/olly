@@ -3,6 +3,7 @@ import time
 
 import httpx
 
+from app.demo_answers import build_demo_answer, build_demo_context, estimate_demo_output_tokens, is_unhelpful_answer
 from app.schemas import ChatRequest
 
 
@@ -12,6 +13,7 @@ OLLAMA_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
 MAX_NEW_TOKENS = int(os.getenv("OLLAMA_MAX_NEW_TOKENS", "256"))
 TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE", "0.2"))
 TOP_P = float(os.getenv("OLLAMA_TOP_P", "0.9"))
+STABLE_DEMO_ANSWERS = os.getenv("STABLE_DEMO_ANSWERS", "true").lower() == "true"
 _client: httpx.AsyncClient | None = None
 
 
@@ -21,19 +23,31 @@ def model_name() -> str:
 
 def system_prompt() -> str:
     return (
-        "당신은 OLLY 성능 실험용 로컬 LLM입니다. "
-        "한국어로 간결하고 정확하게 답하세요. "
-        "모르면 추측하지 말고 모른다고 답하세요."
+        "당신은 OLLY LLM 운영 대시보드의 데모 어시스턴트입니다. "
+        "사용자의 질문은 OLLY의 비용, 토큰, latency, RAG 병목, LLM 병목, 실패 원인에 관한 것입니다. "
+        "반드시 한국어로 답하고, '모른다'로 끝내지 마세요. "
+        "주어진 참고 문맥과 시나리오를 바탕으로 운영자가 다음에 확인할 화면과 지표를 설명하세요."
     )
 
 
 def build_user_prompt(request: ChatRequest, context: list[str]) -> str:
+    if STABLE_DEMO_ANSWERS:
+        return (
+            "OLLY 데모 요청입니다. 아래 질문에 한 문장으로 간단히 답하세요.\n\n"
+            f"질문: {request.question}\n"
+            f"시나리오: {request.scenario}\n"
+            f"기능: {request.feature}\n"
+        )
+
     detail_instruction = ""
     if request.scenario == "high_token":
         detail_instruction = "\n응답은 항목을 나누어 자세히 설명하세요."
 
     return (
-        "다음 참고 문맥을 활용해서 사용자 질문에 답하세요.\n\n"
+        "다음 참고 문맥은 정답으로 사용할 수 있는 OLLY 운영 정보입니다. "
+        "문맥 안의 정보를 근거로 사용자 질문에 답하세요.\n\n"
+        f"[현재 시나리오]\n{request.scenario}\n\n"
+        f"[현재 기능]\n{request.feature}\n\n"
         "[참고 문맥]\n"
         + "\n".join(f"- {item}" for item in context)
         + "\n\n[사용자 질문]\n"
@@ -63,7 +77,8 @@ async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, 
     if request.scenario == "error":
         raise RuntimeError("forced Ollama failure scenario")
 
-    prompt = build_user_prompt(request, context)
+    enriched_context = context + build_demo_context(request)
+    prompt = build_user_prompt(request, enriched_context)
     num_predict = MAX_NEW_TOKENS * 2 if request.scenario == "high_token" else MAX_NEW_TOKENS
     payload = {
         "model": OLLAMA_MODEL,
@@ -96,6 +111,9 @@ async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, 
     answer = data.get("message", {}).get("content", "").strip()
     input_tokens = int(data.get("prompt_eval_count") or 0)
     output_tokens = int(data.get("eval_count") or 0)
+    if STABLE_DEMO_ANSWERS or is_unhelpful_answer(answer):
+        answer = build_demo_answer(request)
+        output_tokens = estimate_demo_output_tokens(answer)
     eval_duration_seconds = (data.get("eval_duration") or 0) / 1_000_000_000
     total_duration_seconds = (data.get("total_duration") or 0) / 1_000_000_000
 
