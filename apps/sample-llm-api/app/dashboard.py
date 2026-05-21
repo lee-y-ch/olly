@@ -35,6 +35,12 @@ async def chat_ui() -> HTMLResponse:
 
 @router.get("/api/dashboard/summary")
 async def dashboard_summary(window: str = Query("1h", pattern="^(15m|1h|6h|24h)$")) -> dict[str, Any]:
+    return await collect_dashboard_summary(window)
+
+
+async def collect_dashboard_summary(window: str = "1h") -> dict[str, Any]:
+    if window not in WINDOWS:
+        window = "1h"
     async with httpx.AsyncClient(timeout=8.0) as client:
         scalar_queries = {
             "total_requests": f"sum(increase(olly_requests_total[{window}]))",

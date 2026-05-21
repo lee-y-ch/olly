@@ -6,12 +6,13 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from opentelemetry import trace
 
 from app import mock_llm, ollama_llm
+from app.analysis import build_observability_answer
 from app.config import Settings
 from app.dashboard import router as dashboard_router
 from app.metrics import CostBreakdown, RequestMetricLabels, record_error, record_llm_duration, record_success
 from app.metrics import stage_timer
 from app.mock_llm import postprocess, retrieve
-from app.pricing import estimate_cost_usd, estimate_infra_cost_usd
+from app.pricing import estimate_cost_usd, estimate_infra_cost_usd, estimate_tokens
 from app.schemas import ChatRequest, ChatResponse
 from app.telemetry import get_tracer, setup_telemetry
 
@@ -99,6 +100,10 @@ async def chat(request: ChatRequest) -> ChatResponse:
             with stage_timer(metric_labels, "llm_call"):
                 answer, input_tokens, output_tokens, llm_metadata = await llm_client.llm_call(request, context)
                 llm_elapsed_seconds = time.perf_counter() - llm_start
+            observability_answer = await build_observability_answer(request)
+            if observability_answer is not None:
+                answer = observability_answer
+                output_tokens = estimate_tokens(answer)
             compute_seconds = float(llm_metadata.get("ollama_total_duration_seconds") or llm_elapsed_seconds)
             token_cost_usd = estimate_cost_usd(model_name, input_tokens, output_tokens)
             infra_cost_usd = estimate_infra_cost_usd(compute_seconds, settings.local_compute_hourly_usd)
