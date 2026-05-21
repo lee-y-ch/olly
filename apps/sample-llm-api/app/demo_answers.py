@@ -64,57 +64,51 @@ def build_demo_answer(request: ChatRequest) -> str:
     question = request.question.strip()
     if request.scenario == "slow_retrieve":
         return (
-            "현재 요청은 LLM 자체보다 RAG 검색 단계가 느린 상황으로 보면 됩니다.\n\n"
-            "- 대시보드의 Recent Requests에서 이 요청을 클릭하세요.\n"
-            "- Trace Detail에서 Retrieve 막대가 가장 길게 표시됩니다.\n"
-            "- 이것은 답변 생성 전에 관련 문서를 찾는 단계가 병목이라는 뜻입니다.\n"
-            "- 따라서 우선 확인할 곳은 OpenAI나 gemma3:1b가 아니라 벡터 검색, 문서 조회, 인덱스 설정입니다.\n\n"
-            "발표에서는 '사용자는 그냥 질문했지만, OLLY는 retrieve / llm_call / postprocess 중 어디가 느린지 보여준다'고 설명하면 됩니다."
+            "OpenAI나 gemma3:1b가 느린 것이 아니라, 우리 RAG 검색 단계가 느린 상황입니다.\n\n"
+            "이 요청은 답변을 만들기 전에 관련 문서를 찾는 retrieve 단계에서 시간이 많이 걸렸습니다. "
+            "LLM은 retrieve가 끝난 뒤에야 답변 생성을 시작할 수 있기 때문에, 검색 단계가 늦어지면 전체 응답도 같이 늦어집니다.\n\n"
+            "그래서 원인은 모델 호출이 아니라 벡터 검색, 문서 조회, 인덱스 상태, 검색 결과 개수 같은 RAG 파이프라인 쪽에 있습니다. "
+            "대시보드에서는 이 요청의 Trace Detail에서 Retrieve 구간이 가장 길게 보일 것입니다."
         )
 
     if request.scenario == "slow_llm":
         return (
-            "현재 요청은 LLM Generation 단계가 병목인 상황입니다.\n\n"
-            "- Retrieve 단계가 짧고 LLM Generation 막대가 길면 검색은 정상입니다.\n"
-            "- 병목은 gemma3:1b가 답변을 생성하는 llm_call 구간에 있습니다.\n"
-            "- 원인은 모델 크기, CPU/GPU 성능, 긴 프롬프트, 긴 출력 길이일 수 있습니다.\n\n"
-            "운영자는 이 정보를 보고 검색 시스템을 고칠지, 모델 추론 환경을 개선할지 구분할 수 있습니다."
+            "이번 요청이 느린 이유는 검색이 아니라 LLM 답변 생성 시간이 길어졌기 때문입니다.\n\n"
+            "retrieve 단계는 비교적 빨리 끝났지만, gemma3:1b가 실제 답변을 생성하는 llm_call 단계에서 시간이 오래 걸렸습니다. "
+            "로컬 모델은 CPU/GPU 성능, 프롬프트 길이, 출력 길이에 영향을 많이 받기 때문에 이 구간이 길어질 수 있습니다.\n\n"
+            "따라서 이 경우에는 RAG 검색을 고치기보다 모델 실행 환경, 출력 길이, 프롬프트 크기를 먼저 줄이는 것이 맞습니다."
         )
 
     if request.scenario == "high_token" or "토큰" in question or "비용" in question:
         return (
-            "비용이나 토큰이 늘어난 원인은 대시보드에서 기능별로 확인해야 합니다.\n\n"
-            "- Total Tokens는 전체 입력/출력 토큰 사용량입니다.\n"
-            "- Total Cost는 로컬 gemma3:1b 실행 시간 기반 추정 비용입니다.\n"
-            "- Cost Analysis에서 어떤 feature가 비용을 많이 만들었는지 확인합니다.\n"
-            "- High Token Usage 요청은 보통 긴 질문, 긴 답변, 요약 기능, RAG 문맥 증가 때문에 발생합니다.\n\n"
-            "현재 로컬 모델은 API 토큰 과금이 없어서 token_cost_usd는 0이고, infra_cost_usd만 증가합니다."
+            "비용이 늘어난 이유는 토큰 사용량과 로컬 추론 시간이 같이 늘었기 때문입니다.\n\n"
+            "긴 질문, 긴 답변, 요약 기능, RAG 문맥 추가가 발생하면 입력 토큰과 출력 토큰이 증가합니다. "
+            "토큰이 많아지면 gemma3:1b가 처리해야 할 문맥이 길어지고, 그만큼 llm_call 실행 시간이 늘어납니다.\n\n"
+            "현재 로컬 모델은 OpenAI처럼 토큰당 API 과금이 붙지는 않습니다. 대신 실행 시간이 길어진 만큼 CPU 기반 infra_cost_usd가 증가합니다. "
+            "그래서 대시보드에서는 Total Tokens와 Total Cost가 함께 올라간 것으로 보입니다."
         )
 
     if request.scenario == "error" or "실패" in question or "에러" in question:
         return (
-            "실패 요청은 운영자 대시보드에서 ERROR 상태로 확인해야 합니다.\n\n"
-            "- Recent Requests에서 status가 ERROR인 요청을 찾습니다.\n"
-            "- request_id와 trace_id로 Jaeger 원본 trace까지 따라갈 수 있습니다.\n"
-            "- 에러율은 Prometheus metric과 Active Alerts에 반영됩니다.\n\n"
-            "즉, OLLY는 성공한 요청뿐 아니라 실패한 요청도 운영 분석 대상으로 기록합니다."
+            "이 요청이 실패한 이유는 데모에서 error 시나리오로 강제로 실패를 발생시키기 때문입니다.\n\n"
+            "실제 운영 상황으로 치면 모델 서버 장애, API 제한, 네트워크 오류, 잘못된 요청 값 같은 문제가 이 범주에 들어갑니다. "
+            "OLLY는 이런 실패도 그냥 버리지 않고 request_id, trace_id, error metric으로 기록합니다.\n\n"
+            "그래서 운영자는 실패한 요청을 Recent Requests에서 ERROR로 보고, 같은 trace_id로 어느 단계에서 실패했는지 추적할 수 있습니다."
         )
 
     if "rag" in question.lower() or "openai" in question.lower() or "느린" in question:
         return (
-            "응답이 느릴 때는 먼저 병목 단계를 나눠서 봐야 합니다.\n\n"
-            "- Retrieve가 길면 RAG 검색이나 문서 조회가 느린 것입니다.\n"
-            "- LLM Generation이 길면 모델 호출 또는 답변 생성이 느린 것입니다.\n"
-            "- Post-process가 길면 응답 후처리 코드가 느린 것입니다.\n\n"
-            "이 요청의 trace_id를 대시보드 Recent Requests에서 선택하면 어느 단계가 가장 긴지 확인할 수 있습니다."
+            "응답이 느린 이유는 요청 처리 과정 중 한 단계가 전체 시간을 끌어올렸기 때문입니다.\n\n"
+            "OLLY는 요청을 retrieve, llm_call, postprocess로 나누어 기록합니다. "
+            "retrieve가 길면 RAG 검색이 원인이고, llm_call이 길면 모델 생성이 원인이고, postprocess가 길면 후처리 코드가 원인입니다.\n\n"
+            "즉, 단순히 'LLM이 느리다'고 보는 것이 아니라 어느 단계가 전체 latency를 만든 것인지 구분할 수 있습니다."
         )
 
     return (
-        "OLLY는 LLM 서비스의 운영 상태를 확인하는 관측성 대시보드입니다.\n\n"
-        "- 사용자는 /chat-ui에서 질문합니다.\n"
-        "- OLLY는 요청마다 토큰, 비용, latency, request_id, trace_id를 기록합니다.\n"
-        "- 운영자는 /dashboard에서 최근 요청과 단계별 병목을 확인합니다.\n"
-        "- retrieve, llm_call, postprocess 중 어느 단계가 느린지 구분할 수 있습니다."
+        "OLLY는 LLM 서비스에서 문제가 생겼을 때 원인을 설명하기 위해 만든 관측성 대시보드입니다.\n\n"
+        "LLM 요청은 겉으로 보면 하나의 질문과 하나의 답변처럼 보이지만, 내부적으로는 검색, 모델 호출, 후처리 단계를 거칩니다. "
+        "OLLY는 이 단계를 나눠서 기록하기 때문에 비용이 늘었는지, 토큰이 많았는지, 어떤 단계가 느렸는지 설명할 수 있습니다.\n\n"
+        "그래서 운영자는 감으로 추측하지 않고 request_id와 trace_id를 기준으로 원인을 확인할 수 있습니다."
     )
 
 
