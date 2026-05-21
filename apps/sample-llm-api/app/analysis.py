@@ -1,200 +1,41 @@
-import re
+from collections.abc import Callable
 from typing import Any
 
-import httpx
-
-from app.config import Settings
 from app.dashboard import collect_dashboard_summary, dashboard_trace
+from app.analysis_intents import (
+    ERROR_KEYWORDS,
+    LATENCY_KEYWORDS,
+    TOKEN_KEYWORDS,
+    classify_intent,
+    contains,
+    extract_request_id,
+    extract_trace_id,
+    extract_window,
+)
+from app.analysis_metrics import MetricComparison, collect_period_comparison
 from app.schemas import ChatRequest
 
 
-settings = Settings.from_env()
-
-LATENCY_KEYWORDS = ("느려", "느린", "느림", "지연", "latency", "병목", "bottleneck", "응답")
-COST_KEYWORDS = ("비용", "cost", "2배", "증가", "올랐", "비싸")
-TOKEN_KEYWORDS = ("토큰", "token")
-TOP_FEATURE_KEYWORDS = ("어떤 기능", "무슨 기능", "가장 많이", "많이 쓰", "최다", "top")
-RAG_VS_LLM_KEYWORDS = ("rag", "openai", "llm", "모델", "검색", "답변 생성")
-ERROR_KEYWORDS = ("실패", "에러", "오류", "error", "fail")
-ALERT_KEYWORDS = ("알림", "alert", "경고", "장애", "incident")
-COMPARE_KEYWORDS = ("어제", "전일", "지난", "이전", "비교", "대비", "2배", "증가율", "줄었", "늘었")
-RANKING_KEYWORDS = ("순위", "랭킹", "top", "상위", "목록", "리스트")
-MODEL_KEYWORDS = ("모델", "model", "gemma", "openai")
-REQUEST_KEYWORDS = ("요청", "request", "trace", "트레이스", "req_")
-TRACE_ID_RE = re.compile(r"\b[0-9a-f]{16,32}\b", re.IGNORECASE)
-REQUEST_ID_RE = re.compile(r"\breq_[0-9a-f]{8}\b", re.IGNORECASE)
-
-
 async def build_observability_answer(request: ChatRequest, window: str = "1h") -> str | None:
-    intent = _classify_intent(request)
+    intent = classify_intent(request)
     if intent is None:
         return None
 
-    window = _extract_window(request.question, window)
+    window = extract_window(request.question, window)
+    snapshot = await collect_dashboard_summary(window)
     if intent == "trace_detail":
-        snapshot = await collect_dashboard_summary(window)
         return await _answer_trace_detail(request.question, snapshot, window)
     if intent == "compare":
-        snapshot = await collect_dashboard_summary(window)
-        comparison = await _collect_period_comparison(window)
+        comparison = await collect_period_comparison(window)
         return _answer_comparison(snapshot, comparison, window, request.question)
-
-    snapshot = await collect_dashboard_summary(window)
-    if intent == "alerts":
-        return _answer_alerts(snapshot, window)
-    if intent == "error":
-        return _answer_error(snapshot, window)
-    if intent == "top_tokens":
-        return _answer_top_tokens(snapshot, window)
-    if intent == "top_costs":
-        return _answer_top_costs(snapshot, window)
-    if intent == "models":
-        return _answer_models(snapshot, window)
-    if intent == "ranking":
-        return _answer_ranking(snapshot, window)
-    if intent == "slowest_requests":
-        return _answer_slowest_requests(snapshot, window)
     if intent == "cost":
         return _answer_cost(snapshot, window, request.question)
-    if intent == "rag_vs_llm":
-        return _answer_rag_vs_llm(snapshot, window)
-    if intent == "latency":
-        return _answer_latency(snapshot, window)
-    return _answer_overview(snapshot, window)
+    handler = SUMMARY_HANDLERS.get(intent, _answer_overview)
+    return handler(snapshot, window)
 
 
 def is_observability_question(request: ChatRequest) -> bool:
-    return _classify_intent(request) is not None
-
-
-def _classify_intent(request: ChatRequest) -> str | None:
-    question = request.question.lower()
-    has_token = _contains(question, TOKEN_KEYWORDS)
-    asks_top_feature = _contains(question, TOP_FEATURE_KEYWORDS) or "기능" in question
-    has_cost = _contains(question, COST_KEYWORDS)
-    has_latency = _contains(question, LATENCY_KEYWORDS)
-    mentions_rag_or_llm = _contains(question, RAG_VS_LLM_KEYWORDS)
-
-    if _contains(question, ("가장 느린", "느린 요청", "slowest", "최근 요청", "요청 목록")):
-        return "slowest_requests"
-    if _extract_trace_id(question) or _extract_request_id(question) or (
-        _contains(question, REQUEST_KEYWORDS) and _contains(question, ("이", "해당", "방금"))
-    ):
-        return "trace_detail"
-    if _contains(question, COMPARE_KEYWORDS):
-        return "compare"
-    if _contains(question, ALERT_KEYWORDS):
-        return "alerts"
-    if _contains(question, ERROR_KEYWORDS):
-        return "error"
-    if _contains(question, MODEL_KEYWORDS) and (has_cost or has_token or has_latency or "상태" in question):
-        return "models"
-    if _contains(question, RANKING_KEYWORDS):
-        return "ranking"
-    if has_token and asks_top_feature:
-        return "top_tokens"
-    if has_cost and asks_top_feature:
-        return "top_costs"
-    if has_cost:
-        return "cost"
-    if mentions_rag_or_llm and (has_latency or "느린 것" in question):
-        return "rag_vs_llm"
-    if has_latency:
-        return "latency"
-
-    if request.scenario == "high_token":
-        return "top_tokens"
-    if request.scenario == "error":
-        return "error"
-    if request.scenario in {"slow_retrieve", "slow_llm"}:
-        return "latency"
-    return (
-        "overview"
-        if request.scenario != "normal"
-        or "olly" in question
-        or "대시보드" in question
-        or _contains(question, ("상태", "요약", "현황", "health", "summary", "overview"))
-        else None
-    )
-
-
-def _contains(text: str, keywords: tuple[str, ...]) -> bool:
-    return any(keyword in text for keyword in keywords)
-
-
-def _extract_window(question: str, default: str = "1h") -> str:
-    text = question.lower()
-    if _contains(text, ("15분", "15m", "quarter")):
-        return "15m"
-    if _contains(text, ("6시간", "6h")):
-        return "6h"
-    if _contains(text, ("24시간", "24h", "하루", "오늘", "어제", "전일", "지난날")):
-        return "24h"
-    if _contains(text, ("1시간", "한 시간", "1h", "최근")):
-        return "1h"
-    return default if default in {"15m", "1h", "6h", "24h"} else "1h"
-
-
-def _extract_trace_id(question: str) -> str | None:
-    match = TRACE_ID_RE.search(question)
-    return match.group(0) if match else None
-
-
-def _extract_request_id(question: str) -> str | None:
-    match = REQUEST_ID_RE.search(question)
-    return match.group(0) if match else None
-
-
-async def _collect_period_comparison(window: str) -> dict[str, dict[str, float]]:
-    query_pairs = {
-        "total_requests": f"sum(increase(olly_requests_total[{window}]))",
-        "total_tokens": f"sum(increase(olly_tokens_total[{window}]))",
-        "estimated_cost_usd": f"sum(increase(olly_cost_usd_total[{window}]))",
-        "infra_cost_usd": f"sum(increase(olly_infra_cost_usd_total[{window}]))",
-        "avg_latency_seconds": (
-            f"sum(increase(olly_request_duration_seconds_sum[{window}])) "
-            f"/ clamp_min(sum(increase(olly_request_duration_seconds_count[{window}])), 1)"
-        ),
-        "error_rate_percent": (
-            f"100 * sum(increase(olly_requests_total{{status=\"error\"}}[{window}])) "
-            f"/ clamp_min(sum(increase(olly_requests_total[{window}])), 1)"
-        ),
-    }
-    comparison: dict[str, dict[str, float]] = {}
-    async with httpx.AsyncClient(timeout=8.0) as client:
-        for key, query in query_pairs.items():
-            current = await _prometheus_scalar(client, query)
-            previous = await _prometheus_scalar(client, _with_offset(query, window))
-            comparison[key] = {
-                "current": current,
-                "previous": previous,
-                "delta": current - previous,
-                "change_percent": _change_percent(current, previous),
-            }
-    return comparison
-
-
-def _with_offset(query: str, window: str) -> str:
-    return query.replace(f"[{window}]", f"[{window}] offset {window}")
-
-
-async def _prometheus_scalar(client: httpx.AsyncClient, query: str) -> float:
-    try:
-        response = await client.get(f"{settings.prometheus_url}/api/v1/query", params={"query": query})
-        response.raise_for_status()
-        payload = response.json()
-        result = payload.get("data", {}).get("result", [])
-        if payload.get("status") != "success" or not result:
-            return 0.0
-        return float(result[0]["value"][1])
-    except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError):
-        return 0.0
-
-
-def _change_percent(current: float, previous: float) -> float:
-    if previous == 0:
-        return 0.0
-    return (current - previous) / previous * 100
+    return classify_intent(request) is not None
 
 
 def _answer_latency(snapshot: dict[str, Any], window: str) -> str:
@@ -276,41 +117,41 @@ def _answer_cost(snapshot: dict[str, Any], window: str, question: str = "") -> s
     if top_token:
         evidence.append(f"참고로 토큰을 가장 많이 쓴 기능은 {top_token['label']}={_number(top_token['value'])}입니다.")
 
-    if _contains(question.lower(), ("어제", "yesterday", "2배", "전일")):
+    if contains(question.lower(), ("어제", "yesterday", "2배", "전일")):
         evidence.append("현재 MVP 답변은 전일 대비 계산이 아니라 대시보드의 최근 수집 구간 기준 원인 분석입니다.")
 
     return "\n\n".join([cause, "\n".join(f"- {item}" for item in evidence), cost_reason])
 
 
 def _answer_comparison(
-    snapshot: dict[str, Any], comparison: dict[str, dict[str, float]], window: str, question: str
+    snapshot: dict[str, Any], comparison: dict[str, MetricComparison], window: str, question: str
 ) -> str:
     text = question.lower()
     metric_name = "estimated_cost_usd"
     label = "비용"
     formatter = _usd
-    if _contains(text, TOKEN_KEYWORDS):
+    if contains(text, TOKEN_KEYWORDS):
         metric_name = "total_tokens"
         label = "토큰"
         formatter = _number
-    elif _contains(text, LATENCY_KEYWORDS):
+    elif contains(text, LATENCY_KEYWORDS):
         metric_name = "avg_latency_seconds"
         label = "평균 latency"
         formatter = _seconds
-    elif _contains(text, ERROR_KEYWORDS):
+    elif contains(text, ERROR_KEYWORDS):
         metric_name = "error_rate_percent"
         label = "error rate"
         formatter = _percent
-    elif _contains(text, ("요청", "request", "트래픽")):
+    elif contains(text, ("요청", "request", "트래픽")):
         metric_name = "total_requests"
         label = "요청 수"
         formatter = _number
 
-    row = comparison.get(metric_name, {"current": 0.0, "previous": 0.0, "delta": 0.0, "change_percent": 0.0})
-    current = row["current"]
-    previous = row["previous"]
-    delta = row["delta"]
-    change = row["change_percent"]
+    row = comparison.get(metric_name, MetricComparison(0.0, 0.0, 0.0, 0.0))
+    current = row.current
+    previous = row.previous
+    delta = row.delta
+    change = row.change_percent
     direction = "증가" if delta > 0 else "감소" if delta < 0 else "변화 없음"
 
     cause = _comparison_cause(snapshot, metric_name)
@@ -431,8 +272,8 @@ def _answer_rag_vs_llm(snapshot: dict[str, Any], window: str) -> str:
 
 
 async def _answer_trace_detail(question: str, snapshot: dict[str, Any], window: str) -> str:
-    trace_id = _extract_trace_id(question)
-    request_id = _extract_request_id(question)
+    trace_id = extract_trace_id(question)
+    request_id = extract_request_id(question)
     trace_data: dict[str, Any] | None = None
 
     if trace_id:
@@ -581,6 +422,20 @@ def _answer_overview(snapshot: dict[str, Any], window: str) -> str:
         f"현재 가장 큰 병목 후보는 {top_stage['label']} 단계이며 p95는 {_seconds(top_stage['value'])}입니다.\n\n"
         "즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다."
     )
+
+
+SUMMARY_HANDLERS: dict[str, Callable[[dict[str, Any], str], str]] = {
+    "alerts": _answer_alerts,
+    "error": _answer_error,
+    "top_tokens": _answer_top_tokens,
+    "top_costs": _answer_top_costs,
+    "models": _answer_models,
+    "ranking": _answer_ranking,
+    "slowest_requests": _answer_slowest_requests,
+    "rag_vs_llm": _answer_rag_vs_llm,
+    "latency": _answer_latency,
+    "overview": _answer_overview,
+}
 
 
 def _stage_summary(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
