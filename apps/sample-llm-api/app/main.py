@@ -133,8 +133,29 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 answer = await postprocess(answer)
 
     except Exception as exc:
-        record_error(metric_labels, request_id, trace_id, time.perf_counter() - start)
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        latency_seconds = time.perf_counter() - start
+        record_error(metric_labels, request_id, trace_id, latency_seconds)
+        if request.scenario == "error":
+            answer = _demo_error_answer(request_id, trace_id)
+            output_tokens = estimate_tokens(answer)
+            return ChatResponse(
+                request_id=request_id,
+                trace_id=trace_id,
+                answer=answer,
+                model=model_name,
+                feature=request.feature,
+                llm_backend=settings.llm_backend,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                cost_usd=0.0,
+                token_cost_usd=0.0,
+                infra_cost_usd=0.0,
+                compute_seconds=0.0,
+                compute_resource=settings.local_compute_resource,
+                latency_ms=int(latency_seconds * 1000),
+                status="error",
+            )
+        raise HTTPException(status_code=500, detail="요청 처리 중 서버 오류가 발생했습니다.") from exc
 
     latency_seconds = time.perf_counter() - start
     record_success(metric_labels, request_id, trace_id, input_tokens, output_tokens, cost, latency_seconds)
@@ -155,4 +176,15 @@ async def chat(request: ChatRequest) -> ChatResponse:
         compute_resource=settings.local_compute_resource,
         latency_ms=int(latency_seconds * 1000),
         status="success",
+    )
+
+
+def _demo_error_answer(request_id: str, trace_id: str) -> str:
+    return (
+        "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n"
+        f"- request_id: {request_id}\n"
+        f"- trace_id: {trace_id}\n"
+        "- status: error\n\n"
+        "즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. "
+        "운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다."
     )

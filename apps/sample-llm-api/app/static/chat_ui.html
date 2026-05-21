@@ -266,8 +266,12 @@
     function metadataBar(data) {
       const totalTokens = Number(data.input_tokens || 0) + Number(data.output_tokens || 0);
       const latencyClass = Number(data.latency_ms || 0) >= 1000 ? "bg-tertiary-container/20 border border-tertiary px-1 rounded text-tertiary" : "text-secondary";
+      const statusBadge = data.status === "error"
+        ? '<div class="flex items-center gap-1 bg-error-container/20 border border-error px-1 rounded"><span class="font-label-xs text-label-xs text-error">상태:</span><span class="font-data-mono text-data-mono text-error font-medium">ERROR</span></div>'
+        : "";
       return `
         <div class="bg-[#0B0E14] border border-[#30363D] px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-2 rounded">
+          ${statusBadge}
           <div class="flex items-center gap-1"><span class="font-label-xs text-label-xs text-on-surface-variant">요청:</span><span class="font-data-mono text-data-mono text-on-surface">${escapeHtml(data.request_id)}</span></div>
           <div class="flex items-center gap-1"><span class="font-label-xs text-label-xs text-on-surface-variant">트레이스:</span><span class="font-data-mono text-data-mono text-on-surface">${escapeHtml(data.trace_id)}</span></div>
           <div class="flex items-center gap-1 ${latencyClass}"><span class="font-label-xs text-label-xs text-on-surface-variant">응답시간:</span><span class="font-data-mono text-data-mono font-medium">${Number(data.latency_ms || 0)}ms</span></div>
@@ -280,15 +284,26 @@
     }
 
     function addAssistantMessage(data) {
+      const isError = data.status === "error";
+      const cardClass = isError
+        ? "bg-error-container/10 border border-error"
+        : "bg-[#161B22] border border-[#30363D]";
+      const headerClass = isError
+        ? "border-b border-error/30"
+        : "border-b border-[#30363D]";
+      const icon = isError ? "error" : "smart_toy";
+      const iconClass = isError ? "text-error" : "text-primary";
+      const title = isError ? "실패 요청 기록됨" : "OLLY 분석 도우미";
+      const textClass = isError ? "text-error" : "text-on-surface";
       chatHistory.insertAdjacentHTML("beforeend", `
         <div class="flex justify-start w-full">
           <div class="flex flex-col gap-2 max-w-[80%]">
-            <div class="bg-[#161B22] border border-[#30363D] p-4 rounded-tl-lg rounded-tr-lg rounded-br-lg">
-              <div class="flex items-center gap-2 mb-2 border-b border-[#30363D] pb-2">
-                <span class="material-symbols-outlined text-primary text-[18px]">smart_toy</span>
-                <span class="font-label-xs text-label-xs text-on-surface-variant">OLLY 분석 도우미</span>
+            <div class="${cardClass} p-4 rounded-tl-lg rounded-tr-lg rounded-br-lg">
+              <div class="flex items-center gap-2 mb-2 ${headerClass} pb-2">
+                <span class="material-symbols-outlined ${iconClass} text-[18px]">${icon}</span>
+                <span class="font-label-xs text-label-xs ${isError ? "text-error" : "text-on-surface-variant"}">${title}</span>
               </div>
-              <p class="font-body-md text-body-md text-on-surface whitespace-pre-wrap">${escapeHtml(data.answer)}</p>
+              <p class="font-body-md text-body-md ${textClass} whitespace-pre-wrap">${escapeHtml(data.answer)}</p>
             </div>
             ${metadataBar(data)}
           </div>
