@@ -3,14 +3,34 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel, Field
 
+from app.alert_storage import AlertStore, Comparator, EvalWindow, MetricKey
+from app.alerts import METRIC_CATALOG, AlertEvaluator
 from app.config import Settings
 
 
 router = APIRouter()
 settings = Settings.from_env()
+alert_store = AlertStore()
+alert_evaluator: AlertEvaluator | None = None
+
+
+def set_alert_evaluator(evaluator: AlertEvaluator) -> None:
+    global alert_evaluator
+    alert_evaluator = evaluator
+
+
+class AlertRulePayload(BaseModel):
+    name: str = Field(..., min_length=1, max_length=80)
+    metric: MetricKey
+    comparator: Comparator
+    threshold: float
+    window: EvalWindow = "5m"
+    cooldown_seconds: int = Field(300, ge=10, le=86400)
+    webhook_url: str = Field(..., min_length=10)
 
 WINDOWS = {
     "15m": 15 * 60,
@@ -264,3 +284,85 @@ def _tag_number(tags: list[dict[str, Any]], key: str) -> float:
         return float(value)
     except (TypeError, ValueError):
         return 0.0
+
+
+@router.get("/api/alerts/metrics")
+async def list_alert_metrics() -> dict[str, Any]:
+    return {
+        "metrics": [
+            {"key": spec.key, "label": spec.label, "unit": spec.unit}
+            for spec in METRIC_CATALOG.values()
+        ],
+        "windows": ["1m", "5m", "15m"],
+        "comparators": [
+            {"key": "gt", "label": "초과 (>)"},
+            {"key": "lt", "label": "미만 (<)"},
+        ],
+    }
+
+
+@router.get("/api/alerts/rules")
+async def list_alert_rules() -> dict[str, Any]:
+    rules = await alert_store.list_rules()
+    return {"rules": [_serialize_rule(rule) for rule in rules]}
+
+
+@router.post("/api/alerts/rules", status_code=201)
+async def create_alert_rule(payload: AlertRulePayload) -> dict[str, Any]:
+    rule = await alert_store.create(
+        name=payload.name,
+        metric=payload.metric,
+        comparator=payload.comparator,
+        threshold=payload.threshold,
+        window=payload.window,
+        cooldown_seconds=payload.cooldown_seconds,
+        webhook_url=payload.webhook_url,
+    )
+    return _serialize_rule(rule)
+
+
+@router.delete("/api/alerts/rules/{rule_id}", status_code=204)
+async def delete_alert_rule(rule_id: str) -> None:
+    deleted = await alert_store.delete(rule_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="rule not found")
+
+
+@router.post("/api/alerts/rules/{rule_id}/toggle")
+async def toggle_alert_rule(rule_id: str, enabled: bool = Query(...)) -> dict[str, Any]:
+    rule = await alert_store.set_enabled(rule_id, enabled)
+    if rule is None:
+        raise HTTPException(status_code=404, detail="rule not found")
+    return _serialize_rule(rule)
+
+
+@router.get("/api/alerts/history")
+async def alert_history(limit: int = Query(20, ge=1, le=100)) -> dict[str, Any]:
+    if alert_evaluator is None:
+        return {"history": []}
+    return {"history": alert_evaluator.history(limit=limit)}
+
+
+def _serialize_rule(rule: Any) -> dict[str, Any]:
+    return {
+        "id": rule.id,
+        "name": rule.name,
+        "metric": rule.metric,
+        "metric_label": METRIC_CATALOG[rule.metric].label,
+        "metric_unit": METRIC_CATALOG[rule.metric].unit,
+        "comparator": rule.comparator,
+        "threshold": rule.threshold,
+        "window": rule.window,
+        "cooldown_seconds": rule.cooldown_seconds,
+        "webhook_url_masked": _mask_webhook(rule.webhook_url),
+        "enabled": rule.enabled,
+        "created_at": rule.created_at,
+        "last_fired_at": rule.last_fired_at,
+        "last_value": rule.last_value,
+    }
+
+
+def _mask_webhook(url: str) -> str:
+    if len(url) <= 24:
+        return url[:4] + "***"
+    return url[:24] + "***" + url[-6:]

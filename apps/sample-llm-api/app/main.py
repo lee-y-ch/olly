@@ -6,9 +6,11 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from opentelemetry import trace
 
 from app import mock_llm, ollama_llm
+from app.alert_storage import AlertStore
+from app.alerts import AlertEvaluator
 from app.analysis import build_observability_answer
 from app.config import Settings
-from app.dashboard import router as dashboard_router
+from app.dashboard import router as dashboard_router, set_alert_evaluator
 from app.metrics import CostBreakdown, RequestMetricLabels, record_error, record_llm_duration, record_success
 from app.metrics import stage_timer
 from app.mock_llm import postprocess, retrieve
@@ -33,6 +35,29 @@ app = FastAPI(title="OLLY Sample LLM API", version="0.1.0")
 app.include_router(dashboard_router)
 setup_telemetry(app)
 tracer = get_tracer()
+
+
+async def _summarize_alert(prompt: str) -> str:
+    summary_request = ChatRequest(question=prompt, feature="alert_summary", scenario="normal")
+    answer, _, _, _ = await llm_client.llm_call(summary_request, context=[])
+    if not answer:
+        return ""
+    return answer.strip().splitlines()[0]
+
+
+alert_store = AlertStore()
+alert_evaluator = AlertEvaluator(alert_store, settings, summarizer=_summarize_alert)
+set_alert_evaluator(alert_evaluator)
+
+
+@app.on_event("startup")
+async def start_alert_evaluator() -> None:
+    alert_evaluator.start()
+
+
+@app.on_event("shutdown")
+async def stop_alert_evaluator() -> None:
+    await alert_evaluator.stop()
 
 
 @app.get("/health")

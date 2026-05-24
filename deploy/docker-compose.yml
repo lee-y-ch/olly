@@ -15,6 +15,11 @@ services:
       PUBLIC_JAEGER_URL: http://localhost:16686
       OTEL_SERVICE_NAME: olly-sample-api
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      ALERT_RULES_PATH: /var/lib/olly/alert_rules.json
+      ALERT_EVAL_INTERVAL_SECONDS: "30"
+      ALERT_LLM_SUMMARY: "true"
+    volumes:
+      - olly-alert-rules:/var/lib/olly
     ports:
       - "8001:8000"
     depends_on:
@@ -94,3 +99,4 @@ services:
 
 volumes:
   ollama-data:
+  olly-alert-rules:
