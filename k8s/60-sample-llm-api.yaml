@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-llm-api
+  namespace: olly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-llm-api
+  template:
+    metadata:
+      labels:
+        app: sample-llm-api
+    spec:
+      containers:
+        - name: sample-llm-api
+          image: olly-sample-llm-api:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: LLM_BACKEND
+              value: ollama
+            - name: OLLAMA_BASE_URL
+              value: http://ollama:11434
+            - name: OLLAMA_MODEL
+              value: gemma3:1b
+            - name: STABLE_DEMO_ANSWERS
+              value: "true"
+            - name: LOCAL_COMPUTE_RESOURCE
+              value: cpu
+            - name: LOCAL_COMPUTE_HOURLY_USD
+              value: "0.05"
+            - name: PROMETHEUS_URL
+              value: http://prometheus:9090
+            - name: JAEGER_URL
+              value: http://jaeger:16686
+            - name: PUBLIC_JAEGER_URL
+              value: http://localhost:16686
+            - name: OTEL_SERVICE_NAME
+              value: olly-sample-api
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-collector:4317
+            - name: ALERT_RULES_PATH
+              value: /var/lib/olly/alert_rules.json
+            - name: ALERT_EVAL_INTERVAL_SECONDS
+              value: "30"
+            - name: ALERT_LLM_SUMMARY
+              value: "true"
+          volumeMounts:
+            - name: alert-rules
+              mountPath: /var/lib/olly
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: alert-rules
+          persistentVolumeClaim:
+            claimName: olly-alert-rules
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-llm-api
+  namespace: olly
+spec:
+  selector:
+    app: sample-llm-api
+  ports:
+    - port: 8000
+      targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-llm-api-nodeport
+  namespace: olly
+spec:
+  type: NodePort
+  selector:
+    app: sample-llm-api
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30001
