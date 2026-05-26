@@ -1684,6 +1684,108 @@
       `).join("");
     }
 
+    function ensureInsightElements() {
+      const titleEl = document.getElementById("ollyInsightTitle");
+      if (!titleEl) return null;
+      const cardWrap = titleEl.closest("div");
+      if (!cardWrap) return null;
+
+      let evidenceEl = document.getElementById("ollyInsightEvidence");
+      if (!evidenceEl) {
+        evidenceEl = document.createElement("div");
+        evidenceEl.id = "ollyInsightEvidence";
+        evidenceEl.className = "mt-3 flex flex-wrap gap-2";
+        cardWrap.appendChild(evidenceEl);
+      }
+
+      let traceBtn = document.getElementById("ollyInsightTraceButton");
+      if (!traceBtn) {
+        traceBtn = document.createElement("button");
+        traceBtn.id = "ollyInsightTraceButton";
+        traceBtn.type = "button";
+        traceBtn.className = "hidden mt-3 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs px-3 py-1.5 hover:bg-primary/15 transition-colors";
+        traceBtn.textContent = "Trace 보기";
+        cardWrap.appendChild(traceBtn);
+      }
+
+      return { evidenceEl, traceBtn };
+    }
+
+    function applyPrimaryInsight(insight) {
+      const titleEl = document.getElementById("ollyInsightTitle");
+      const bodyEl = document.getElementById("ollyInsightBody");
+      if (!titleEl || !bodyEl) return;
+
+      const ui = ensureInsightElements();
+      const badgeTextEl = document.querySelector(".olly-badge span:last-child");
+      const fallback = {
+        title: "신호가 조용해요.",
+        summary: "최근 요청에서 실패, 큰 지연, 토큰 급증 신호는 보이지 않아요.",
+        badge: "calm mode",
+        evidence: ["error_requests=0", "slow_requests=0", "high_token_requests=0"],
+        target_trace_id: null,
+      };
+      const resolved = insight && typeof insight === "object" ? insight : fallback;
+
+      titleEl.textContent = resolved.title || fallback.title;
+      bodyEl.textContent = resolved.summary || fallback.summary;
+      if (badgeTextEl) badgeTextEl.textContent = resolved.badge || fallback.badge;
+
+      if (ui?.evidenceEl) {
+        const items = Array.isArray(resolved.evidence) ? resolved.evidence.slice(0, 3) : [];
+        ui.evidenceEl.innerHTML = items
+          .map((item) => `<span class="inline-flex items-center rounded-full border border-outline-variant bg-white/70 px-2.5 py-1 text-[11px] text-on-surface-variant">${escapeHtml(String(item))}</span>`)
+          .join("");
+      }
+
+      if (ui?.traceBtn) {
+        const traceId = resolved.target_trace_id;
+        if (traceId) {
+          ui.traceBtn.classList.remove("hidden");
+          ui.traceBtn.onclick = () => {
+            selectTab("traces");
+            selectTrace(traceId);
+          };
+        } else {
+          ui.traceBtn.classList.add("hidden");
+          ui.traceBtn.onclick = null;
+        }
+      }
+    }
+
+    // Final override to prefer backend-provided primary_insight while preserving KPI rendering.
+    renderDashboard = function() {
+      const { kpis, recent_requests, alerts, breakdowns, primary_insight } = state.data;
+      const successRate = 100 - Number(kpis.error_rate_percent || 0);
+      const avgLatencyMs = Number(kpis.avg_latency_seconds || 0) * 1000;
+
+      setKPI("avgLatency", fmt.seconds(kpis.avg_latency_seconds), () =>
+        avgLatencyMs >= 5000 ? "error" : avgLatencyMs >= 2000 ? "warn" : null,
+      );
+      setKPI("totalTokens", fmt.number(kpis.total_tokens));
+      setKPI("totalCost", fmt.usd(kpis.estimated_cost_usd));
+      setKPI("successRate", fmt.percent(successRate), () =>
+        successRate < 90 ? "error" : successRate < 99 ? "warn" : null,
+      );
+
+      document.getElementById("tokenCost").textContent = fmt.usd(kpis.token_cost_usd);
+      document.getElementById("infraCost").textContent = fmt.usd(kpis.infra_cost_usd);
+      document.getElementById("recentCount").textContent = `${(recent_requests || []).length} traces`;
+
+      applyPrimaryInsight(primary_insight);
+
+      renderRequests(recent_requests || []);
+      renderOverviewRecentList(recent_requests || []);
+      renderCostBars(breakdowns?.cost_by_feature || []);
+      renderAlerts(alerts || []);
+
+      if (!state.selectedTraceId && recent_requests?.length) {
+        selectTrace(recent_requests[0].trace_id);
+      } else if (state.selectedTraceId) {
+        selectTrace(state.selectedTraceId);
+      }
+    };
+
     // ============ EVENT WIRING ============
     document.getElementById("windowSelect").addEventListener("change", loadDashboard);
     document.getElementById("refreshButton").addEventListener("click", () => {

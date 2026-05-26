@@ -112,6 +112,11 @@ async def collect_dashboard_summary(window: str = "1h") -> dict[str, Any]:
         }
         alerts = await _prometheus_alerts(client)
         recent_requests = await _jaeger_recent_requests(client, window)
+    primary_insight = _build_primary_insight(
+        kpis=scalars,
+        recent_requests=recent_requests,
+        alerts=alerts,
+    )
 
     return {
         "window": window,
@@ -120,6 +125,7 @@ async def collect_dashboard_summary(window: str = "1h") -> dict[str, Any]:
         "breakdowns": vectors,
         "alerts": alerts,
         "recent_requests": recent_requests,
+        "primary_insight": primary_insight,
         "links": {
             "jaeger": settings.public_jaeger_url,
             "prometheus": settings.prometheus_url,
@@ -284,6 +290,200 @@ def _tag_number(tags: list[dict[str, Any]], key: str) -> float:
         return float(value)
     except (TypeError, ValueError):
         return 0.0
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _format_ms(ms: Any) -> str:
+    value = _safe_float(ms, 0.0)
+    if value >= 1000:
+        return f"{(value / 1000):.2f}s"
+    return f"{int(round(value))}ms"
+
+
+def _dominant_stage(stages: Any) -> dict[str, Any] | None:
+    if not isinstance(stages, list):
+        return None
+    parsed: list[dict[str, Any]] = []
+    for stage in stages:
+        if not isinstance(stage, dict):
+            continue
+        duration = _safe_float(stage.get("duration_ms"), 0.0)
+        if duration > 0:
+            parsed.append(
+                {
+                    "name": str(stage.get("name") or "unknown"),
+                    "duration_ms": duration,
+                }
+            )
+    if not parsed:
+        return None
+    total = sum(item["duration_ms"] for item in parsed)
+    if total <= 0:
+        return None
+    dominant = max(parsed, key=lambda item: item["duration_ms"])
+    return {
+        "name": dominant["name"],
+        "duration_ms": dominant["duration_ms"],
+        "ratio": dominant["duration_ms"] / total,
+    }
+
+
+def _build_primary_insight(
+    *,
+    kpis: dict[str, Any] | None,
+    recent_requests: list[dict[str, Any]] | None,
+    alerts: list[dict[str, Any]] | None,
+) -> dict[str, Any]:
+    rows = recent_requests or []
+    alert_rows = alerts or []
+
+    error_rows = [row for row in rows if str(row.get("status", "")).lower() == "error"]
+    if error_rows:
+        target = error_rows[0]
+        request_id = str(target.get("request_id") or "-")
+        scenario = str(target.get("scenario") or "unknown")
+        return {
+            "severity": "critical",
+            "type": "error_request",
+            "badge": "needs attention",
+            "title": "실패 요청이 남아 있어요.",
+            "summary": f"최근 요청 중 실패 상태가 {len(error_rows)}건 확인됐어요. {request_id} 요청을 먼저 확인하는 게 좋아요.",
+            "evidence": [
+                f"error_requests={len(error_rows)}",
+                f"request_id={request_id}",
+                f"scenario={scenario}",
+                f"latency={_format_ms(target.get('latency_ms'))}",
+            ],
+            "target_trace_id": target.get("trace_id"),
+            "target_request_id": target.get("request_id"),
+            "recommended_action": "요청 추적 탭에서 해당 trace의 실패 span을 확인하세요.",
+        }
+
+    slow_rows = [row for row in rows if _safe_float(row.get("latency_ms"), 0.0) >= 3000]
+    if slow_rows:
+        target = max(slow_rows, key=lambda row: _safe_float(row.get("latency_ms"), 0.0))
+        scenario = str(target.get("scenario") or "unknown")
+        if scenario == "slow_retrieve":
+            insight_type = "slow_retrieve"
+            title = "RAG 검색 지연이 보여요."
+            recommended_action = "요청 추적 탭에서 retrieve span과 문서 검색 단계를 확인하세요."
+        elif scenario == "slow_llm":
+            insight_type = "slow_llm"
+            title = "LLM 응답 지연이 보여요."
+            recommended_action = "요청 추적 탭에서 llm_call span과 모델 응답 시간을 확인하세요."
+        else:
+            insight_type = "slow_request"
+            title = "느린 요청이 보여요."
+            recommended_action = "요청 추적 탭에서 가장 오래 걸린 span을 확인하세요."
+
+        dom = _dominant_stage(target.get("stages"))
+        request_id = str(target.get("request_id") or "-")
+        latency_text = _format_ms(target.get("latency_ms"))
+        evidence = [
+            f"request_id={request_id}",
+            f"feature={target.get('feature') or 'unknown'}",
+            f"scenario={scenario}",
+            f"latency={latency_text}",
+        ]
+        if dom:
+            ratio_pct = int(round(_safe_float(dom.get("ratio")) * 100))
+            evidence.append(f"dominant_stage={dom['name']}")
+            evidence.append(f"dominant_stage_ratio={ratio_pct}%")
+            summary = (
+                f"{request_id} 요청이 {latency_text}로 가장 느렸고, "
+                f"{dom['name']} 단계가 전체 처리 시간의 {ratio_pct}%를 차지했어요."
+            )
+        else:
+            summary = (
+                f"{request_id} 요청이 {latency_text}로 가장 느렸어요. "
+                "span detail이 없어 전체 latency 기준으로 판단했어요."
+            )
+
+        return {
+            "severity": "warning",
+            "type": insight_type,
+            "badge": "slow span",
+            "title": title,
+            "summary": summary,
+            "evidence": evidence,
+            "target_trace_id": target.get("trace_id"),
+            "target_request_id": target.get("request_id"),
+            "recommended_action": recommended_action,
+        }
+
+    high_token_rows = [row for row in rows if str(row.get("scenario") or "") == "high_token"]
+    if high_token_rows:
+        target = max(high_token_rows, key=lambda row: int(row.get("tokens") or 0))
+        token_count = int(target.get("tokens") or 0)
+        request_id = str(target.get("request_id") or "-")
+        return {
+            "severity": "warning",
+            "type": "high_token",
+            "badge": "token spike",
+            "title": "토큰 사용량이 높은 요청이 있어요.",
+            "summary": (
+                f"최근 요청 중 high_token 시나리오가 {len(high_token_rows)}건 감지됐어요. "
+                f"{request_id} 요청은 {token_count} tokens를 사용했어요."
+            ),
+            "evidence": [
+                f"high_token_requests={len(high_token_rows)}",
+                f"request_id={request_id}",
+                f"feature={target.get('feature') or 'unknown'}",
+                f"tokens={token_count}",
+                f"latency={_format_ms(target.get('latency_ms'))}",
+            ],
+            "target_trace_id": target.get("trace_id"),
+            "target_request_id": target.get("request_id"),
+            "recommended_action": "프롬프트 길이와 응답 길이를 확인해 비용 증가 원인을 점검하세요.",
+        }
+
+    if alert_rows:
+        critical = next(
+            (a for a in alert_rows if str(a.get("severity", "")).lower() == "critical"),
+            None,
+        )
+        selected = critical or alert_rows[0]
+        alert_severity = str(selected.get("severity") or "warning").lower()
+        return {
+            "severity": "critical" if alert_severity == "critical" else "warning",
+            "type": "active_alert",
+            "badge": "alert active",
+            "title": "활성 알림이 있어요.",
+            "summary": (
+                f"{selected.get('name', 'UnknownAlert')} 알림이 "
+                f"{selected.get('summary') or selected.get('state') or 'firing'} 상태예요."
+            ),
+            "evidence": [
+                f"alert={selected.get('name', 'UnknownAlert')}",
+                f"severity={selected.get('severity', 'warning')}",
+                f"state={selected.get('state', 'unknown')}",
+            ],
+            "target_trace_id": None,
+            "target_request_id": None,
+            "recommended_action": "알림 관리 탭에서 발화 조건과 최근 이력을 확인하세요.",
+        }
+
+    return {
+        "severity": "info",
+        "type": "calm",
+        "badge": "calm mode",
+        "title": "신호가 조용해요.",
+        "summary": "최근 요청에서 실패, 큰 지연, 토큰 급증 신호는 보이지 않아요.",
+        "evidence": [
+            f"error_requests={len(error_rows)}",
+            "slow_requests=0",
+            f"high_token_requests={len(high_token_rows)}",
+        ],
+        "target_trace_id": None,
+        "target_request_id": None,
+        "recommended_action": "현재 상태를 유지하면서 새 요청을 관찰하세요.",
+    }
 
 
 @router.get("/api/alerts/metrics")
