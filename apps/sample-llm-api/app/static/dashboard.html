@@ -846,6 +846,52 @@
       white-space: nowrap;
     }
 
+
+    /* ===== KPI value emphasis patch =====
+       metric-value also has font-data-mono; the global .font-data-mono rule uses !important,
+       so KPI values need a more specific !important override. */
+    .metric-card .metric-value,
+    .metric-card .metric-value.font-data-mono,
+    #avgLatency,
+    #totalTokens,
+    #totalCost,
+    #successRate {
+      display: block;
+      margin-top: 0.85rem !important;
+      font-size: clamp(32px, 2.35vw, 40px) !important;
+      line-height: 1.03 !important;
+      font-weight: 850 !important;
+      letter-spacing: -0.045em !important;
+    }
+
+    #totalCost {
+      font-size: clamp(28px, 1.95vw, 36px) !important;
+    }
+
+    .metric-card {
+      min-height: 10.8rem !important;
+    }
+
+    .metric-head {
+      margin-bottom: 0.65rem !important;
+    }
+
+    .metric-card [id$="Hint"] {
+      margin-top: 0.75rem !important;
+      font-size: 13px !important;
+    }
+
+    @media (max-width: 767px) {
+      .metric-card .metric-value,
+      .metric-card .metric-value.font-data-mono,
+      #avgLatency,
+      #totalTokens,
+      #totalCost,
+      #successRate {
+        font-size: 30px !important;
+      }
+    }
+
   </style>
 </head>
 <body class="bg-background text-on-surface font-body-md text-body-md h-screen overflow-hidden flex">
@@ -1120,7 +1166,7 @@
                 <div id="bottleneckBox" class="trace-bottleneck bg-tertiary/10 border border-tertiary/40 p-3 flex gap-3 mt-auto hidden">
                   <span class="material-symbols-outlined text-tertiary">insights</span>
                   <div>
-                    <h4 class="text-tertiary text-sm font-medium mb-1">Bottleneck</h4>
+                    <h4 class="text-tertiary text-sm font-medium mb-1">병목 감지</h4>
                     <p id="bottleneckText" class="text-xs text-on-surface-variant leading-relaxed">-</p>
                   </div>
                 </div>
@@ -1773,10 +1819,10 @@
       }).join("");
 
       const percent = Math.round((Number(slowest.duration_ms || 0) / total) * 100);
-      const stageLabel = slowest.name === "llm_call" ? "LLM generation" : slowest.name === "postprocess" ? "post-process" : "retrieve";
+      const stageLabel = slowest.name === "llm_call" ? "LLM 생성" : slowest.name === "postprocess" ? "후처리" : "retrieve";
       document.getElementById("bottleneckBox").classList.remove("hidden");
       document.getElementById("bottleneckText").textContent =
-        `Olly noticed a latency spike around ${stageLabel}. It accounts for about ${percent}% of the total trace time.`;
+        `${stageLabel} 단계가 전체 처리 시간의 약 ${percent}%를 차지했습니다. 지연 원인을 줄이려면 이 단계를 우선 확인하세요.`;
     }
 
     function renderCostBars(rows) {
