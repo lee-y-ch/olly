@@ -220,6 +220,34 @@
           </div>
         </section>
 
+        <section id="grafana" class="bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-3">
+          <div class="border-b border-outline-variant pb-2 flex items-center justify-between">
+            <div>
+              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Live Charts (Grafana)</h3>
+              <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Prometheus 원본 데이터를 Grafana가 실시간으로 그립니다. 클릭하면 Grafana에서 자세히 볼 수 있습니다.</p>
+            </div>
+            <a id="grafanaOpen" href="http://localhost:3001/d/olly-mvp/olly-mvp-dashboard?theme=dark" target="_blank" rel="noopener" class="font-label-xs text-label-xs text-primary hover:underline">Grafana에서 열기 ↗</a>
+          </div>
+          <div class="grid grid-cols-2 gap-gutter">
+            <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">p95 Latency</div>
+              <iframe id="grafanaPanelLatency" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+            </div>
+            <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Token Usage Trend</div>
+              <iframe id="grafanaPanelTokens" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+            </div>
+            <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Breakdown</div>
+              <iframe id="grafanaPanelCost" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+            </div>
+            <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Bottleneck by Stage p95</div>
+              <iframe id="grafanaPanelBottleneck" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+            </div>
+          </div>
+        </section>
+
         <section class="grid grid-cols-2 gap-gutter">
           <div class="bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
             <div class="border-b border-outline-variant pb-2 mb-4">
@@ -361,6 +389,47 @@
       if (!response.ok) throw new Error(`dashboard API failed: ${response.status}`);
       state.data = await response.json();
       renderDashboard();
+      updateGrafanaPanels(windowValue);
+    }
+
+    const GRAFANA_BASE_URL = `${window.location.protocol}//${window.location.hostname}:3001`;
+    const GRAFANA_DASHBOARD_PATH = "/d-solo/olly-mvp/olly-mvp-dashboard";
+    const GRAFANA_PANELS = {
+      grafanaPanelLatency: 4,
+      grafanaPanelTokens: 6,
+      grafanaPanelCost: 11,
+      grafanaPanelBottleneck: 13,
+    };
+    const GRAFANA_FROM_RANGE = {
+      "15m": "now-15m",
+      "1h": "now-1h",
+      "6h": "now-6h",
+      "24h": "now-24h",
+    };
+
+    function updateGrafanaPanels(windowValue) {
+      const from = GRAFANA_FROM_RANGE[windowValue] || "now-1h";
+      for (const [elementId, panelId] of Object.entries(GRAFANA_PANELS)) {
+        const params = new URLSearchParams({
+          orgId: "1",
+          panelId: String(panelId),
+          theme: "dark",
+          kiosk: "tv",
+          from,
+          to: "now",
+          refresh: "30s",
+        });
+        const url = `${GRAFANA_BASE_URL}${GRAFANA_DASHBOARD_PATH}?${params.toString()}`;
+        const iframe = document.getElementById(elementId);
+        if (iframe && iframe.src !== url) {
+          iframe.src = url;
+        }
+      }
+      const openLink = document.getElementById("grafanaOpen");
+      if (openLink) {
+        const params = new URLSearchParams({ theme: "dark", from, to: "now" });
+        openLink.href = `${GRAFANA_BASE_URL}/d/olly-mvp/olly-mvp-dashboard?${params.toString()}`;
+      }
     }
 
     function renderDashboard() {
