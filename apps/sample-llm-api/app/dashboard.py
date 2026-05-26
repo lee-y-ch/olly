@@ -32,6 +32,17 @@ class AlertRulePayload(BaseModel):
     cooldown_seconds: int = Field(300, ge=10, le=86400)
     webhook_url: str = Field(..., min_length=10)
 
+
+class AlertRulePatchPayload(BaseModel):
+    name: str | None = Field(None, min_length=1, max_length=80)
+    metric: MetricKey | None = None
+    comparator: Comparator | None = None
+    threshold: float | None = None
+    window: EvalWindow | None = None
+    cooldown_seconds: int | None = Field(None, ge=10, le=86400)
+    webhook_url: str | None = Field(None, min_length=10)
+    enabled: bool | None = None
+
 WINDOWS = {
     "15m": 15 * 60,
     "1h": 60 * 60,
@@ -518,6 +529,20 @@ async def create_alert_rule(payload: AlertRulePayload) -> dict[str, Any]:
         cooldown_seconds=payload.cooldown_seconds,
         webhook_url=payload.webhook_url,
     )
+    return _serialize_rule(rule)
+
+
+@router.patch("/api/alerts/rules/{rule_id}")
+async def patch_alert_rule(rule_id: str, payload: AlertRulePatchPayload) -> dict[str, Any]:
+    updates = payload.model_dump(exclude_unset=True)
+    if not updates:
+        rule = await alert_store.get(rule_id)
+        if rule is None:
+            raise HTTPException(status_code=404, detail="rule not found")
+        return _serialize_rule(rule)
+    rule = await alert_store.update(rule_id, **updates)
+    if rule is None:
+        raise HTTPException(status_code=404, detail="rule not found")
     return _serialize_rule(rule)
 
 

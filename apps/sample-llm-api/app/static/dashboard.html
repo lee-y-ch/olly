@@ -1215,6 +1215,8 @@
                   <span class="material-symbols-outlined text-sm">add_alert</span>
                   규칙 추가
                 </button>
+                <p id="ruleEditHint" class="font-label-xs text-label-xs text-on-surface-variant hidden">수정 모드에서는 webhook URL을 새로 입력한 경우에만 변경돼요.</p>
+                <button type="button" id="ruleCancelBtn" class="hidden rounded-xl border border-outline-variant px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container-high">수정 취소</button>
                 <p id="ruleFormError" class="font-label-xs text-label-xs text-error hidden"></p>
               </form>
             </div>
@@ -1943,7 +1945,52 @@
     setInterval(() => loadDashboard().catch(console.error), 5000);
 
     // ============ ALERTS ============
-    const alertState = { metrics: [], rules: [], history: [] };
+    const alertState = { metrics: [], rules: [], history: [], editingRuleId: null };
+
+    function setRuleFormMode(mode) {
+      const submitBtn = document.getElementById("ruleSubmitBtn");
+      const cancelBtn = document.getElementById("ruleCancelBtn");
+      const hint = document.getElementById("ruleEditHint");
+      const webhookInput = document.querySelector('#ruleForm input[name="webhook_url"]');
+      if (!submitBtn || !webhookInput) return;
+      const textNode = submitBtn.childNodes[submitBtn.childNodes.length - 1];
+      if (mode === "edit") {
+        if (textNode) textNode.textContent = " 규칙 저장";
+        cancelBtn?.classList.remove("hidden");
+        hint?.classList.remove("hidden");
+        webhookInput.required = false;
+        webhookInput.placeholder = "새 URL 입력 시에만 변경";
+      } else {
+        alertState.editingRuleId = null;
+        if (textNode) textNode.textContent = " 규칙 추가";
+        cancelBtn?.classList.add("hidden");
+        hint?.classList.add("hidden");
+        webhookInput.required = true;
+        webhookInput.placeholder = "https://discord.com/api/webhooks/...";
+      }
+    }
+
+    function resetRuleForm() {
+      const form = document.getElementById("ruleForm");
+      form.reset();
+      setRuleFormMode("create");
+      const errorEl = document.getElementById("ruleFormError");
+      errorEl.classList.add("hidden");
+      errorEl.textContent = "";
+    }
+
+    function fillRuleFormForEdit(rule) {
+      const form = document.getElementById("ruleForm");
+      form.elements.name.value = rule.name || "";
+      form.elements.metric.value = rule.metric || "";
+      form.elements.comparator.value = rule.comparator || "gt";
+      form.elements.threshold.value = rule.threshold ?? "";
+      form.elements.window.value = rule.window || "5m";
+      form.elements.cooldown_seconds.value = rule.cooldown_seconds ?? 300;
+      form.elements.webhook_url.value = "";
+      alertState.editingRuleId = rule.id;
+      setRuleFormMode("edit");
+    }
 
     async function loadAlertMetrics() {
       const res = await fetch("/api/alerts/metrics");
@@ -2005,7 +2052,9 @@
                 ${enabledChip}
               </div>
               <div class="flex gap-1 shrink-0">
-                <button data-toggle="${rule.id}" data-enabled="${rule.enabled}" class="text-xs px-2 py-1 hover:bg-surface-container-high rounded text-on-surface-variant" title="${rule.enabled ? "비활성화" : "활성화"}">${rule.enabled ? "OFF" : "ON"}</button>
+                <button data-toggle="${rule.id}" data-enabled="${rule.enabled}" role="switch" aria-checked="${rule.enabled ? "true" : "false"}" class="relative inline-flex h-6 w-10 items-center rounded-full transition-colors ${rule.enabled ? "bg-primary" : "bg-[#D5D5D7]"}" title="${rule.enabled ? "비활성화" : "활성화"}">
+                  <span class="inline-block h-5 w-5 rounded-full bg-white shadow transition-transform" style="transform: translateX(${rule.enabled ? "18px" : "2px"});"></span>
+                </button>
                 <button data-delete="${rule.id}" class="text-xs px-2 py-1 hover:bg-error/20 rounded text-error" title="삭제">삭제</button>
               </div>
             </div>
@@ -2080,10 +2129,12 @@
     });
 
     document.getElementById("ruleList").addEventListener("click", async (event) => {
-      const toggleId = event.target.dataset.toggle;
-      const deleteId = event.target.dataset.delete;
+      const toggleBtn = event.target.closest("[data-toggle]");
+      const deleteBtn = event.target.closest("[data-delete]");
+      const toggleId = toggleBtn?.dataset?.toggle;
+      const deleteId = deleteBtn?.dataset?.delete;
       if (toggleId) {
-        const enabled = event.target.dataset.enabled !== "true";
+        const enabled = toggleBtn.dataset.enabled !== "true";
         const rule = alertState.rules.find((r) => r.id === toggleId);
         try {
           const res = await fetch(`/api/alerts/rules/${toggleId}/toggle?enabled=${enabled}`, { method: "POST" });
@@ -2105,6 +2156,153 @@
           showToast("삭제 실패", "error");
         }
       }
+    });
+
+    // ===== Alert rule edit mode override =====
+    function ensureRuleEditControls() {
+      const form = document.getElementById("ruleForm");
+      if (!form) return;
+      if (!document.getElementById("ruleEditHint")) {
+        const hint = document.createElement("p");
+        hint.id = "ruleEditHint";
+        hint.className = "font-label-xs text-label-xs text-on-surface-variant hidden";
+        hint.textContent = "수정 모드에서는 webhook URL을 새로 입력한 경우에만 변경돼요.";
+        form.insertBefore(hint, document.getElementById("ruleFormError"));
+      }
+      if (!document.getElementById("ruleCancelBtn")) {
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.id = "ruleCancelBtn";
+        cancelBtn.className = "hidden rounded-xl border border-outline-variant px-3 py-2 text-xs text-on-surface-variant hover:bg-surface-container-high";
+        cancelBtn.textContent = "수정 취소";
+        form.insertBefore(cancelBtn, document.getElementById("ruleFormError"));
+      }
+    }
+
+    function setRuleFormMode(mode) {
+      const submitBtn = document.getElementById("ruleSubmitBtn");
+      const cancelBtn = document.getElementById("ruleCancelBtn");
+      const hint = document.getElementById("ruleEditHint");
+      const webhookInput = document.querySelector('#ruleForm input[name="webhook_url"]');
+      if (!submitBtn || !webhookInput) return;
+      const submitTextNode = submitBtn.childNodes[submitBtn.childNodes.length - 1];
+      if (mode === "edit") {
+        if (submitTextNode) submitTextNode.textContent = " 규칙 저장";
+        cancelBtn?.classList.remove("hidden");
+        hint?.classList.remove("hidden");
+        webhookInput.required = false;
+        webhookInput.placeholder = "새 URL 입력 시에만 변경";
+      } else {
+        alertState.editingRuleId = null;
+        if (submitTextNode) submitTextNode.textContent = " 규칙 추가";
+        cancelBtn?.classList.add("hidden");
+        hint?.classList.add("hidden");
+        webhookInput.required = true;
+        webhookInput.placeholder = "https://discord.com/api/webhooks/...";
+      }
+    }
+
+    function resetRuleForm() {
+      const form = document.getElementById("ruleForm");
+      form?.reset();
+      setRuleFormMode("create");
+      const errorEl = document.getElementById("ruleFormError");
+      if (errorEl) {
+        errorEl.classList.add("hidden");
+        errorEl.textContent = "";
+      }
+    }
+
+    function fillRuleFormForEdit(rule) {
+      const form = document.getElementById("ruleForm");
+      if (!form) return;
+      form.elements.name.value = rule.name || "";
+      form.elements.metric.value = rule.metric || "";
+      form.elements.comparator.value = rule.comparator || "gt";
+      form.elements.threshold.value = rule.threshold ?? "";
+      form.elements.window.value = rule.window || "5m";
+      form.elements.cooldown_seconds.value = rule.cooldown_seconds ?? 300;
+      form.elements.webhook_url.value = "";
+      alertState.editingRuleId = rule.id;
+      setRuleFormMode("edit");
+    }
+
+    const _renderRulesBase = renderRules;
+    renderRules = function() {
+      _renderRulesBase();
+      document.querySelectorAll('#ruleList button[data-toggle]').forEach((toggleBtn) => {
+        const parent = toggleBtn.parentElement;
+        if (!parent || parent.querySelector('button[data-edit]')) return;
+        const editBtn = document.createElement("button");
+        editBtn.dataset.edit = toggleBtn.dataset.toggle || "";
+        editBtn.className = "text-xs px-2 py-1 hover:bg-surface-container-high rounded text-primary";
+        editBtn.title = "수정";
+        editBtn.textContent = "수정";
+        parent.insertBefore(editBtn, toggleBtn);
+      });
+    };
+
+    // Replace the form node to remove previous submit handler and bind create/edit submit flow.
+    ensureRuleEditControls();
+    const originalRuleForm = document.getElementById("ruleForm");
+    if (originalRuleForm) {
+      const clonedRuleForm = originalRuleForm.cloneNode(true);
+      originalRuleForm.replaceWith(clonedRuleForm);
+      ensureRuleEditControls();
+      setRuleFormMode("create");
+      clonedRuleForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const submitBtn = document.getElementById("ruleSubmitBtn");
+        const fd = new FormData(clonedRuleForm);
+        const webhookValue = String(fd.get("webhook_url") || "").trim();
+        const basePayload = {
+          name: fd.get("name"),
+          metric: fd.get("metric"),
+          comparator: fd.get("comparator"),
+          threshold: Number(fd.get("threshold")),
+          window: fd.get("window"),
+          cooldown_seconds: Number(fd.get("cooldown_seconds")),
+        };
+        const isEdit = Boolean(alertState.editingRuleId);
+        const payload = isEdit
+          ? { ...basePayload, ...(webhookValue ? { webhook_url: webhookValue } : {}) }
+          : { ...basePayload, webhook_url: webhookValue };
+        const errorEl = document.getElementById("ruleFormError");
+        errorEl.classList.add("hidden");
+        submitBtn.disabled = true;
+        submitBtn.classList.add("opacity-60");
+        try {
+          const url = isEdit ? `/api/alerts/rules/${alertState.editingRuleId}` : "/api/alerts/rules";
+          const res = await fetch(url, {
+            method: isEdit ? "PATCH" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) {
+            const detail = await res.text();
+            throw new Error(detail || "규칙 저장에 실패했습니다.");
+          }
+          resetRuleForm();
+          await loadAlertRules();
+          showToast(isEdit ? "규칙이 저장되었습니다." : "규칙이 추가되었습니다.", "success");
+        } catch (err) {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove("hidden");
+          showToast("규칙 저장에 실패했습니다.", "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove("opacity-60");
+        }
+      });
+      document.getElementById("ruleCancelBtn")?.addEventListener("click", resetRuleForm);
+    }
+
+    document.getElementById("ruleList").addEventListener("click", (event) => {
+      const editId = event.target?.dataset?.edit;
+      if (!editId) return;
+      const rule = alertState.rules.find((item) => item.id === editId);
+      if (!rule) return;
+      fillRuleFormForEdit(rule);
     });
 
     loadAlertMetrics().then(loadAlertRules).catch(console.error);

@@ -104,6 +104,48 @@ class AlertStore:
             self._write_all(rules)
         return updated
 
+    async def update(
+        self,
+        rule_id: str,
+        *,
+        name: str | None = None,
+        metric: MetricKey | None = None,
+        comparator: Comparator | None = None,
+        threshold: float | None = None,
+        window: EvalWindow | None = None,
+        cooldown_seconds: int | None = None,
+        webhook_url: str | None = None,
+        enabled: bool | None = None,
+    ) -> AlertRule | None:
+        async with self._lock:
+            rules = self._read_all()
+            updated: AlertRule | None = None
+            for rule in rules:
+                if rule.id != rule_id:
+                    continue
+                if name is not None:
+                    rule.name = name
+                if metric is not None:
+                    rule.metric = metric
+                if comparator is not None:
+                    rule.comparator = comparator
+                if threshold is not None:
+                    rule.threshold = threshold
+                if window is not None:
+                    rule.window = window
+                if cooldown_seconds is not None:
+                    rule.cooldown_seconds = cooldown_seconds
+                if webhook_url is not None:
+                    rule.webhook_url = webhook_url
+                if enabled is not None:
+                    rule.enabled = enabled
+                updated = rule
+                break
+            if updated is None:
+                return None
+            self._write_all(rules)
+        return updated
+
     async def delete(self, rule_id: str) -> bool:
         async with self._lock:
             rules = self._read_all()
