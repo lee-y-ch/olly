@@ -59,6 +59,20 @@
             "data-mono": ["13px", { lineHeight: "1.4", fontWeight: "400" }],
             "headline-md": ["24px", { lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "600" }],
             "body-md": ["14px", { lineHeight: "1.5", fontWeight: "400" }]
+          },
+          keyframes: {
+            shimmer: {
+              "0%": { backgroundPosition: "-200% 0" },
+              "100%": { backgroundPosition: "200% 0" }
+            },
+            toastIn: {
+              "0%": { opacity: "0", transform: "translateY(8px)" },
+              "100%": { opacity: "1", transform: "translateY(0)" }
+            }
+          },
+          animation: {
+            shimmer: "shimmer 1.6s linear infinite",
+            "toast-in": "toastIn 0.2s ease-out"
           }
         }
       }
@@ -71,281 +85,377 @@
     ::-webkit-scrollbar-track { background: #10131a; }
     ::-webkit-scrollbar-thumb { background: #32353c; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #424754; }
+    .skeleton {
+      background: linear-gradient(90deg, #1d2026 0%, #2a2e36 50%, #1d2026 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s linear infinite;
+      color: transparent !important;
+      border-radius: 4px;
+      display: inline-block;
+      min-width: 60px;
+    }
+    .nav-link { transition: all 0.15s ease; }
+    .nav-link.active {
+      background: rgba(78, 222, 163, 0.12);
+      color: #4edea3;
+      border-left-color: #4edea3;
+    }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+    .pulse-dot {
+      position: relative;
+    }
+    .pulse-dot::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 9999px;
+      background: inherit;
+      opacity: 0.5;
+      animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    @keyframes ping {
+      75%, 100% { transform: scale(2); opacity: 0; }
+    }
+    .tooltip-host { position: relative; }
+    .tooltip-host .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.15s;
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #32353c;
+      color: #e1e2eb;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 50;
+      border: 1px solid #424754;
+    }
+    .tooltip-host:hover .tooltip { visibility: visible; opacity: 1; }
   </style>
 </head>
 <body class="bg-background text-on-surface font-body-md text-body-md h-screen overflow-hidden flex">
   <nav class="bg-surface-container-low border-r border-outline-variant flex flex-col z-40 fixed left-0 top-0 h-full w-64">
     <div class="p-margin border-b border-outline-variant">
-      <h2 class="font-headline-md text-headline-md text-primary tracking-tighter font-bold">OLLY Observability</h2>
+      <h2 class="font-headline-md text-headline-md text-primary tracking-tighter font-bold">OLLY</h2>
       <p class="font-label-xs text-label-xs text-on-surface-variant mt-2 flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-secondary"></span> System Status: Active
+        <span id="systemStatusDot" class="w-2 h-2 rounded-full bg-secondary pulse-dot"></span>
+        <span id="systemStatusText">System Active</span>
       </p>
     </div>
 
-    <div class="flex-1 py-4 flex flex-col gap-unit">
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors px-4 py-3" href="/chat-ui">
+    <div class="flex-1 py-4 flex flex-col">
+      <div class="px-4 mb-2 font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Dashboard</div>
+      <button data-tab="overview" class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent text-left">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="font-label-xs text-label-xs">Overview</span>
+      </button>
+      <button data-tab="charts" class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent text-left">
+        <span class="material-symbols-outlined">show_chart</span>
+        <span class="font-label-xs text-label-xs">Live Charts</span>
+      </button>
+      <button data-tab="alerts" class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent text-left">
+        <span class="material-symbols-outlined">notifications_active</span>
+        <span class="font-label-xs text-label-xs">Alerts</span>
+        <span id="navAlertBadge" class="ml-auto font-label-xs text-label-xs text-tertiary hidden">0</span>
+      </button>
+
+      <div class="px-4 mt-6 mb-2 font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Tools</div>
+      <a class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent" href="/chat-ui">
+        <span class="material-symbols-outlined">chat</span>
+        <span class="font-label-xs text-label-xs">Chat UI</span>
+      </a>
+      <a class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent" href="http://localhost:16686" target="_blank" rel="noreferrer">
         <span class="material-symbols-outlined">account_tree</span>
-        <span class="font-label-xs text-label-xs">Scenarios</span>
+        <span class="font-label-xs text-label-xs">Jaeger</span>
+        <span class="material-symbols-outlined text-xs ml-auto">open_in_new</span>
       </a>
-      <a class="flex items-center gap-3 bg-secondary-container text-[#00311f] rounded-none border-l-4 border-secondary px-4 py-3 opacity-90 transition-all" href="/dashboard">
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">analytics</span>
-        <span class="font-label-xs text-label-xs">Traces</span>
+      <a class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent" href="http://localhost:3001" target="_blank" rel="noreferrer">
+        <span class="material-symbols-outlined">analytics</span>
+        <span class="font-label-xs text-label-xs">Grafana</span>
+        <span class="material-symbols-outlined text-xs ml-auto">open_in_new</span>
       </a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors px-4 py-3" href="#metrics">
-        <span class="material-symbols-outlined">query_stats</span>
-        <span class="font-label-xs text-label-xs">Metrics</span>
-      </a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors px-4 py-3" href="#detail">
-        <span class="material-symbols-outlined">terminal</span>
-        <span class="font-label-xs text-label-xs">Logs</span>
+      <a class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent" href="/docs" target="_blank" rel="noreferrer">
+        <span class="material-symbols-outlined">api</span>
+        <span class="font-label-xs text-label-xs">API Docs</span>
+        <span class="material-symbols-outlined text-xs ml-auto">open_in_new</span>
       </a>
     </div>
 
-    <div class="p-4 border-t border-outline-variant flex flex-col gap-4">
-      <a class="w-full bg-primary-container text-on-primary-container py-2 font-label-xs text-label-xs uppercase tracking-wider hover:bg-primary transition-colors text-center" href="/chat-ui">Switch Scenario</a>
-      <div class="flex flex-col gap-2">
-        <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface transition-colors px-4 py-2" href="/docs">
-          <span class="material-symbols-outlined text-sm">description</span>
-          <span class="font-label-xs text-label-xs">Docs</span>
-        </a>
-        <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface transition-colors px-4 py-2" href="http://localhost:16686" target="_blank" rel="noreferrer">
-          <span class="material-symbols-outlined text-sm">open_in_new</span>
-          <span class="font-label-xs text-label-xs">Jaeger</span>
-        </a>
+    <div class="p-4 border-t border-outline-variant">
+      <div class="bg-surface-container border border-outline-variant p-3 flex flex-col gap-1">
+        <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">LLM Backend</div>
+        <div id="backendModel" class="font-data-mono text-data-mono text-on-surface">gemma3:1b</div>
+        <div id="backendInfo" class="font-label-xs text-label-xs text-on-surface-variant">cpu · $0.05/h</div>
       </div>
     </div>
   </nav>
 
   <div class="flex-1 ml-64 flex flex-col h-full overflow-hidden">
-    <header class="bg-surface border-b border-outline-variant flex justify-between items-center w-full px-margin py-unit h-16 shrink-0">
+    <header class="bg-surface border-b border-outline-variant flex justify-between items-center w-full px-margin h-16 shrink-0">
       <div class="flex items-center gap-4">
-        <h1 class="font-headline-md text-headline-md font-bold tracking-tighter text-on-surface">OLLY</h1>
-        <div class="h-6 w-px bg-outline-variant mx-2"></div>
-        <div class="text-on-surface-variant font-medium flex gap-2">
-          <span>Observability</span>
-          <span>&gt;</span>
-          <span class="text-primary font-bold border-b-2 border-primary pb-1">Real-time Traces</span>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <a class="text-on-surface-variant font-medium hover:bg-surface-container-high transition-colors duration-150 px-3 py-1 rounded" href="/chat-ui">Chat UI</a>
-        <a class="text-primary font-bold border-b-2 border-primary pb-1 px-3 py-1" href="/dashboard">Operator Dashboard</a>
+        <h1 id="pageTitle" class="font-headline-md text-headline-md font-bold tracking-tighter text-on-surface">Overview</h1>
+        <span id="pageSubtitle" class="text-on-surface-variant text-sm">실시간 LLM 서비스 상태</span>
       </div>
       <div class="flex items-center gap-3 text-on-surface-variant">
+        <div class="hidden md:flex items-center gap-2 mr-2 font-label-xs text-label-xs">
+          <span class="material-symbols-outlined text-sm">schedule</span>
+          <span>업데이트:</span>
+          <span id="lastUpdated" class="text-on-surface font-data-mono">-</span>
+        </div>
         <select id="windowSelect" class="bg-surface-container-high border border-outline-variant text-on-surface font-label-xs text-label-xs rounded px-2 py-1 focus:ring-primary focus:border-primary">
           <option value="15m">Last 15m</option>
           <option value="1h" selected>Last 1h</option>
           <option value="6h">Last 6h</option>
           <option value="24h">Last 24h</option>
         </select>
-        <button id="refreshButton" class="hover:bg-surface-container-high transition-colors duration-150 p-2 rounded-full">
+        <button id="refreshButton" class="tooltip-host hover:bg-surface-container-high transition-colors p-2 rounded-full" aria-label="새로고침">
           <span class="material-symbols-outlined">refresh</span>
+          <span class="tooltip">수동 새로고침</span>
         </button>
       </div>
     </header>
 
     <main class="flex-1 overflow-y-auto p-margin bg-surface-container-lowest">
-      <div class="max-w-container-max mx-auto space-y-gutter">
-        <section id="metrics" class="grid grid-cols-4 gap-gutter">
-          <div class="bg-surface-container-low border border-outline-variant p-4">
-            <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
-              <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Avg Latency</span>
-              <span class="material-symbols-outlined text-outline text-sm">timer</span>
-            </div>
-            <div id="avgLatency" class="font-data-mono text-data-mono text-2xl text-on-surface">-</div>
-          </div>
-          <div class="bg-surface-container-low border border-outline-variant p-4">
-            <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
-              <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Total Tokens</span>
-              <span class="material-symbols-outlined text-outline text-sm">database</span>
-            </div>
-            <div id="totalTokens" class="font-data-mono text-data-mono text-2xl text-on-surface">-</div>
-          </div>
-          <div class="bg-surface-container-low border border-outline-variant p-4">
-            <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
-              <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Total Cost</span>
-              <span class="material-symbols-outlined text-outline text-sm">payments</span>
-            </div>
-            <div id="totalCost" class="font-data-mono text-data-mono text-2xl text-on-surface">-</div>
-          </div>
-          <div class="bg-surface-container-low border border-outline-variant p-4">
-            <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
-              <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Success Rate</span>
-              <span class="material-symbols-outlined text-outline text-sm">check_circle</span>
-            </div>
-            <div id="successRate" class="font-data-mono text-data-mono text-2xl text-secondary">-</div>
-          </div>
-        </section>
+      <div class="max-w-container-max mx-auto">
 
-        <section class="grid grid-cols-12 gap-gutter min-h-[500px]">
-          <div class="col-span-8 bg-surface-container-low border border-outline-variant flex flex-col">
-            <div class="border-b border-outline-variant p-4 flex items-center justify-between">
-              <h3 class="font-headline-md text-sm text-on-surface">Recent Requests</h3>
-              <input id="traceSearch" class="bg-surface border border-outline-variant text-on-surface font-label-xs text-label-xs rounded px-2 py-1 w-56" placeholder="trace/request 검색"/>
-            </div>
-            <div class="flex-1 overflow-auto">
-              <table class="w-full text-left border-collapse">
-                <thead class="bg-surface-container sticky top-0 z-10">
-                  <tr>
-                    <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Timestamp</th>
-                    <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Request ID</th>
-                    <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Feature</th>
-                    <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Latency</th>
-                    <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Status</th>
-                    <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="requestRows"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div id="detail" class="col-span-4 flex flex-col gap-gutter">
-            <div class="bg-surface-container-low border border-outline-variant p-4 flex-1 flex flex-col">
-              <div class="border-b border-outline-variant pb-2 mb-4 flex justify-between items-center">
-                <span class="font-headline-md text-sm text-on-surface">Trace: <span id="detailRequestId" class="font-data-mono text-primary text-xs ml-1">선택 없음</span></span>
-                <a id="jaegerLink" href="http://localhost:16686" target="_blank" rel="noreferrer" class="material-symbols-outlined text-outline text-sm cursor-pointer hover:text-on-surface">open_in_new</a>
+        <!-- ============ OVERVIEW TAB ============ -->
+        <div data-tab-content="overview" class="tab-section space-y-gutter">
+          <section class="grid grid-cols-4 gap-gutter">
+            <div class="bg-surface-container-low border border-outline-variant p-4 tooltip-host">
+              <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
+                <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Avg Latency</span>
+                <span class="material-symbols-outlined text-outline text-sm">timer</span>
               </div>
+              <div id="avgLatency" class="font-data-mono text-2xl text-on-surface"><span class="skeleton">000ms</span></div>
+              <div id="avgLatencyHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">선택 윈도우 평균</div>
+              <span class="tooltip">/chat 요청 한 건의 평균 처리 시간 (retrieve + llm_call + postprocess)</span>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant p-4 tooltip-host">
+              <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
+                <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Total Tokens</span>
+                <span class="material-symbols-outlined text-outline text-sm">database</span>
+              </div>
+              <div id="totalTokens" class="font-data-mono text-2xl text-on-surface"><span class="skeleton">000</span></div>
+              <div id="totalTokensHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">input + output 합계</div>
+              <span class="tooltip">선택 윈도우 동안 사용된 LLM 토큰 총합</span>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant p-4 tooltip-host">
+              <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
+                <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Total Cost</span>
+                <span class="material-symbols-outlined text-outline text-sm">payments</span>
+              </div>
+              <div id="totalCost" class="font-data-mono text-2xl text-on-surface"><span class="skeleton">$0.00</span></div>
+              <div id="totalCostHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">로컬 추론 시간 기반</div>
+              <span class="tooltip">token API 비용 + 로컬 인프라 비용 추정</span>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant p-4 tooltip-host">
+              <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
+                <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Success Rate</span>
+                <span class="material-symbols-outlined text-outline text-sm">check_circle</span>
+              </div>
+              <div id="successRate" class="font-data-mono text-2xl text-secondary"><span class="skeleton">000%</span></div>
+              <div id="successRateHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">100% 가 정상</div>
+              <span class="tooltip">총 요청 중 status=success 비율</span>
+            </div>
+          </section>
 
-              <div id="waterfall" class="space-y-4 mb-6"></div>
+          <section class="grid grid-cols-12 gap-gutter min-h-[500px]">
+            <div class="col-span-8 bg-surface-container-low border border-outline-variant flex flex-col">
+              <div class="border-b border-outline-variant p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <h3 class="font-headline-md text-sm text-on-surface">Recent Requests</h3>
+                  <span id="recentCount" class="font-label-xs text-label-xs text-on-surface-variant">-</span>
+                </div>
+                <input id="traceSearch" class="bg-surface border border-outline-variant text-on-surface font-label-xs text-label-xs rounded px-2 py-1 w-56" placeholder="trace/request 검색"/>
+              </div>
+              <div class="flex-1 overflow-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead class="bg-surface-container sticky top-0 z-10">
+                    <tr>
+                      <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">When</th>
+                      <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Request ID</th>
+                      <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Feature</th>
+                      <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Scenario</th>
+                      <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant text-right">Latency</th>
+                      <th class="p-3 font-label-xs text-label-xs text-on-surface-variant font-medium border-b border-outline-variant">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="requestRows"></tbody>
+                </table>
+              </div>
+            </div>
 
-              <div id="bottleneckBox" class="bg-error-container/20 border border-error/50 p-3 flex gap-3 mt-auto">
-                <span class="material-symbols-outlined text-error">warning</span>
-                <div>
-                  <h4 class="text-error text-sm font-medium mb-1">Bottleneck Detected</h4>
-                  <p id="bottleneckText" class="text-xs text-on-surface-variant leading-relaxed">최근 요청을 선택하면 병목 단계가 표시됩니다.</p>
+            <div class="col-span-4 flex flex-col gap-gutter">
+              <div class="bg-surface-container-low border border-outline-variant p-4 flex-1 flex flex-col">
+                <div class="border-b border-outline-variant pb-2 mb-4 flex justify-between items-center">
+                  <span class="font-headline-md text-sm text-on-surface">Trace Detail</span>
+                  <a id="jaegerLink" href="http://localhost:16686" target="_blank" rel="noreferrer" class="material-symbols-outlined text-outline text-sm cursor-pointer hover:text-on-surface">open_in_new</a>
+                </div>
+                <div id="detailMeta" class="font-data-mono text-label-xs text-on-surface-variant mb-3 hidden"></div>
+                <div id="waterfall" class="space-y-4 mb-4 flex-1">
+                  <div class="text-on-surface-variant text-sm flex flex-col items-center gap-2 py-8">
+                    <span class="material-symbols-outlined text-4xl text-outline">timeline</span>
+                    <p>좌측 표에서 요청을 선택하면 단계별 처리 시간이 표시됩니다.</p>
+                  </div>
+                </div>
+                <div id="bottleneckBox" class="bg-tertiary/10 border border-tertiary/40 p-3 flex gap-3 mt-auto hidden">
+                  <span class="material-symbols-outlined text-tertiary">insights</span>
+                  <div>
+                    <h4 class="text-tertiary text-sm font-medium mb-1">Bottleneck</h4>
+                    <p id="bottleneckText" class="text-xs text-on-surface-variant leading-relaxed">-</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section id="grafana" class="bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-3">
-          <div class="border-b border-outline-variant pb-2 flex items-center justify-between">
-            <div>
-              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Live Charts (Grafana)</h3>
-              <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Prometheus 원본 데이터를 Grafana가 실시간으로 그립니다. 클릭하면 Grafana에서 자세히 볼 수 있습니다.</p>
-            </div>
-            <a id="grafanaOpen" href="http://localhost:3001/d/olly-mvp/olly-mvp-dashboard?theme=dark" target="_blank" rel="noopener" class="font-label-xs text-label-xs text-primary hover:underline">Grafana에서 열기 ↗</a>
-          </div>
-          <div class="grid grid-cols-2 gap-gutter">
-            <div class="bg-surface border border-outline-variant overflow-hidden">
-              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">p95 Latency</div>
-              <iframe id="grafanaPanelLatency" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
-            </div>
-            <div class="bg-surface border border-outline-variant overflow-hidden">
-              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Token Usage Trend</div>
-              <iframe id="grafanaPanelTokens" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
-            </div>
-            <div class="bg-surface border border-outline-variant overflow-hidden">
-              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Breakdown</div>
-              <iframe id="grafanaPanelCost" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
-            </div>
-            <div class="bg-surface border border-outline-variant overflow-hidden">
-              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Bottleneck by Stage p95</div>
-              <iframe id="grafanaPanelBottleneck" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
-            </div>
-          </div>
-        </section>
-
-        <section class="grid grid-cols-2 gap-gutter">
-          <div class="bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
-            <div class="border-b border-outline-variant pb-2 mb-4">
-              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Analysis (Tokens vs Infra)</h3>
-            </div>
-            <div class="grid grid-cols-2 gap-4 mb-3">
-              <div class="bg-surface border border-outline-variant p-3">
-                <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">Token Cost</div>
-                <div id="tokenCost" class="font-data-mono text-data-mono text-primary mt-2">-</div>
+          <section class="grid grid-cols-2 gap-gutter">
+            <div class="bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
+              <div class="border-b border-outline-variant pb-2 mb-4">
+                <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Analysis (Tokens vs Infra)</h3>
               </div>
-              <div class="bg-surface border border-outline-variant p-3">
-                <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">Infra Cost</div>
-                <div id="infraCost" class="font-data-mono text-data-mono text-tertiary mt-2">-</div>
+              <div class="grid grid-cols-2 gap-4 mb-3">
+                <div class="bg-surface border border-outline-variant p-3">
+                  <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">Token Cost</div>
+                  <div id="tokenCost" class="font-data-mono text-data-mono text-primary mt-2"><span class="skeleton">$0.00</span></div>
+                </div>
+                <div class="bg-surface border border-outline-variant p-3">
+                  <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">Infra Cost</div>
+                  <div id="infraCost" class="font-data-mono text-data-mono text-tertiary mt-2"><span class="skeleton">$0.00</span></div>
+                </div>
+              </div>
+              <div id="costBars" class="flex-1 flex items-end gap-2 px-2 pb-2 relative"></div>
+            </div>
+
+            <div class="bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
+              <div class="border-b border-outline-variant pb-2 mb-4 flex justify-between items-center">
+                <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Active Prometheus Alerts</h3>
+                <span id="alertCount" class="font-label-xs text-label-xs text-tertiary">0</span>
+              </div>
+              <div id="alertList" class="flex-1 overflow-auto space-y-2"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============ CHARTS TAB ============ -->
+        <div data-tab-content="charts" class="tab-section space-y-gutter">
+          <section class="bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-3">
+            <div class="border-b border-outline-variant pb-2 flex items-center justify-between">
+              <div>
+                <h3 class="font-headline-md text-sm text-on-surface">Live Charts</h3>
+                <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Prometheus 원본 데이터를 Grafana가 실시간 렌더링합니다. 패널을 클릭하면 Grafana에서 자세히 볼 수 있습니다.</p>
+              </div>
+              <a id="grafanaOpen" href="http://localhost:3001/d/olly-mvp/olly-mvp-dashboard?theme=dark" target="_blank" rel="noopener" class="font-label-xs text-label-xs text-primary hover:underline flex items-center gap-1">
+                Grafana에서 열기 <span class="material-symbols-outlined text-sm">open_in_new</span>
+              </a>
+            </div>
+            <div class="grid grid-cols-2 gap-gutter">
+              <div class="bg-surface border border-outline-variant overflow-hidden">
+                <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">p95 Latency</div>
+                <iframe id="grafanaPanelLatency" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+              </div>
+              <div class="bg-surface border border-outline-variant overflow-hidden">
+                <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Token Usage Trend</div>
+                <iframe id="grafanaPanelTokens" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+              </div>
+              <div class="bg-surface border border-outline-variant overflow-hidden">
+                <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Breakdown</div>
+                <iframe id="grafanaPanelCost" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+              </div>
+              <div class="bg-surface border border-outline-variant overflow-hidden">
+                <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Bottleneck by Stage p95</div>
+                <iframe id="grafanaPanelBottleneck" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
               </div>
             </div>
-            <div id="costBars" class="flex-1 flex items-end gap-2 px-2 pb-2 relative"></div>
-          </div>
+          </section>
+        </div>
 
-          <div class="bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
-            <div class="border-b border-outline-variant pb-2 mb-4 flex justify-between">
-              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Active Alerts</h3>
-              <span id="alertCount" class="font-label-xs text-label-xs text-tertiary">0</span>
-            </div>
-            <div id="alertList" class="flex-1 overflow-auto space-y-2"></div>
-          </div>
-        </section>
-
-        <section class="grid grid-cols-12 gap-gutter">
-          <div class="col-span-5 bg-surface-container-low border border-outline-variant p-4 flex flex-col">
-            <div class="border-b border-outline-variant pb-2 mb-4">
-              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Custom Alert Rule</h3>
-              <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Discord webhook으로 알림이 발송됩니다. AI 요약(SLM)이 함께 첨부됩니다.</p>
-            </div>
-            <form id="ruleForm" class="flex flex-col gap-3">
-              <label class="flex flex-col gap-1">
-                <span class="font-label-xs text-label-xs text-on-surface-variant">이름</span>
-                <input name="name" required maxlength="80" class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="예: 토큰 사용량 급증" />
-              </label>
-              <div class="grid grid-cols-2 gap-3">
-                <label class="flex flex-col gap-1">
-                  <span class="font-label-xs text-label-xs text-on-surface-variant">지표</span>
-                  <select name="metric" id="metricSelect" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface"></select>
-                </label>
-                <label class="flex flex-col gap-1">
-                  <span class="font-label-xs text-label-xs text-on-surface-variant">조건</span>
-                  <select name="comparator" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
-                    <option value="gt">초과 (&gt;)</option>
-                    <option value="lt">미만 (&lt;)</option>
-                  </select>
-                </label>
+        <!-- ============ ALERTS TAB ============ -->
+        <div data-tab-content="alerts" class="tab-section space-y-gutter">
+          <section class="grid grid-cols-12 gap-gutter">
+            <div class="col-span-5 bg-surface-container-low border border-outline-variant p-4 flex flex-col">
+              <div class="border-b border-outline-variant pb-2 mb-4">
+                <h3 class="font-headline-md text-sm text-on-surface">Custom Alert Rule</h3>
+                <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Discord webhook으로 푸시되며 gemma3:1b가 한 줄 요약을 첨부합니다.</p>
               </div>
-              <div class="grid grid-cols-3 gap-3">
+              <form id="ruleForm" class="flex flex-col gap-3">
                 <label class="flex flex-col gap-1">
-                  <span class="font-label-xs text-label-xs text-on-surface-variant">임계값</span>
-                  <input name="threshold" type="number" step="any" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
+                  <span class="font-label-xs text-label-xs text-on-surface-variant">이름</span>
+                  <input name="name" required maxlength="80" class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="예: 토큰 사용량 급증" />
                 </label>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="flex flex-col gap-1">
+                    <span class="font-label-xs text-label-xs text-on-surface-variant">지표</span>
+                    <select name="metric" id="metricSelect" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface"></select>
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span class="font-label-xs text-label-xs text-on-surface-variant">조건</span>
+                    <select name="comparator" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
+                      <option value="gt">초과 (&gt;)</option>
+                      <option value="lt">미만 (&lt;)</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                  <label class="flex flex-col gap-1">
+                    <span class="font-label-xs text-label-xs text-on-surface-variant">임계값</span>
+                    <input name="threshold" type="number" step="any" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span class="font-label-xs text-label-xs text-on-surface-variant">윈도우</span>
+                    <select name="window" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
+                      <option value="1m">1m</option>
+                      <option value="5m" selected>5m</option>
+                      <option value="15m">15m</option>
+                    </select>
+                  </label>
+                  <label class="flex flex-col gap-1">
+                    <span class="font-label-xs text-label-xs text-on-surface-variant">쿨다운(초)</span>
+                    <input name="cooldown_seconds" type="number" min="10" max="86400" value="300" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
+                  </label>
+                </div>
                 <label class="flex flex-col gap-1">
-                  <span class="font-label-xs text-label-xs text-on-surface-variant">윈도우</span>
-                  <select name="window" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
-                    <option value="1m">1m</option>
-                    <option value="5m" selected>5m</option>
-                    <option value="15m">15m</option>
-                  </select>
+                  <span class="font-label-xs text-label-xs text-on-surface-variant">Discord Webhook URL</span>
+                  <input name="webhook_url" type="url" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="https://discord.com/api/webhooks/..." />
                 </label>
-                <label class="flex flex-col gap-1">
-                  <span class="font-label-xs text-label-xs text-on-surface-variant">쿨다운(초)</span>
-                  <input name="cooldown_seconds" type="number" min="10" max="86400" value="300" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
-                </label>
-              </div>
-              <label class="flex flex-col gap-1">
-                <span class="font-label-xs text-label-xs text-on-surface-variant">Discord Webhook URL</span>
-                <input name="webhook_url" type="url" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="https://discord.com/api/webhooks/..." />
-              </label>
-              <button type="submit" class="bg-secondary-container text-on-secondary font-label-xs text-label-xs uppercase tracking-wider py-2 hover:opacity-90">규칙 추가</button>
-              <p id="ruleFormError" class="font-label-xs text-label-xs text-error hidden"></p>
-            </form>
-          </div>
+                <button type="submit" id="ruleSubmitBtn" class="bg-secondary-container text-on-secondary font-label-xs text-label-xs uppercase tracking-wider py-2 hover:opacity-90 flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-sm">add_alert</span>
+                  규칙 추가
+                </button>
+                <p id="ruleFormError" class="font-label-xs text-label-xs text-error hidden"></p>
+              </form>
+            </div>
 
-          <div class="col-span-7 bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-4">
-            <div class="border-b border-outline-variant pb-2 flex justify-between">
-              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Custom Rules</h3>
-              <span id="ruleCount" class="font-label-xs text-label-xs text-tertiary">0</span>
+            <div class="col-span-7 bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-4">
+              <div class="border-b border-outline-variant pb-2 flex justify-between items-center">
+                <h3 class="font-headline-md text-sm text-on-surface">Custom Rules</h3>
+                <span id="ruleCount" class="font-label-xs text-label-xs text-tertiary">0</span>
+              </div>
+              <div id="ruleList" class="flex flex-col gap-2 max-h-96 overflow-auto"></div>
+              <div class="border-t border-outline-variant pt-3">
+                <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider mb-2">Recent Firings</h3>
+                <div id="ruleHistory" class="flex flex-col gap-1 max-h-48 overflow-auto"></div>
+              </div>
             </div>
-            <div id="ruleList" class="flex flex-col gap-2 max-h-72 overflow-auto"></div>
-            <div class="border-t border-outline-variant pt-2">
-              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider mb-2">Recent Firings</h3>
-              <div id="ruleHistory" class="flex flex-col gap-1 max-h-40 overflow-auto"></div>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
+
       </div>
     </main>
   </div>
+
+  <div id="toastContainer" class="fixed bottom-6 right-6 flex flex-col gap-2 z-50"></div>
 
   <script>
     const state = {
       data: null,
       selectedTraceId: null,
+      currentTab: "overview",
     };
 
     const fmt = {
@@ -356,7 +466,10 @@
         return `${Math.round(n)}`;
       },
       usd(value) {
-        return `$${Number(value || 0).toFixed(6)}`;
+        const v = Number(value || 0);
+        if (v >= 1) return `$${v.toFixed(4)}`;
+        if (v >= 0.001) return `$${v.toFixed(6)}`;
+        return `$${v.toFixed(8)}`;
       },
       ms(value) {
         const ms = Number(value || 0);
@@ -368,7 +481,16 @@
       percent(value) {
         return `${Number(value || 0).toFixed(1)}%`;
       },
-      time(us) {
+      relativeTime(us) {
+        if (!us) return "-";
+        const elapsed = Math.max(0, (Date.now() * 1000 - us) / 1_000_000);
+        if (elapsed < 5) return "방금 전";
+        if (elapsed < 60) return `${Math.floor(elapsed)}초 전`;
+        if (elapsed < 3600) return `${Math.floor(elapsed / 60)}분 전`;
+        if (elapsed < 86400) return `${Math.floor(elapsed / 3600)}시간 전`;
+        return `${Math.floor(elapsed / 86400)}일 전`;
+      },
+      timeOfDay(us) {
         if (!us) return "-";
         return new Date(us / 1000).toLocaleTimeString("ko-KR", { hour12: false });
       },
@@ -383,13 +505,84 @@
         .replaceAll("'", "&#039;");
     }
 
+    // ============ TOAST SYSTEM ============
+    function showToast(message, type = "success") {
+      const container = document.getElementById("toastContainer");
+      const colors = {
+        success: { border: "border-secondary", text: "text-secondary", icon: "check_circle" },
+        error: { border: "border-error", text: "text-error", icon: "error" },
+        info: { border: "border-primary", text: "text-primary", icon: "info" },
+      };
+      const c = colors[type] || colors.info;
+      const toast = document.createElement("div");
+      toast.className = `bg-surface-container border-l-4 ${c.border} pl-3 pr-4 py-3 flex items-center gap-3 shadow-lg min-w-[280px] animate-toast-in`;
+      toast.innerHTML = `
+        <span class="material-symbols-outlined ${c.text}">${c.icon}</span>
+        <span class="text-sm flex-1">${escapeHtml(message)}</span>
+        <button class="text-on-surface-variant hover:text-on-surface" aria-label="닫기">
+          <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+      `;
+      toast.querySelector("button").addEventListener("click", () => toast.remove());
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    // ============ TAB NAV ============
+    const TAB_META = {
+      overview: { title: "Overview", subtitle: "실시간 LLM 서비스 상태" },
+      charts: { title: "Live Charts", subtitle: "Grafana 패널 임베드" },
+      alerts: { title: "Alerts", subtitle: "사용자 정의 알림 규칙 + 발화 이력" },
+    };
+
+    function selectTab(name) {
+      if (!TAB_META[name]) return;
+      state.currentTab = name;
+      document.querySelectorAll("[data-tab-content]").forEach((section) => {
+        section.classList.toggle("active", section.dataset.tabContent === name);
+      });
+      document.querySelectorAll("[data-tab]").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === name);
+      });
+      document.getElementById("pageTitle").textContent = TAB_META[name].title;
+      document.getElementById("pageSubtitle").textContent = TAB_META[name].subtitle;
+      if (name !== "overview") window.location.hash = name;
+      else if (window.location.hash) history.replaceState(null, "", window.location.pathname);
+    }
+
+    document.querySelectorAll("[data-tab]").forEach((btn) => {
+      btn.addEventListener("click", () => selectTab(btn.dataset.tab));
+    });
+
+    // ============ DASHBOARD SUMMARY ============
     async function loadDashboard() {
       const windowValue = document.getElementById("windowSelect").value;
-      const response = await fetch(`/api/dashboard/summary?window=${encodeURIComponent(windowValue)}`);
-      if (!response.ok) throw new Error(`dashboard API failed: ${response.status}`);
-      state.data = await response.json();
-      renderDashboard();
-      updateGrafanaPanels(windowValue);
+      try {
+        const response = await fetch(`/api/dashboard/summary?window=${encodeURIComponent(windowValue)}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        state.data = await response.json();
+        renderDashboard();
+        updateGrafanaPanels(windowValue);
+        document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+        setSystemStatus(true);
+      } catch (error) {
+        console.error(error);
+        setSystemStatus(false);
+      }
+    }
+
+    function setSystemStatus(ok) {
+      const dot = document.getElementById("systemStatusDot");
+      const text = document.getElementById("systemStatusText");
+      if (ok) {
+        dot.className = "w-2 h-2 rounded-full bg-secondary pulse-dot";
+        text.textContent = "System Active";
+        text.className = "text-on-surface-variant";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-error";
+        text.textContent = "Disconnected";
+        text.className = "text-error";
+      }
     }
 
     const GRAFANA_BASE_URL = `${window.location.protocol}//${window.location.hostname}:3001`;
@@ -421,9 +614,7 @@
         });
         const url = `${GRAFANA_BASE_URL}${GRAFANA_DASHBOARD_PATH}?${params.toString()}`;
         const iframe = document.getElementById(elementId);
-        if (iframe && iframe.src !== url) {
-          iframe.src = url;
-        }
+        if (iframe && iframe.src !== url) iframe.src = url;
       }
       const openLink = document.getElementById("grafanaOpen");
       if (openLink) {
@@ -432,17 +623,39 @@
       }
     }
 
+    function setKPI(id, value, dangerCheck) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = value;
+      if (dangerCheck) {
+        const triggered = dangerCheck();
+        el.classList.toggle("text-error", triggered === "error");
+        el.classList.toggle("text-tertiary", triggered === "warn");
+      }
+    }
+
     function renderDashboard() {
       const { kpis, recent_requests, alerts, breakdowns } = state.data;
-      document.getElementById("avgLatency").textContent = fmt.seconds(kpis.avg_latency_seconds);
-      document.getElementById("totalTokens").textContent = fmt.number(kpis.total_tokens);
-      document.getElementById("totalCost").textContent = fmt.usd(kpis.estimated_cost_usd);
-      document.getElementById("successRate").textContent = fmt.percent(100 - Number(kpis.error_rate_percent || 0));
+      const successRate = 100 - Number(kpis.error_rate_percent || 0);
+      const avgLatencyMs = Number(kpis.avg_latency_seconds || 0) * 1000;
+
+      setKPI("avgLatency", fmt.seconds(kpis.avg_latency_seconds), () =>
+        avgLatencyMs >= 5000 ? "error" : avgLatencyMs >= 2000 ? "warn" : null,
+      );
+      setKPI("totalTokens", fmt.number(kpis.total_tokens));
+      setKPI("totalCost", fmt.usd(kpis.estimated_cost_usd));
+      setKPI("successRate", fmt.percent(successRate), () =>
+        successRate < 90 ? "error" : successRate < 99 ? "warn" : null,
+      );
+
       document.getElementById("tokenCost").textContent = fmt.usd(kpis.token_cost_usd);
       document.getElementById("infraCost").textContent = fmt.usd(kpis.infra_cost_usd);
+      document.getElementById("recentCount").textContent = `${(recent_requests || []).length}건`;
+
       renderRequests(recent_requests || []);
-      renderCostBars(breakdowns.cost_by_feature || []);
+      renderCostBars(breakdowns?.cost_by_feature || []);
       renderAlerts(alerts || []);
+
       if (!state.selectedTraceId && recent_requests?.length) {
         selectTrace(recent_requests[0].trace_id);
       } else if (state.selectedTraceId) {
@@ -454,25 +667,45 @@
       const search = document.getElementById("traceSearch").value.trim().toLowerCase();
       const filtered = rows.filter((row) => {
         if (!search) return true;
-        return `${row.trace_id} ${row.request_id} ${row.feature} ${row.status}`.toLowerCase().includes(search);
+        return `${row.trace_id} ${row.request_id} ${row.feature} ${row.scenario} ${row.status}`.toLowerCase().includes(search);
       });
       const body = document.getElementById("requestRows");
       if (!filtered.length) {
-        body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-on-surface-variant">최근 POST /chat 요청이 없습니다. /chat-ui에서 질문을 보내보세요.</td></tr>`;
+        body.innerHTML = `
+          <tr><td colspan="6" class="p-8 text-center">
+            <div class="flex flex-col items-center gap-3 text-on-surface-variant">
+              <span class="material-symbols-outlined text-4xl text-outline">inbox</span>
+              <p>${search ? "검색 결과가 없습니다." : "최근 POST /chat 요청이 없습니다."}</p>
+              <a href="/chat-ui" class="bg-secondary-container text-on-secondary text-xs font-medium px-3 py-1.5 rounded hover:opacity-90">/chat-ui 열기</a>
+            </div>
+          </td></tr>`;
         return;
       }
       body.innerHTML = filtered.map((row) => {
         const selected = row.trace_id === state.selectedTraceId;
-        const slow = Number(row.latency_ms || 0) >= 1000;
-        const statusClass = row.status === "error" ? "bg-error-container/20 border-error text-error" : "bg-secondary-container/10 border-secondary text-secondary";
+        const slow = Number(row.latency_ms || 0) >= 3000;
+        const moderate = Number(row.latency_ms || 0) >= 1000;
+        const latencyClass = slow ? "text-error" : moderate ? "text-tertiary" : "text-secondary";
+        const isError = row.status === "error";
+        const statusClass = isError
+          ? "bg-error-container/30 border-error text-error"
+          : "bg-secondary-container/15 border-secondary text-secondary";
+        const scenarioColor = {
+          slow_retrieve: "text-tertiary border-tertiary/50 bg-tertiary/10",
+          slow_llm: "text-tertiary border-tertiary/50 bg-tertiary/10",
+          high_token: "text-primary border-primary/50 bg-primary/10",
+          error: "text-error border-error/50 bg-error/10",
+          normal: "text-on-surface-variant border-outline-variant bg-surface-container",
+        }[row.scenario] || "text-on-surface-variant border-outline-variant bg-surface-container";
+
         return `
-          <tr data-trace="${escapeHtml(row.trace_id)}" class="border-b border-outline-variant ${selected ? "bg-surface-bright/20" : ""} hover:bg-surface-bright transition-colors cursor-pointer">
-            <td class="p-3 font-data-mono text-xs text-on-surface-variant">${fmt.time(row.start_time_us)}</td>
+          <tr data-trace="${escapeHtml(row.trace_id)}" class="border-b border-outline-variant ${selected ? "bg-surface-bright/30" : ""} hover:bg-surface-bright/50 transition-colors cursor-pointer">
+            <td class="p-3 font-data-mono text-xs text-on-surface-variant" title="${escapeHtml(fmt.timeOfDay(row.start_time_us))}">${escapeHtml(fmt.relativeTime(row.start_time_us))}</td>
             <td class="p-3 font-data-mono text-xs text-primary">${escapeHtml(row.request_id)}</td>
             <td class="p-3 text-sm">${escapeHtml(row.feature)}</td>
-            <td class="p-3 font-data-mono text-xs ${slow ? "text-error" : "text-secondary"}">${fmt.ms(row.latency_ms)}</td>
+            <td class="p-3"><span class="inline-block px-2 py-0.5 border ${scenarioColor} font-label-xs text-label-xs rounded">${escapeHtml(row.scenario || "-")}</span></td>
+            <td class="p-3 font-data-mono text-xs text-right ${latencyClass}">${fmt.ms(row.latency_ms)}</td>
             <td class="p-3"><span class="inline-block px-2 py-1 border ${statusClass} font-label-xs text-label-xs rounded-sm">${escapeHtml(row.status.toUpperCase())}</span></td>
-            <td class="p-3"><button class="text-primary hover:text-primary-container text-sm font-medium" data-open="${escapeHtml(row.jaeger_url)}">Details</button></td>
           </tr>
         `;
       }).join("");
@@ -482,47 +715,78 @@
       const trace = state.data?.recent_requests?.find((row) => row.trace_id === traceId);
       if (!trace) return;
       state.selectedTraceId = traceId;
-      document.getElementById("detailRequestId").textContent = trace.request_id || trace.trace_id.slice(0, 12);
       document.getElementById("jaegerLink").href = trace.jaeger_url;
+      const meta = document.getElementById("detailMeta");
+      meta.classList.remove("hidden");
+      meta.innerHTML = `
+        <span class="text-primary">${escapeHtml(trace.request_id)}</span>
+        <span class="mx-1">·</span>${escapeHtml(trace.feature)}
+        <span class="mx-1">·</span>${escapeHtml(trace.scenario || "-")}
+        <span class="mx-1">·</span>${fmt.ms(trace.latency_ms)}
+      `;
       renderWaterfall(trace);
       renderRequests(state.data.recent_requests || []);
     }
 
     function renderWaterfall(trace) {
       const stages = trace.stages || [];
-      const max = Math.max(...stages.map((stage) => Number(stage.duration_ms || 0)), 1);
-      const slowest = stages.reduce((winner, stage) => Number(stage.duration_ms || 0) > Number(winner.duration_ms || 0) ? stage : winner, stages[0] || { name: "-", duration_ms: 0 });
+      if (!stages.length) {
+        document.getElementById("waterfall").innerHTML = `<div class="text-on-surface-variant text-sm">단계 정보가 없습니다.</div>`;
+        document.getElementById("bottleneckBox").classList.add("hidden");
+        return;
+      }
+      const total = stages.reduce((sum, s) => sum + Number(s.duration_ms || 0), 0) || 1;
+      const slowest = stages.reduce((winner, s) =>
+        Number(s.duration_ms || 0) > Number(winner.duration_ms || 0) ? s : winner,
+        stages[0],
+      );
+
       document.getElementById("waterfall").innerHTML = stages.map((stage) => {
         const duration = Number(stage.duration_ms || 0);
-        const width = Math.max(3, Math.round((duration / max) * 100));
+        const widthPercent = Math.max(2, Math.round((duration / total) * 100));
         const isSlowest = stage.name === slowest.name && duration > 0;
         const label = stage.name === "llm_call" ? "LLM Generation" : stage.name === "postprocess" ? "Post-process" : "Retrieve";
+        const barColor = isSlowest ? "bg-tertiary" : stage.name === "llm_call" ? "bg-primary" : "bg-secondary";
         return `
           <div>
             <div class="flex justify-between text-xs mb-1">
-              <span class="${isSlowest ? "text-error" : "text-on-surface"} font-medium">${escapeHtml(label)}${isSlowest ? " (Slow)" : ""}</span>
-              <span class="font-data-mono text-data-mono">${fmt.ms(duration)}</span>
+              <span class="${isSlowest ? "text-tertiary font-semibold" : "text-on-surface"}">
+                ${escapeHtml(label)}${isSlowest ? " · 가장 오래 걸림" : ""}
+              </span>
+              <span class="font-data-mono text-data-mono">${fmt.ms(duration)} <span class="text-on-surface-variant">(${Math.round((duration/total)*100)}%)</span></span>
             </div>
             <div class="w-full bg-surface-bright h-2 overflow-hidden rounded-sm">
-              <div class="${isSlowest ? "bg-error" : stage.name === "llm_call" ? "bg-primary" : "bg-secondary"} h-full" style="width:${width}%"></div>
+              <div class="${barColor} h-full transition-all" style="width:${widthPercent}%"></div>
             </div>
           </div>
         `;
       }).join("");
-      const percent = trace.latency_ms ? Math.round((Number(slowest.duration_ms || 0) / Number(trace.latency_ms || 1)) * 100) : 0;
-      document.getElementById("bottleneckText").textContent = `${slowest.name} 단계가 전체 요청 시간의 약 ${percent}%를 차지했습니다. trace_id=${trace.trace_id}`;
+
+      const percent = Math.round((Number(slowest.duration_ms || 0) / total) * 100);
+      const stageLabel = slowest.name === "llm_call" ? "LLM 생성" : slowest.name === "postprocess" ? "후처리" : "RAG 검색(retrieve)";
+      document.getElementById("bottleneckBox").classList.remove("hidden");
+      document.getElementById("bottleneckText").textContent =
+        `${stageLabel} 단계가 전체 처리 시간의 ${percent}%를 차지했습니다. 병목을 줄이려면 이 단계를 우선 살펴보세요.`;
     }
 
     function renderCostBars(rows) {
       const el = document.getElementById("costBars");
-      const values = rows.length ? rows.slice(0, 6) : [{ label: "no data", value: 0 }];
+      if (!rows.length) {
+        el.innerHTML = `<div class="w-full text-center text-on-surface-variant text-sm flex flex-col items-center gap-2">
+          <span class="material-symbols-outlined text-2xl text-outline">bar_chart</span>
+          <span>feature별 비용 데이터가 아직 없습니다.</span>
+        </div>`;
+        return;
+      }
+      const values = rows.slice(0, 6);
       const max = Math.max(...values.map((item) => item.value), 0.000001);
       el.innerHTML = values.map((item) => {
         const height = Math.max(8, Math.round((item.value / max) * 100));
         return `
-          <div class="flex-1 min-w-0 flex flex-col justify-end gap-2 h-full" title="${escapeHtml(item.label)} ${fmt.usd(item.value)}">
+          <div class="flex-1 min-w-0 flex flex-col justify-end gap-2 h-full tooltip-host">
             <div class="bg-primary/20 hover:bg-primary/40 border-t border-primary transition-colors" style="height:${height}%"></div>
             <div class="font-label-xs text-label-xs text-on-surface-variant truncate text-center">${escapeHtml(item.label)}</div>
+            <span class="tooltip">${escapeHtml(item.label)} · ${fmt.usd(item.value)}</span>
           </div>
         `;
       }).join("");
@@ -532,7 +796,7 @@
       document.getElementById("alertCount").textContent = `${alerts.length} active`;
       const el = document.getElementById("alertList");
       if (!alerts.length) {
-        el.innerHTML = `<div class="text-on-surface-variant text-sm">현재 활성화된 알림이 없습니다.</div>`;
+        el.innerHTML = `<div class="text-on-surface-variant text-sm flex items-center gap-2"><span class="material-symbols-outlined text-secondary">check_circle</span>활성 알림 없음</div>`;
         return;
       }
       el.innerHTML = alerts.slice(0, 5).map((alert) => `
@@ -543,8 +807,13 @@
       `).join("");
     }
 
+    // ============ EVENT WIRING ============
     document.getElementById("windowSelect").addEventListener("change", loadDashboard);
-    document.getElementById("refreshButton").addEventListener("click", loadDashboard);
+    document.getElementById("refreshButton").addEventListener("click", () => {
+      loadDashboard().catch(console.error);
+      loadAlertRules().catch(console.error);
+      loadAlertHistory().catch(console.error);
+    });
     document.getElementById("traceSearch").addEventListener("input", () => renderRequests(state.data?.recent_requests || []));
     document.getElementById("requestRows").addEventListener("click", (event) => {
       const row = event.target.closest("tr[data-trace]");
@@ -552,12 +821,10 @@
       selectTrace(row.dataset.trace);
     });
 
-    loadDashboard().catch((error) => {
-      console.error(error);
-      document.getElementById("requestRows").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-error">대시보드 데이터를 불러오지 못했습니다.</td></tr>`;
-    });
+    loadDashboard().catch(console.error);
     setInterval(() => loadDashboard().catch(console.error), 5000);
 
+    // ============ ALERTS ============
     const alertState = { metrics: [], rules: [], history: [] };
 
     async function loadAlertMetrics() {
@@ -575,6 +842,13 @@
       const data = await res.json();
       alertState.rules = data.rules || [];
       renderRules();
+      const badge = document.getElementById("navAlertBadge");
+      if (alertState.rules.length) {
+        badge.textContent = String(alertState.rules.length);
+        badge.classList.remove("hidden");
+      } else {
+        badge.classList.add("hidden");
+      }
     }
 
     async function loadAlertHistory() {
@@ -588,55 +862,68 @@
       const list = document.getElementById("ruleList");
       document.getElementById("ruleCount").textContent = String(alertState.rules.length);
       if (!alertState.rules.length) {
-        list.innerHTML = `<div class="text-xs text-on-surface-variant">등록된 규칙이 없습니다.</div>`;
+        list.innerHTML = `
+          <div class="text-on-surface-variant text-sm flex flex-col items-center gap-2 py-6 border border-dashed border-outline-variant">
+            <span class="material-symbols-outlined text-3xl text-outline">notifications_off</span>
+            <p>등록된 규칙이 없습니다.</p>
+            <p class="font-label-xs text-label-xs">왼쪽 폼에서 첫 규칙을 만들어보세요.</p>
+          </div>`;
         return;
       }
-      list.innerHTML = alertState.rules
-        .map((rule) => {
-          const lastFired = rule.last_fired_at
-            ? new Date(rule.last_fired_at * 1000).toLocaleTimeString("ko-KR")
-            : "한 번도 발화하지 않음";
-          const cmpLabel = rule.comparator === "gt" ? "&gt;" : "&lt;";
-          const stateClass = rule.enabled ? "text-secondary" : "text-on-surface-variant";
-          return `
-            <div class="border border-outline-variant bg-surface-container p-3 flex flex-col gap-1">
-              <div class="flex justify-between items-start">
-                <div class="font-label-xs text-label-xs text-on-surface">${escapeHtml(rule.name)}</div>
-                <div class="flex gap-2">
-                  <button data-toggle="${rule.id}" data-enabled="${rule.enabled}" class="font-label-xs text-label-xs ${stateClass} hover:opacity-80">${rule.enabled ? "ON" : "OFF"}</button>
-                  <button data-delete="${rule.id}" class="font-label-xs text-label-xs text-error hover:opacity-80">삭제</button>
-                </div>
+      list.innerHTML = alertState.rules.map((rule) => {
+        const lastFired = rule.last_fired_at
+          ? `${new Date(rule.last_fired_at * 1000).toLocaleTimeString("ko-KR", { hour12: false })}`
+          : "한 번도 발화하지 않음";
+        const cmpLabel = rule.comparator === "gt" ? "&gt;" : "&lt;";
+        const enabledChip = rule.enabled
+          ? `<span class="px-2 py-0.5 bg-secondary/15 text-secondary border border-secondary/40 font-label-xs text-label-xs rounded">ENABLED</span>`
+          : `<span class="px-2 py-0.5 bg-surface-container border border-outline-variant text-on-surface-variant font-label-xs text-label-xs rounded">DISABLED</span>`;
+        return `
+          <div class="border border-outline-variant bg-surface-container p-3 flex flex-col gap-2 hover:border-primary/40 transition-colors">
+            <div class="flex justify-between items-start gap-2">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <span class="material-symbols-outlined text-sm text-tertiary">notifications</span>
+                <span class="font-medium text-sm truncate">${escapeHtml(rule.name)}</span>
+                ${enabledChip}
               </div>
-              <div class="font-label-xs text-label-xs text-on-surface-variant">
-                ${escapeHtml(rule.metric_label)} ${cmpLabel} <span class="text-tertiary">${rule.threshold}</span> ${escapeHtml(rule.metric_unit)} · 윈도우 ${escapeHtml(rule.window)} · 쿨다운 ${rule.cooldown_seconds}s
-              </div>
-              <div class="font-label-xs text-label-xs text-on-surface-variant">
-                마지막 발화: ${escapeHtml(lastFired)} · 마지막 값: ${Number(rule.last_value || 0).toFixed(4)} · webhook ${escapeHtml(rule.webhook_url_masked)}
+              <div class="flex gap-1 shrink-0">
+                <button data-toggle="${rule.id}" data-enabled="${rule.enabled}" class="text-xs px-2 py-1 hover:bg-surface-container-high rounded text-on-surface-variant" title="${rule.enabled ? "비활성화" : "활성화"}">${rule.enabled ? "OFF" : "ON"}</button>
+                <button data-delete="${rule.id}" class="text-xs px-2 py-1 hover:bg-error/20 rounded text-error" title="삭제">삭제</button>
               </div>
             </div>
-          `;
-        })
-        .join("");
+            <div class="font-label-xs text-label-xs text-on-surface-variant grid grid-cols-2 gap-x-3 gap-y-1">
+              <div>지표: <span class="text-on-surface">${escapeHtml(rule.metric_label)}</span></div>
+              <div>임계: <span class="text-tertiary">${cmpLabel} ${rule.threshold}</span> ${escapeHtml(rule.metric_unit)}</div>
+              <div>윈도우: <span class="text-on-surface">${escapeHtml(rule.window)}</span></div>
+              <div>쿨다운: <span class="text-on-surface">${rule.cooldown_seconds}s</span></div>
+              <div class="col-span-2">마지막 발화: <span class="text-on-surface">${escapeHtml(lastFired)}</span> · 값 <span class="text-on-surface">${Number(rule.last_value || 0).toFixed(4)}</span></div>
+              <div class="col-span-2 truncate">webhook: <span class="text-on-surface">${escapeHtml(rule.webhook_url_masked)}</span></div>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     function renderHistory() {
       const container = document.getElementById("ruleHistory");
       if (!alertState.history.length) {
-        container.innerHTML = `<div class="text-xs text-on-surface-variant">최근 발화 이력이 없습니다.</div>`;
+        container.innerHTML = `<div class="text-xs text-on-surface-variant py-2">최근 발화 이력이 없습니다.</div>`;
         return;
       }
-      container.innerHTML = alertState.history
-        .map((event) => {
-          const ts = new Date(event.fired_at * 1000).toLocaleTimeString("ko-KR");
-          const summary = event.summary ? ` · ${escapeHtml(event.summary)}` : "";
-          return `<div class="font-label-xs text-label-xs text-on-surface-variant">[${ts}] <span class="text-tertiary">${escapeHtml(event.rule_name)}</span> value=${Number(event.value).toFixed(3)} (>${event.threshold})${summary}</div>`;
-        })
-        .join("");
+      container.innerHTML = alertState.history.map((event) => {
+        const ts = new Date(event.fired_at * 1000).toLocaleTimeString("ko-KR", { hour12: false });
+        const summary = event.summary ? ` · <span class="text-on-surface">${escapeHtml(event.summary)}</span>` : "";
+        return `<div class="font-label-xs text-label-xs text-on-surface-variant border-l-2 border-tertiary/50 pl-2">
+          <span class="text-tertiary">[${ts}]</span> <span class="text-on-surface">${escapeHtml(event.rule_name)}</span>
+          value=<span class="font-data-mono">${Number(event.value).toFixed(3)}</span> (&gt;${event.threshold})${summary}
+        </div>`;
+      }).join("");
     }
 
     document.getElementById("ruleForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
+      const submitBtn = document.getElementById("ruleSubmitBtn");
       const fd = new FormData(form);
       const payload = {
         name: fd.get("name"),
@@ -649,6 +936,8 @@
       };
       const errorEl = document.getElementById("ruleFormError");
       errorEl.classList.add("hidden");
+      submitBtn.disabled = true;
+      submitBtn.classList.add("opacity-60");
       try {
         const res = await fetch("/api/alerts/rules", {
           method: "POST",
@@ -661,9 +950,14 @@
         }
         form.reset();
         await loadAlertRules();
+        showToast(`규칙 "${payload.name}" 추가됨`, "success");
       } catch (err) {
         errorEl.textContent = err.message;
         errorEl.classList.remove("hidden");
+        showToast("규칙 추가에 실패했습니다.", "error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-60");
       }
     });
 
@@ -672,12 +966,26 @@
       const deleteId = event.target.dataset.delete;
       if (toggleId) {
         const enabled = event.target.dataset.enabled !== "true";
-        await fetch(`/api/alerts/rules/${toggleId}/toggle?enabled=${enabled}`, { method: "POST" });
-        await loadAlertRules();
+        const rule = alertState.rules.find((r) => r.id === toggleId);
+        try {
+          const res = await fetch(`/api/alerts/rules/${toggleId}/toggle?enabled=${enabled}`, { method: "POST" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          await loadAlertRules();
+          showToast(`"${rule?.name || "규칙"}" ${enabled ? "활성화" : "비활성화"}`, "info");
+        } catch (e) {
+          showToast("상태 변경 실패", "error");
+        }
       } else if (deleteId) {
         if (!confirm("규칙을 삭제하시겠어요?")) return;
-        await fetch(`/api/alerts/rules/${deleteId}`, { method: "DELETE" });
-        await loadAlertRules();
+        const rule = alertState.rules.find((r) => r.id === deleteId);
+        try {
+          const res = await fetch(`/api/alerts/rules/${deleteId}`, { method: "DELETE" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          await loadAlertRules();
+          showToast(`"${rule?.name || "규칙"}" 삭제됨`, "success");
+        } catch (e) {
+          showToast("삭제 실패", "error");
+        }
       }
     });
 
@@ -687,6 +995,16 @@
       loadAlertRules().catch(console.error);
       loadAlertHistory().catch(console.error);
     }, 10000);
+
+    // ============ BACKEND METADATA ============
+    fetch("/health").then((r) => r.json()).then((data) => {
+      document.getElementById("backendModel").textContent = data.model || "-";
+      document.getElementById("backendInfo").textContent = `${data.compute_resource} · $${data.compute_hourly_usd}/h`;
+    }).catch(() => {});
+
+    // ============ INIT ============
+    const initialTab = (window.location.hash || "").replace("#", "") || "overview";
+    selectTab(initialTab);
   </script>
 </body>
 </html>
