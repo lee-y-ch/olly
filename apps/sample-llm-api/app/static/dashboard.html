@@ -220,6 +220,34 @@
           </div>
         </section>
 
+        <section id="grafana" class="bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-3">
+          <div class="border-b border-outline-variant pb-2 flex items-center justify-between">
+            <div>
+              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Live Charts (Grafana)</h3>
+              <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Prometheus 원본 데이터를 Grafana가 실시간으로 그립니다. 클릭하면 Grafana에서 자세히 볼 수 있습니다.</p>
+            </div>
+            <a id="grafanaOpen" href="http://localhost:3001/d/olly-mvp/olly-mvp-dashboard?theme=dark" target="_blank" rel="noopener" class="font-label-xs text-label-xs text-primary hover:underline">Grafana에서 열기 ↗</a>
+          </div>
+          <div class="grid grid-cols-2 gap-gutter">
+            <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">p95 Latency</div>
+              <iframe id="grafanaPanelLatency" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+            </div>
+            <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Token Usage Trend</div>
+              <iframe id="grafanaPanelTokens" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+            </div>
+            <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Breakdown</div>
+              <iframe id="grafanaPanelCost" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+            </div>
+            <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Bottleneck by Stage p95</div>
+              <iframe id="grafanaPanelBottleneck" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
+            </div>
+          </div>
+        </section>
+
         <section class="grid grid-cols-2 gap-gutter">
           <div class="bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
             <div class="border-b border-outline-variant pb-2 mb-4">
@@ -244,6 +272,70 @@
               <span id="alertCount" class="font-label-xs text-label-xs text-tertiary">0</span>
             </div>
             <div id="alertList" class="flex-1 overflow-auto space-y-2"></div>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-12 gap-gutter">
+          <div class="col-span-5 bg-surface-container-low border border-outline-variant p-4 flex flex-col">
+            <div class="border-b border-outline-variant pb-2 mb-4">
+              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Custom Alert Rule</h3>
+              <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Discord webhook으로 알림이 발송됩니다. AI 요약(SLM)이 함께 첨부됩니다.</p>
+            </div>
+            <form id="ruleForm" class="flex flex-col gap-3">
+              <label class="flex flex-col gap-1">
+                <span class="font-label-xs text-label-xs text-on-surface-variant">이름</span>
+                <input name="name" required maxlength="80" class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="예: 토큰 사용량 급증" />
+              </label>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="flex flex-col gap-1">
+                  <span class="font-label-xs text-label-xs text-on-surface-variant">지표</span>
+                  <select name="metric" id="metricSelect" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface"></select>
+                </label>
+                <label class="flex flex-col gap-1">
+                  <span class="font-label-xs text-label-xs text-on-surface-variant">조건</span>
+                  <select name="comparator" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
+                    <option value="gt">초과 (&gt;)</option>
+                    <option value="lt">미만 (&lt;)</option>
+                  </select>
+                </label>
+              </div>
+              <div class="grid grid-cols-3 gap-3">
+                <label class="flex flex-col gap-1">
+                  <span class="font-label-xs text-label-xs text-on-surface-variant">임계값</span>
+                  <input name="threshold" type="number" step="any" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
+                </label>
+                <label class="flex flex-col gap-1">
+                  <span class="font-label-xs text-label-xs text-on-surface-variant">윈도우</span>
+                  <select name="window" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
+                    <option value="1m">1m</option>
+                    <option value="5m" selected>5m</option>
+                    <option value="15m">15m</option>
+                  </select>
+                </label>
+                <label class="flex flex-col gap-1">
+                  <span class="font-label-xs text-label-xs text-on-surface-variant">쿨다운(초)</span>
+                  <input name="cooldown_seconds" type="number" min="10" max="86400" value="300" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
+                </label>
+              </div>
+              <label class="flex flex-col gap-1">
+                <span class="font-label-xs text-label-xs text-on-surface-variant">Discord Webhook URL</span>
+                <input name="webhook_url" type="url" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="https://discord.com/api/webhooks/..." />
+              </label>
+              <button type="submit" class="bg-secondary-container text-on-secondary font-label-xs text-label-xs uppercase tracking-wider py-2 hover:opacity-90">규칙 추가</button>
+              <p id="ruleFormError" class="font-label-xs text-label-xs text-error hidden"></p>
+            </form>
+          </div>
+
+          <div class="col-span-7 bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-4">
+            <div class="border-b border-outline-variant pb-2 flex justify-between">
+              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Custom Rules</h3>
+              <span id="ruleCount" class="font-label-xs text-label-xs text-tertiary">0</span>
+            </div>
+            <div id="ruleList" class="flex flex-col gap-2 max-h-72 overflow-auto"></div>
+            <div class="border-t border-outline-variant pt-2">
+              <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider mb-2">Recent Firings</h3>
+              <div id="ruleHistory" class="flex flex-col gap-1 max-h-40 overflow-auto"></div>
+            </div>
           </div>
         </section>
       </div>
@@ -297,6 +389,47 @@
       if (!response.ok) throw new Error(`dashboard API failed: ${response.status}`);
       state.data = await response.json();
       renderDashboard();
+      updateGrafanaPanels(windowValue);
+    }
+
+    const GRAFANA_BASE_URL = `${window.location.protocol}//${window.location.hostname}:3001`;
+    const GRAFANA_DASHBOARD_PATH = "/d-solo/olly-mvp/olly-mvp-dashboard";
+    const GRAFANA_PANELS = {
+      grafanaPanelLatency: 4,
+      grafanaPanelTokens: 6,
+      grafanaPanelCost: 11,
+      grafanaPanelBottleneck: 13,
+    };
+    const GRAFANA_FROM_RANGE = {
+      "15m": "now-15m",
+      "1h": "now-1h",
+      "6h": "now-6h",
+      "24h": "now-24h",
+    };
+
+    function updateGrafanaPanels(windowValue) {
+      const from = GRAFANA_FROM_RANGE[windowValue] || "now-1h";
+      for (const [elementId, panelId] of Object.entries(GRAFANA_PANELS)) {
+        const params = new URLSearchParams({
+          orgId: "1",
+          panelId: String(panelId),
+          theme: "dark",
+          kiosk: "tv",
+          from,
+          to: "now",
+          refresh: "30s",
+        });
+        const url = `${GRAFANA_BASE_URL}${GRAFANA_DASHBOARD_PATH}?${params.toString()}`;
+        const iframe = document.getElementById(elementId);
+        if (iframe && iframe.src !== url) {
+          iframe.src = url;
+        }
+      }
+      const openLink = document.getElementById("grafanaOpen");
+      if (openLink) {
+        const params = new URLSearchParams({ theme: "dark", from, to: "now" });
+        openLink.href = `${GRAFANA_BASE_URL}/d/olly-mvp/olly-mvp-dashboard?${params.toString()}`;
+      }
     }
 
     function renderDashboard() {
@@ -424,6 +557,136 @@
       document.getElementById("requestRows").innerHTML = `<tr><td colspan="6" class="p-6 text-center text-error">대시보드 데이터를 불러오지 못했습니다.</td></tr>`;
     });
     setInterval(() => loadDashboard().catch(console.error), 5000);
+
+    const alertState = { metrics: [], rules: [], history: [] };
+
+    async function loadAlertMetrics() {
+      const res = await fetch("/api/alerts/metrics");
+      const data = await res.json();
+      alertState.metrics = data.metrics || [];
+      const select = document.getElementById("metricSelect");
+      select.innerHTML = alertState.metrics
+        .map((m) => `<option value="${m.key}">${m.label} (${m.unit})</option>`)
+        .join("");
+    }
+
+    async function loadAlertRules() {
+      const res = await fetch("/api/alerts/rules");
+      const data = await res.json();
+      alertState.rules = data.rules || [];
+      renderRules();
+    }
+
+    async function loadAlertHistory() {
+      const res = await fetch("/api/alerts/history?limit=20");
+      const data = await res.json();
+      alertState.history = data.history || [];
+      renderHistory();
+    }
+
+    function renderRules() {
+      const list = document.getElementById("ruleList");
+      document.getElementById("ruleCount").textContent = String(alertState.rules.length);
+      if (!alertState.rules.length) {
+        list.innerHTML = `<div class="text-xs text-on-surface-variant">등록된 규칙이 없습니다.</div>`;
+        return;
+      }
+      list.innerHTML = alertState.rules
+        .map((rule) => {
+          const lastFired = rule.last_fired_at
+            ? new Date(rule.last_fired_at * 1000).toLocaleTimeString("ko-KR")
+            : "한 번도 발화하지 않음";
+          const cmpLabel = rule.comparator === "gt" ? "&gt;" : "&lt;";
+          const stateClass = rule.enabled ? "text-secondary" : "text-on-surface-variant";
+          return `
+            <div class="border border-outline-variant bg-surface-container p-3 flex flex-col gap-1">
+              <div class="flex justify-between items-start">
+                <div class="font-label-xs text-label-xs text-on-surface">${escapeHtml(rule.name)}</div>
+                <div class="flex gap-2">
+                  <button data-toggle="${rule.id}" data-enabled="${rule.enabled}" class="font-label-xs text-label-xs ${stateClass} hover:opacity-80">${rule.enabled ? "ON" : "OFF"}</button>
+                  <button data-delete="${rule.id}" class="font-label-xs text-label-xs text-error hover:opacity-80">삭제</button>
+                </div>
+              </div>
+              <div class="font-label-xs text-label-xs text-on-surface-variant">
+                ${escapeHtml(rule.metric_label)} ${cmpLabel} <span class="text-tertiary">${rule.threshold}</span> ${escapeHtml(rule.metric_unit)} · 윈도우 ${escapeHtml(rule.window)} · 쿨다운 ${rule.cooldown_seconds}s
+              </div>
+              <div class="font-label-xs text-label-xs text-on-surface-variant">
+                마지막 발화: ${escapeHtml(lastFired)} · 마지막 값: ${Number(rule.last_value || 0).toFixed(4)} · webhook ${escapeHtml(rule.webhook_url_masked)}
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderHistory() {
+      const container = document.getElementById("ruleHistory");
+      if (!alertState.history.length) {
+        container.innerHTML = `<div class="text-xs text-on-surface-variant">최근 발화 이력이 없습니다.</div>`;
+        return;
+      }
+      container.innerHTML = alertState.history
+        .map((event) => {
+          const ts = new Date(event.fired_at * 1000).toLocaleTimeString("ko-KR");
+          const summary = event.summary ? ` · ${escapeHtml(event.summary)}` : "";
+          return `<div class="font-label-xs text-label-xs text-on-surface-variant">[${ts}] <span class="text-tertiary">${escapeHtml(event.rule_name)}</span> value=${Number(event.value).toFixed(3)} (>${event.threshold})${summary}</div>`;
+        })
+        .join("");
+    }
+
+    document.getElementById("ruleForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const fd = new FormData(form);
+      const payload = {
+        name: fd.get("name"),
+        metric: fd.get("metric"),
+        comparator: fd.get("comparator"),
+        threshold: Number(fd.get("threshold")),
+        window: fd.get("window"),
+        cooldown_seconds: Number(fd.get("cooldown_seconds")),
+        webhook_url: fd.get("webhook_url"),
+      };
+      const errorEl = document.getElementById("ruleFormError");
+      errorEl.classList.add("hidden");
+      try {
+        const res = await fetch("/api/alerts/rules", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const detail = await res.text();
+          throw new Error(detail || "규칙 추가 실패");
+        }
+        form.reset();
+        await loadAlertRules();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("ruleList").addEventListener("click", async (event) => {
+      const toggleId = event.target.dataset.toggle;
+      const deleteId = event.target.dataset.delete;
+      if (toggleId) {
+        const enabled = event.target.dataset.enabled !== "true";
+        await fetch(`/api/alerts/rules/${toggleId}/toggle?enabled=${enabled}`, { method: "POST" });
+        await loadAlertRules();
+      } else if (deleteId) {
+        if (!confirm("규칙을 삭제하시겠어요?")) return;
+        await fetch(`/api/alerts/rules/${deleteId}`, { method: "DELETE" });
+        await loadAlertRules();
+      }
+    });
+
+    loadAlertMetrics().then(loadAlertRules).catch(console.error);
+    loadAlertHistory().catch(console.error);
+    setInterval(() => {
+      loadAlertRules().catch(console.error);
+      loadAlertHistory().catch(console.error);
+    }, 10000);
   </script>
 </body>
 </html>
