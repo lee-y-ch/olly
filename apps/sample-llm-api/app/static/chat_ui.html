@@ -490,6 +490,84 @@
       .scenario-button { min-height: 56px; padding-left: 0.72rem; padding-right: 0.72rem; }
       .scenario-icon { width: 32px; height: 32px; }
     }
+  
+
+    /* ===== Global typography scale patch =====
+       Slightly larger text for chat UI readability. */
+    body {
+      font-size: 15px;
+    }
+    .font-label-xs,
+    .text-label-xs {
+      font-size: 12px !important;
+      line-height: 1.38 !important;
+    }
+    .font-data-mono,
+    .text-data-mono {
+      font-size: 13px !important;
+      line-height: 1.45 !important;
+    }
+    .brand-title,
+    .brand-lockup h1 {
+      font-size: 32px !important;
+      line-height: 1.05 !important;
+    }
+    .brand-lockup p,
+    .brand-panel > p {
+      font-size: 13px !important;
+      line-height: 1.45 !important;
+    }
+    .scenario-title {
+      font-size: 15px !important;
+      line-height: 1.25 !important;
+    }
+    .scenario-desc {
+      font-size: 12px !important;
+      line-height: 1.35 !important;
+    }
+    .scenario-button {
+      min-height: 68px;
+    }
+    .question-button {
+      font-size: 14px !important;
+      line-height: 1.35 !important;
+      padding: 0.62rem 0.78rem !important;
+    }
+    .bubble-assistant,
+    .bubble-user {
+      font-size: 15px !important;
+      line-height: 1.6 !important;
+    }
+    .bubble-assistant p,
+    .bubble-user p {
+      font-size: 15px !important;
+      line-height: 1.6 !important;
+    }
+    .meta-pill {
+      font-size: 12px !important;
+      line-height: 1.35 !important;
+    }
+    .meta-pill .material-symbols-outlined {
+      font-size: 15px !important;
+    }
+    .input-shell textarea,
+    .input-shell input,
+    #promptInput {
+      font-size: 15px !important;
+      line-height: 1.5 !important;
+    }
+    .top-header a,
+    .header-tabs a {
+      font-size: 14px !important;
+      line-height: 1.35 !important;
+    }
+    @media (max-width: 640px) {
+      body { font-size: 14px; }
+      .scenario-title { font-size: 14px !important; }
+      .bubble-assistant,
+      .bubble-user { font-size: 14px !important; }
+    }
+
   </style>
 </head>
 <body class="flex h-screen w-full bg-surface-container-lowest font-body-md text-body-md">
@@ -613,7 +691,6 @@
       <div class="input-shell max-w-4xl mx-auto flex items-end gap-2 bg-surface-container-high border border-outline-variant rounded-lg p-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
         <textarea id="questionInput" class="flex-1 bg-transparent border-none text-on-surface font-body-md text-body-md focus:ring-0 resize-none max-h-32 p-2 outline-none" placeholder="예: 비용이 왜 늘었어? / RAG가 느린 거야, 모델이 느린 거야?" rows="1" style="min-height:44px;"></textarea>
         <div class="flex flex-col items-end gap-1 shrink-0 p-1">
-          <span class="font-label-xs text-label-xs text-outline pr-1">Enter 전송</span>
           <button id="sendButton" class="rounded-2xl bg-primary-container hover:bg-primary text-white p-3 flex items-center justify-center transition-colors shadow-lg shadow-primary/10">
             <span class="material-symbols-outlined text-[20px]">send</span>
           </button>
