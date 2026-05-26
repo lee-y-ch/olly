@@ -1,45 +1,44 @@
 <!DOCTYPE html>
-<html class="dark" lang="ko">
+<html lang="ko">
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>OLLY Operator Dashboard</title>
+  <title>Olly Dashboard</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script>
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
           colors: {
-            "on-surface-variant": "#c2c6d6",
-            "secondary-container": "#00a572",
-            "surface-container-high": "#272a31",
-            "on-secondary": "#003824",
-            "primary": "#adc6ff",
-            "on-surface": "#e1e2eb",
-            "surface": "#10131a",
-            "background": "#10131a",
-            "outline": "#8c909f",
-            "secondary": "#4edea3",
-            "on-primary-container": "#00285d",
-            "primary-container": "#4d8eff",
-            "surface-container-low": "#191c22",
-            "tertiary": "#ffb95f",
-            "surface-container-lowest": "#0b0e14",
-            "surface-container-highest": "#32353c",
-            "surface-bright": "#363940",
-            "surface-container": "#1d2026",
-            "error": "#ffb4ab",
-            "surface-variant": "#32353c",
-            "outline-variant": "#424754",
-            "error-container": "#93000a"
+            "on-surface-variant": "#6b7b93",
+            "secondary-container": "#ccfbf1",
+            "surface-container-high": "#f1f5f9",
+            "on-secondary": "#0f766e",
+            "primary": "#7c83ff",
+            "on-surface": "#0f172a",
+            "surface": "#ffffff",
+            "background": "#f3f6fb",
+            "outline": "#94a3b8",
+            "secondary": "#4ecdc4",
+            "on-primary-container": "#312e81",
+            "primary-container": "#e0e7ff",
+            "surface-container-low": "#ffffff",
+            "tertiary": "#ffd166",
+            "surface-container-lowest": "#eef4fa",
+            "surface-container-highest": "#e2e8f0",
+            "surface-bright": "#edf2ff",
+            "surface-container": "#ffffff",
+            "error": "#ef4444",
+            "surface-variant": "#f8fafc",
+            "outline-variant": "#e2e8f0",
+            "error-container": "#fee2e2"
           },
           borderRadius: {
-            DEFAULT: "0.25rem",
-            lg: "0.5rem",
-            xl: "0.75rem",
+            DEFAULT: "0.75rem",
+            lg: "1rem",
+            xl: "1.25rem",
             full: "9999px"
           },
           spacing: {
@@ -49,10 +48,10 @@
             "container-max": "1440px"
           },
           fontFamily: {
-            "label-xs": ["JetBrains Mono"],
-            "data-mono": ["JetBrains Mono"],
-            "headline-md": ["Inter"],
-            "body-md": ["Inter"]
+            "label-xs": ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+            "data-mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
+            "headline-md": ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+            "body-md": ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"]
           },
           fontSize: {
             "label-xs": ["11px", { lineHeight: "1.2", fontWeight: "500" }],
@@ -79,12 +78,18 @@
     }
   </script>
   <style>
-    body { background: #10131a; }
+    :root { color-scheme: light; }
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(124, 131, 255, 0.14), transparent 24%),
+        radial-gradient(circle at left center, rgba(78, 205, 196, 0.12), transparent 30%),
+        linear-gradient(180deg, #f3f6fb 0%, #eef4fa 100%);
+    }
     .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #10131a; }
-    ::-webkit-scrollbar-thumb { background: #32353c; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #424754; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     .skeleton {
       background: linear-gradient(90deg, #1d2026 0%, #2a2e36 50%, #1d2026 100%);
       background-size: 200% 100%;
@@ -94,11 +99,16 @@
       display: inline-block;
       min-width: 60px;
     }
-    .nav-link { transition: all 0.15s ease; }
+    .nav-link {
+      transition: all 0.18s ease;
+      border-radius: 1rem;
+      margin: 0 0.75rem;
+      border-left-width: 0;
+    }
     .nav-link.active {
-      background: rgba(78, 222, 163, 0.12);
-      color: #4edea3;
-      border-left-color: #4edea3;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(20, 184, 166, 0.1));
+      color: #334155;
+      box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.2);
     }
     .tab-section { display: none; }
     .tab-section.active { display: block; }
@@ -126,68 +136,671 @@
       bottom: calc(100% + 6px);
       left: 50%;
       transform: translateX(-50%);
-      background: #32353c;
-      color: #e1e2eb;
+      background: #ffffff;
+      color: #0f172a;
       padding: 6px 10px;
       border-radius: 4px;
       font-size: 11px;
       white-space: nowrap;
       z-index: 50;
-      border: 1px solid #424754;
+      border: 1px solid #e2e8f0;
     }
     .tooltip-host:hover .tooltip { visibility: visible; opacity: 1; }
+    .sidebar-shell {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(22px);
+      box-shadow: 12px 0 32px rgba(15, 23, 42, 0.06);
+    }
+    .brand-panel {
+      position: relative;
+      overflow: hidden;
+    }
+    .brand-panel::after {
+      content: "";
+      position: absolute;
+      inset: auto -48px -48px auto;
+      width: 140px;
+      height: 140px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, rgba(20, 184, 166, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+    .brand-mark {
+      position: relative;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, rgba(129, 140, 248, 0.28), rgba(45, 212, 191, 0.2));
+      border: 1px solid rgba(129, 140, 248, 0.24);
+      box-shadow: inset 0 1px 0 rgba(248, 250, 252, 0.08);
+    }
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      left: 0.65rem;
+      right: 0.65rem;
+      border-radius: 9999px;
+    }
+    .brand-mark::before {
+      top: 0.95rem;
+      height: 0.2rem;
+      background: linear-gradient(90deg, #818cf8 0%, #2dd4bf 100%);
+      box-shadow: 0 0 16px rgba(129, 140, 248, 0.45);
+    }
+    .brand-mark::after {
+      top: 1.55rem;
+      height: 0.42rem;
+      border: 2px solid rgba(248, 250, 252, 0.72);
+      border-left-color: transparent;
+      border-right-color: transparent;
+      opacity: 0.9;
+    }
+    .brand-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 9999px;
+      padding: 0.35rem 0.7rem;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.16);
+      color: #475569;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .top-shell {
+      background: rgba(248, 250, 252, 0.92);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+    .dashboard-stage {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(248, 250, 252, 0.92)),
+        transparent;
+    }
+    .soft-card,
+    .metric-card,
+    .table-panel,
+    .chart-frame {
+      border-radius: 1.25rem;
+      border-color: #e2e8f0 !important;
+      background: rgba(255, 255, 255, 0.84) !important;
+      box-shadow: 0 18px 40px rgba(59, 73, 110, 0.08);
+    }
+    .metric-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 9.5rem;
+    }
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.75), rgba(20, 184, 166, 0.65), rgba(251, 191, 36, 0.55));
+      opacity: 0.75;
+    }
+    .surface-input {
+      border-radius: 1rem;
+      border-color: #e2e8f0 !important;
+      background: rgba(255, 255, 255, 0.86) !important;
+      padding: 0.65rem 0.9rem !important;
+      box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.02);
+    }
+    .surface-input:focus {
+      border-color: rgba(99, 102, 241, 0.45) !important;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+      outline: none;
+    }
+    .icon-button {
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid #e2e8f0;
+      box-shadow: inset 0 1px 0 rgba(248, 250, 252, 0.04);
+    }
+    .icon-button:hover { background: #f8fafc; }
+    .status-badge {
+      border-radius: 9999px;
+      padding: 0.35rem 0.75rem !important;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .subtle-empty {
+      border-radius: 1.1rem;
+      border: 1px dashed #cbd5e1;
+      background: rgba(255, 255, 255, 0.68);
+      padding: 1.25rem;
+    }
+    .insight-glow {
+      background:
+        radial-gradient(circle at 85% 18%, rgba(124, 131, 255, 0.2), transparent 42%),
+        radial-gradient(circle at 8% 80%, rgba(78, 205, 196, 0.16), transparent 36%),
+        rgba(255, 255, 255, 0.86);
+    }
+    .pulse-line {
+      height: 3px;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, rgba(124, 131, 255, 0.35), rgba(78, 205, 196, 0.38), rgba(255, 209, 102, 0.32));
+    }
+    @media (max-width: 1279px) {
+      body { overflow: auto; }
+      nav.sidebar-shell {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+      .content-shell {
+        margin-left: 0;
+        min-height: 100vh;
+      }
+    }
+    @media (max-width: 767px) {
+      .metric-card,
+      .soft-card,
+      .table-panel,
+      .chart-frame {
+        border-radius: 1.25rem;
+      }
+      .top-shell {
+        height: auto;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+    }
+
+
+    /* Refined Olly dashboard: soft, compact, and consistent with chat UI */
+    .sidebar-shell {
+      background:
+        radial-gradient(circle at 18% 0%, rgba(78, 205, 196, 0.16), transparent 30%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.92));
+      backdrop-filter: blur(24px);
+      box-shadow: 14px 0 36px rgba(59, 73, 110, 0.07);
+    }
+    .brand-panel { padding-top: 1.35rem !important; padding-bottom: 1.25rem !important; }
+    .brand-panel::after {
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(78, 205, 196, 0.18), transparent 70%);
+    }
+    .brand-title {
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 850;
+      letter-spacing: -0.045em;
+      color: #7c83ff;
+    }
+    .brand-subtitle {
+      margin-top: 0.45rem;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #6b7b93;
+      word-break: keep-all;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-top: 0.7rem;
+      border-radius: 9999px;
+      padding: 0.38rem 0.68rem;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 8px 22px rgba(59, 73, 110, 0.06);
+    }
+    .nav-section-label {
+      padding: 0 1rem;
+      margin: 0.7rem 0 0.45rem;
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #8a99ad;
+      text-transform: uppercase;
+    }
+    .nav-link {
+      margin: 0.18rem 0.65rem;
+      padding: 0.72rem 0.85rem !important;
+      border: 1px solid transparent;
+      border-radius: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-align: left;
+      color: #64748b;
+      background: transparent;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .nav-link:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.78);
+      border-color: rgba(124, 131, 255, 0.16);
+      color: #0f172a;
+    }
+    .nav-link.active,
+    .nav-link.active:hover {
+      background: linear-gradient(135deg, rgba(124, 131, 255, 0.14), rgba(78, 205, 196, 0.16));
+      border-color: rgba(124, 131, 255, 0.30);
+      color: #0f172a;
+      box-shadow: inset 3px 0 0 #7c83ff, 0 12px 28px rgba(59, 73, 110, 0.08);
+    }
+    .nav-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      background: rgba(124, 131, 255, 0.10);
+      color: #6366f1;
+    }
+    .nav-link.active .nav-icon { background: rgba(255, 255, 255, 0.70); color: #6366f1; }
+    .nav-copy { min-width: 0; display: flex; flex-direction: column; gap: 0.12rem; }
+    .nav-title { font-size: 13px; line-height: 1.2; font-weight: 780; color: inherit; }
+    .nav-desc { font-size: 11px; line-height: 1.25; color: #7d8ca3; word-break: keep-all; }
+    .nav-link.active .nav-desc { color: #58667b; }
+    .top-shell {
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 28px rgba(59, 73, 110, 0.06);
+    }
+    .dashboard-stage {
+      background:
+        radial-gradient(circle at 82% 6%, rgba(124, 131, 255, 0.10), transparent 24%),
+        radial-gradient(circle at 10% 70%, rgba(78, 205, 196, 0.10), transparent 26%),
+        linear-gradient(180deg, rgba(248, 251, 255, 0.88), rgba(239, 246, 252, 0.94));
+    }
+    .soft-card,
+    .metric-card,
+    .table-panel,
+    .chart-frame {
+      border-radius: 1.35rem;
+      border: 1px solid rgba(226, 232, 240, 0.95) !important;
+      background: rgba(255, 255, 255, 0.82) !important;
+      box-shadow: 0 18px 42px rgba(59, 73, 110, 0.075);
+    }
+    .metric-card {
+      min-height: 10.2rem;
+      padding: 1.05rem !important;
+    }
+    .metric-card::before { display: none; }
+    .metric-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 46px rgba(59, 73, 110, 0.10);
+    }
+    .metric-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border-bottom: 0 !important;
+      padding-bottom: 0 !important;
+      margin-bottom: 0.9rem !important;
+    }
+    .metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(124, 131, 255, 0.10);
+      color: #6366f1;
+      flex-shrink: 0;
+    }
+    .metric-card[data-tone="mint"] .metric-icon { background: rgba(78, 205, 196, 0.14); color: #0f766e; }
+    .metric-card[data-tone="yellow"] .metric-icon { background: rgba(255, 209, 102, 0.18); color: #b7791f; }
+    .metric-card[data-tone="green"] .metric-icon { background: rgba(78, 205, 196, 0.14); color: #0f766e; }
+    .metric-value { font-size: 28px; line-height: 1.05; letter-spacing: -0.03em; }
+    .insight-glow {
+      background:
+        radial-gradient(circle at 86% 18%, rgba(124, 131, 255, 0.20), transparent 38%),
+        radial-gradient(circle at 8% 80%, rgba(78, 205, 196, 0.18), transparent 34%),
+        rgba(255, 255, 255, 0.86) !important;
+    }
+    .olly-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 9999px;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid rgba(124, 131, 255, 0.20);
+      background: rgba(255,255,255,0.68);
+      color: #64748b;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .overview-trace-btn:hover {
+      border-color: rgba(124, 131, 255, 0.28) !important;
+      box-shadow: 0 12px 28px rgba(59, 73, 110, 0.08);
+      transform: translateY(-1px);
+    }
+    .chart-frame iframe { background: #ffffff !important; }
+
+
+
+    /* ===== Readability patch: keep soft tone, raise data contrast ===== */
+    :root {
+      --olly-text-strong: #0f172a;
+      --olly-text-main: #243247;
+      --olly-text-muted: #52627a;
+      --olly-line: #cfd8e6;
+      --olly-line-soft: #dce4ef;
+      --olly-card: rgba(255, 255, 255, 0.94);
+      --olly-panel: rgba(255, 255, 255, 0.98);
+    }
+    body { color: var(--olly-text-main); }
+    .text-on-surface { color: var(--olly-text-strong) !important; }
+    .text-on-surface-variant { color: var(--olly-text-muted) !important; }
+    .soft-card,
+    .metric-card,
+    .table-panel,
+    .chart-frame {
+      background: var(--olly-card) !important;
+      border-color: var(--olly-line-soft) !important;
+      box-shadow: 0 14px 34px rgba(36, 50, 71, 0.10);
+    }
+    .top-shell {
+      border-bottom-color: var(--olly-line-soft) !important;
+      box-shadow: 0 10px 26px rgba(36, 50, 71, 0.08);
+    }
+    .metric-value {
+      color: var(--olly-text-strong) !important;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+    .metric-card .font-label-xs,
+    .soft-card .font-label-xs {
+      color: var(--olly-text-muted) !important;
+    }
+
+    /* Table: stronger hierarchy for dense data */
+    .table-panel table {
+      color: var(--olly-text-main);
+    }
+    .table-panel thead {
+      background: #f6f8fc !important;
+    }
+    .table-panel th {
+      color: var(--olly-text-muted) !important;
+      font-weight: 750 !important;
+      letter-spacing: 0.025em;
+      border-bottom: 1px solid var(--olly-line) !important;
+    }
+    .table-panel td {
+      color: var(--olly-text-main);
+      border-bottom: 1px solid var(--olly-line-soft) !important;
+    }
+    .table-panel tbody tr {
+      background: rgba(255, 255, 255, 0.76);
+    }
+    .table-panel tbody tr:nth-child(even) {
+      background: rgba(248, 251, 255, 0.96);
+    }
+    .table-panel tbody tr:hover {
+      background: #eef4ff !important;
+    }
+    .table-panel tbody tr.selected {
+      background: #eaf0ff !important;
+      box-shadow: inset 3px 0 0 #7c83ff;
+    }
+    .table-panel .text-primary {
+      color: #4f46e5 !important;
+      font-weight: 650;
+    }
+    .text-secondary { color: #0f9f8f !important; }
+    .text-tertiary { color: #d97706 !important; }
+    .text-error { color: #dc2626 !important; }
+
+    /* Badges: pastel fill, high-contrast text */
+    .status-badge,
+    .table-panel td span.inline-block {
+      font-weight: 750 !important;
+    }
+    .bg-secondary-container\/15.border-secondary.text-secondary,
+    .border-secondary.text-secondary {
+      color: #0f766e !important;
+      background: #dffaf4 !important;
+      border-color: #5eead4 !important;
+    }
+    .bg-error-container\/30.border-error.text-error,
+    .border-error.text-error {
+      color: #dc2626 !important;
+      background: #fee2e2 !important;
+      border-color: #fca5a5 !important;
+    }
+    .bg-tertiary\/10.text-tertiary,
+    .border-tertiary\/50.text-tertiary {
+      color: #b45309 !important;
+      background: #fff3d6 !important;
+      border-color: #facc15 !important;
+    }
+    .bg-primary\/10.text-primary,
+    .border-primary\/50.text-primary {
+      color: #4f46e5 !important;
+      background: #eef2ff !important;
+      border-color: #a5b4fc !important;
+    }
+
+    /* Trace detail */
+    #detailMeta {
+      color: var(--olly-text-muted) !important;
+    }
+    #waterfall .subtle-empty {
+      background: var(--olly-panel);
+      border-color: var(--olly-line) !important;
+    }
+    #waterfall .font-data-mono {
+      color: var(--olly-text-strong) !important;
+      font-weight: 700;
+    }
+    #bottleneckBox {
+      background: #fff7df !important;
+      border-color: #facc15 !important;
+      color: var(--olly-text-main);
+    }
+    #bottleneckText {
+      color: #475569 !important;
+    }
+
+    /* Signals: dark Grafana iframes are intentionally isolated for compatibility */
+    .chart-frame iframe {
+      background: #111827 !important;
+    }
+
+
+    /* ===== Trace tab viewport lock + inner scrolling ===== */
+    .traces-section.active {
+      height: calc(100dvh - 128px);
+      min-height: 0;
+      overflow: hidden;
+    }
+    .traces-layout {
+      height: 100%;
+      min-height: 0;
+    }
+    .trace-table-panel,
+    .trace-side-panel,
+    .trace-detail-card {
+      height: 100%;
+      min-height: 0;
+    }
+    .trace-table-scroll {
+      min-height: 0;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+    }
+    .trace-table-scroll thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #f6f8fc !important;
+    }
+    .trace-waterfall {
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+    }
+    .trace-bottleneck {
+      flex-shrink: 0;
+      border-radius: 1rem;
+      box-shadow: 0 10px 24px rgba(180, 83, 9, 0.10);
+    }
+    @media (max-width: 1535px) {
+      .traces-section.active {
+        height: auto;
+        overflow: visible;
+      }
+      .traces-layout,
+      .trace-table-panel,
+      .trace-side-panel,
+      .trace-detail-card {
+        height: auto;
+      }
+      .trace-table-scroll {
+        max-height: 58dvh;
+      }
+    }
+
+    /* ===== Cost bars: separate bar area and label area ===== */
+    .cost-bars {
+      min-height: 128px;
+      padding: 0.75rem 0.45rem 0.25rem;
+      align-items: stretch;
+    }
+    .cost-bar-item {
+      flex: 1;
+      min-width: 0;
+      display: grid;
+      grid-template-rows: minmax(86px, 1fr) 18px;
+      gap: 0.45rem;
+      height: 100%;
+    }
+    .cost-bar-track {
+      min-height: 86px;
+      display: flex;
+      align-items: flex-end;
+      border-radius: 1rem 1rem 0.55rem 0.55rem;
+      background: linear-gradient(180deg, rgba(124, 131, 255, 0.08), rgba(124, 131, 255, 0.03));
+      overflow: hidden;
+      border: 1px solid rgba(124, 131, 255, 0.10);
+    }
+    .cost-bar-fill {
+      width: 100%;
+      border-radius: 1rem 1rem 0.3rem 0.3rem;
+      background: linear-gradient(180deg, rgba(124, 131, 255, 0.48), rgba(124, 131, 255, 0.20));
+      border-top: 1px solid rgba(124, 131, 255, 0.82);
+      transition: height 0.18s ease, background 0.18s ease;
+    }
+    .cost-bar-item:hover .cost-bar-fill {
+      background: linear-gradient(180deg, rgba(124, 131, 255, 0.62), rgba(78, 205, 196, 0.28));
+    }
+    .cost-bar-label {
+      min-width: 0;
+      text-align: center;
+      font-size: 11px;
+      line-height: 18px;
+      color: #334155;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
   </style>
 </head>
 <body class="bg-background text-on-surface font-body-md text-body-md h-screen overflow-hidden flex">
-  <nav class="bg-surface-container-low border-r border-outline-variant flex flex-col z-40 fixed left-0 top-0 h-full w-64">
-    <div class="p-margin border-b border-outline-variant">
-      <h2 class="font-headline-md text-headline-md text-primary tracking-tighter font-bold">OLLY</h2>
-      <p class="font-label-xs text-label-xs text-on-surface-variant mt-2 flex items-center gap-2">
+  <nav class="sidebar-shell bg-surface-container-low border-r border-outline-variant flex flex-col z-40 fixed left-0 top-0 h-full w-72">
+    <div class="brand-panel p-margin border-b border-outline-variant">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="min-w-0">
+          <h2 class="brand-title">Olly</h2>
+          <p class="brand-subtitle">LLM 서비스 상태를 한눈에 확인</p>
+        </div>
+      </div>
+      <p class="status-pill font-label-xs text-label-xs text-on-surface-variant">
         <span id="systemStatusDot" class="w-2 h-2 rounded-full bg-secondary pulse-dot"></span>
-        <span id="systemStatusText">System Active</span>
+        <span id="systemStatusText">신호 정상</span>
       </p>
     </div>
 
-    <div class="flex-1 py-4 flex flex-col">
-      <div class="px-4 mb-2 font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Dashboard</div>
-      <button data-tab="overview" class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent text-left">
-        <span class="material-symbols-outlined">dashboard</span>
-        <span class="font-label-xs text-label-xs">Overview</span>
+    <div class="flex-1 py-4 flex flex-col overflow-y-auto">
+      <div class="nav-section-label">Board</div>
+      <button data-tab="overview" class="nav-link">
+        <span class="nav-icon material-symbols-outlined">dashboard</span>
+        <span class="nav-copy">
+          <span class="nav-title">운영 요약</span>
+          <span class="nav-desc">전체 상태를 빠르게 확인</span>
+        </span>
       </button>
-      <button data-tab="charts" class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent text-left">
-        <span class="material-symbols-outlined">show_chart</span>
-        <span class="font-label-xs text-label-xs">Live Charts</span>
+      <button data-tab="traces" class="nav-link">
+        <span class="nav-icon material-symbols-outlined">timeline</span>
+        <span class="nav-copy">
+          <span class="nav-title">요청 추적</span>
+          <span class="nav-desc">trace와 span 흐름 확인</span>
+        </span>
       </button>
-      <button data-tab="alerts" class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent text-left">
-        <span class="material-symbols-outlined">notifications_active</span>
-        <span class="font-label-xs text-label-xs">Alerts</span>
+      <button data-tab="signals" class="nav-link">
+        <span class="nav-icon material-symbols-outlined">monitoring</span>
+        <span class="nav-copy">
+          <span class="nav-title">실시간 지표</span>
+          <span class="nav-desc">지연, 토큰, 비용 추세</span>
+        </span>
+      </button>
+      <button data-tab="alerts" class="nav-link">
+        <span class="nav-icon material-symbols-outlined">notifications_active</span>
+        <span class="nav-copy">
+          <span class="nav-title">알림 관리</span>
+          <span class="nav-desc">규칙과 발화 이력 관리</span>
+        </span>
         <span id="navAlertBadge" class="ml-auto font-label-xs text-label-xs text-tertiary hidden">0</span>
       </button>
 
-      <div class="px-4 mt-6 mb-2 font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Tools</div>
-      <a class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent" href="/chat-ui">
-        <span class="material-symbols-outlined">chat</span>
-        <span class="font-label-xs text-label-xs">Chat UI</span>
+      <div class="nav-section-label mt-6">Assistant</div>
+      <a class="nav-link" href="/chat-ui">
+        <span class="nav-icon material-symbols-outlined">chat_bubble</span>
+        <span class="nav-copy">
+          <span class="nav-title">Olly에게 묻기</span>
+          <span class="nav-desc">질문으로 상태 점검</span>
+        </span>
       </a>
-      <a class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent" href="http://localhost:16686" target="_blank" rel="noreferrer">
-        <span class="material-symbols-outlined">account_tree</span>
-        <span class="font-label-xs text-label-xs">Jaeger</span>
+
+      <div class="nav-section-label mt-6">Tools</div>
+      <a class="nav-link" href="http://localhost:3001" target="_blank" rel="noreferrer">
+        <span class="nav-icon material-symbols-outlined">analytics</span>
+        <span class="nav-copy">
+          <span class="nav-title">Grafana</span>
+          <span class="nav-desc">원본 시계열 대시보드</span>
+        </span>
         <span class="material-symbols-outlined text-xs ml-auto">open_in_new</span>
       </a>
-      <a class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent" href="http://localhost:3001" target="_blank" rel="noreferrer">
-        <span class="material-symbols-outlined">analytics</span>
-        <span class="font-label-xs text-label-xs">Grafana</span>
+      <a class="nav-link" href="http://localhost:16686" target="_blank" rel="noreferrer">
+        <span class="nav-icon material-symbols-outlined">account_tree</span>
+        <span class="nav-copy">
+          <span class="nav-title">Jaeger</span>
+          <span class="nav-desc">분산 trace 상세 분석</span>
+        </span>
         <span class="material-symbols-outlined text-xs ml-auto">open_in_new</span>
       </a>
-      <a class="nav-link flex items-center gap-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest px-4 py-3 border-l-4 border-transparent" href="/docs" target="_blank" rel="noreferrer">
-        <span class="material-symbols-outlined">api</span>
-        <span class="font-label-xs text-label-xs">API Docs</span>
+      <a class="nav-link" href="/docs" target="_blank" rel="noreferrer">
+        <span class="nav-icon material-symbols-outlined">api</span>
+        <span class="nav-copy">
+          <span class="nav-title">API Docs</span>
+          <span class="nav-desc">엔드포인트 확인</span>
+        </span>
         <span class="material-symbols-outlined text-xs ml-auto">open_in_new</span>
       </a>
     </div>
 
     <div class="p-4 border-t border-outline-variant">
-      <div class="bg-surface-container border border-outline-variant p-3 flex flex-col gap-1">
+      <div class="soft-card bg-surface-container border border-outline-variant p-4 flex flex-col gap-1">
         <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">LLM Backend</div>
         <div id="backendModel" class="font-data-mono text-data-mono text-on-surface">gemma3:1b</div>
         <div id="backendInfo" class="font-label-xs text-label-xs text-on-surface-variant">cpu · $0.05/h</div>
@@ -195,11 +808,11 @@
     </div>
   </nav>
 
-  <div class="flex-1 ml-64 flex flex-col h-full overflow-hidden">
-    <header class="bg-surface border-b border-outline-variant flex justify-between items-center w-full px-margin h-16 shrink-0">
+  <div class="content-shell flex-1 ml-72 flex flex-col h-full overflow-hidden">
+    <header class="top-shell bg-surface border-b border-outline-variant flex justify-between items-center w-full px-margin h-20 shrink-0">
       <div class="flex items-center gap-4">
-        <h1 id="pageTitle" class="font-headline-md text-headline-md font-bold tracking-tighter text-on-surface">Overview</h1>
-        <span id="pageSubtitle" class="text-on-surface-variant text-sm">실시간 LLM 서비스 상태</span>
+        <h1 id="pageTitle" class="font-headline-md text-headline-md font-bold tracking-tighter text-on-surface">운영 요약</h1>
+        <span id="pageSubtitle" class="text-on-surface-variant text-sm">Olly가 최근 LLM 요청 상태를 정리했어요.</span>
       </div>
       <div class="flex items-center gap-3 text-on-surface-variant">
         <div class="hidden md:flex items-center gap-2 mr-2 font-label-xs text-label-xs">
@@ -207,73 +820,141 @@
           <span>업데이트:</span>
           <span id="lastUpdated" class="text-on-surface font-data-mono">-</span>
         </div>
-        <select id="windowSelect" class="bg-surface-container-high border border-outline-variant text-on-surface font-label-xs text-label-xs rounded px-2 py-1 focus:ring-primary focus:border-primary">
+        <select id="windowSelect" class="surface-input bg-surface-container-high border border-outline-variant text-on-surface font-label-xs text-label-xs rounded px-2 py-1 focus:ring-primary focus:border-primary">
           <option value="15m">Last 15m</option>
           <option value="1h" selected>Last 1h</option>
           <option value="6h">Last 6h</option>
           <option value="24h">Last 24h</option>
         </select>
-        <button id="refreshButton" class="tooltip-host hover:bg-surface-container-high transition-colors p-2 rounded-full" aria-label="새로고침">
+        <button id="refreshButton" class="tooltip-host icon-button hover:bg-surface-container-high transition-colors p-2 rounded-full" aria-label="새로고침">
           <span class="material-symbols-outlined">refresh</span>
           <span class="tooltip">수동 새로고침</span>
         </button>
       </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto p-margin bg-surface-container-lowest">
+    <main class="dashboard-stage flex-1 overflow-y-auto p-margin bg-surface-container-lowest">
       <div class="max-w-container-max mx-auto">
 
         <!-- ============ OVERVIEW TAB ============ -->
         <div data-tab-content="overview" class="tab-section space-y-gutter">
-          <section class="grid grid-cols-4 gap-gutter">
-            <div class="bg-surface-container-low border border-outline-variant p-4 tooltip-host">
-              <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
-                <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Avg Latency</span>
-                <span class="material-symbols-outlined text-outline text-sm">timer</span>
+          <section class="soft-card insight-glow p-5 border border-outline-variant">
+            <div class="flex flex-wrap items-start gap-4 justify-between">
+              <div>
+                <p class="font-label-xs text-label-xs uppercase tracking-wider text-on-surface-variant">Olly Insight</p>
+                <h3 id="ollyInsightTitle" class="text-xl font-semibold text-on-surface mt-2">지금은 신호가 조용해요.</h3>
+                <p id="ollyInsightBody" class="text-sm text-on-surface-variant mt-2">최근 요청에서 큰 지연이나 실패는 보이지 않아요.</p>
               </div>
-              <div id="avgLatency" class="font-data-mono text-2xl text-on-surface"><span class="skeleton">000ms</span></div>
-              <div id="avgLatencyHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">선택 윈도우 평균</div>
-              <span class="tooltip">/chat 요청 한 건의 평균 처리 시간 (retrieve + llm_call + postprocess)</span>
+              <div class="olly-badge">
+                <span class="material-symbols-outlined text-sm text-secondary">auto_awesome</span>
+                <span>calm mode</span>
+              </div>
             </div>
-            <div class="bg-surface-container-low border border-outline-variant p-4 tooltip-host">
-              <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
-                <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Total Tokens</span>
-                <span class="material-symbols-outlined text-outline text-sm">database</span>
+            <div class="pulse-line mt-4"></div>
+          </section>
+
+          <section class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-gutter">
+            <div class="metric-card bg-surface-container-low border border-outline-variant p-4 tooltip-host" data-tone="purple">
+              <div class="metric-head">
+                <div>
+                  <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Avg Latency</span>
+                  <div id="avgLatency" class="metric-value font-data-mono text-on-surface mt-3"><span class="skeleton">000ms</span></div>
+                </div>
+                <span class="metric-icon material-symbols-outlined">timer</span>
               </div>
-              <div id="totalTokens" class="font-data-mono text-2xl text-on-surface"><span class="skeleton">000</span></div>
+              <div id="avgLatencyHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">선택한 시간 구간 평균</div>
+              <span class="tooltip">/chat 요청 한 건의 평균 처리 시간</span>
+            </div>
+            <div class="metric-card bg-surface-container-low border border-outline-variant p-4 tooltip-host" data-tone="mint">
+              <div class="metric-head">
+                <div>
+                  <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Total Tokens</span>
+                  <div id="totalTokens" class="metric-value font-data-mono text-on-surface mt-3"><span class="skeleton">000</span></div>
+                </div>
+                <span class="metric-icon material-symbols-outlined">data_usage</span>
+              </div>
               <div id="totalTokensHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">input + output 합계</div>
               <span class="tooltip">선택 윈도우 동안 사용된 LLM 토큰 총합</span>
             </div>
-            <div class="bg-surface-container-low border border-outline-variant p-4 tooltip-host">
-              <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
-                <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Total Cost</span>
-                <span class="material-symbols-outlined text-outline text-sm">payments</span>
+            <div class="metric-card bg-surface-container-low border border-outline-variant p-4 tooltip-host" data-tone="yellow">
+              <div class="metric-head">
+                <div>
+                  <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Total Cost</span>
+                  <div id="totalCost" class="metric-value font-data-mono text-on-surface mt-3"><span class="skeleton">$0.00</span></div>
+                </div>
+                <span class="metric-icon material-symbols-outlined">payments</span>
               </div>
-              <div id="totalCost" class="font-data-mono text-2xl text-on-surface"><span class="skeleton">$0.00</span></div>
-              <div id="totalCostHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">로컬 추론 시간 기반</div>
+              <div id="totalCostHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">토큰 + 로컬 인프라 추정</div>
               <span class="tooltip">token API 비용 + 로컬 인프라 비용 추정</span>
             </div>
-            <div class="bg-surface-container-low border border-outline-variant p-4 tooltip-host">
-              <div class="border-b border-outline-variant pb-2 mb-2 flex justify-between items-center">
-                <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Success Rate</span>
-                <span class="material-symbols-outlined text-outline text-sm">check_circle</span>
+            <div class="metric-card bg-surface-container-low border border-outline-variant p-4 tooltip-host" data-tone="green">
+              <div class="metric-head">
+                <div>
+                  <span class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Success Rate</span>
+                  <div id="successRate" class="metric-value font-data-mono text-secondary mt-3"><span class="skeleton">000%</span></div>
+                </div>
+                <span class="metric-icon material-symbols-outlined">check_circle</span>
               </div>
-              <div id="successRate" class="font-data-mono text-2xl text-secondary"><span class="skeleton">000%</span></div>
-              <div id="successRateHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">100% 가 정상</div>
+              <div id="successRateHint" class="font-label-xs text-label-xs text-on-surface-variant mt-1">100%에 가까울수록 안정적</div>
               <span class="tooltip">총 요청 중 status=success 비율</span>
             </div>
           </section>
 
-          <section class="grid grid-cols-12 gap-gutter min-h-[500px]">
-            <div class="col-span-8 bg-surface-container-low border border-outline-variant flex flex-col">
+          <section class="soft-card bg-surface-container-low border border-outline-variant p-4">
+            <div class="flex items-center justify-between border-b border-outline-variant pb-2 mb-3">
+              <div>
+                <h3 class="font-headline-md text-sm text-on-surface">Recent Traces</h3>
+                <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">최근 요청의 상태와 지연 시간을 빠르게 확인합니다.</p>
+              </div>
+              <button data-tab="traces" class="text-xs text-primary hover:underline flex items-center gap-1">요청 추적으로 이동 <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+            </div>
+            <div id="overviewRecentList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+          </section>
+
+          <section class="grid grid-cols-1 xl:grid-cols-2 gap-gutter">
+            <div class="soft-card bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
+              <div class="border-b border-outline-variant pb-2 mb-4">
+                <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Analysis</h3>
+                <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">토큰 비용과 인프라 비용을 나눠서 봅니다.</p>
+              </div>
+              <div class="grid grid-cols-2 gap-4 mb-3">
+                <div class="soft-card bg-surface border border-outline-variant p-3">
+                  <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">Token Cost</div>
+                  <div id="tokenCost" class="font-data-mono text-data-mono text-primary mt-2"><span class="skeleton">$0.00</span></div>
+                </div>
+                <div class="soft-card bg-surface border border-outline-variant p-3">
+                  <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">Infra Cost</div>
+                  <div id="infraCost" class="font-data-mono text-data-mono text-tertiary mt-2"><span class="skeleton">$0.00</span></div>
+                </div>
+              </div>
+              <div id="costBars" class="cost-bars flex-1 flex gap-2 relative"></div>
+            </div>
+
+            <div class="soft-card bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
+              <div class="border-b border-outline-variant pb-2 mb-4 flex justify-between items-center">
+                <div>
+                  <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Active Alerts</h3>
+                  <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Prometheus에서 감지된 현재 알림입니다.</p>
+                </div>
+                <span id="alertCount" class="font-label-xs text-label-xs text-tertiary">0</span>
+              </div>
+              <div id="alertList" class="flex-1 overflow-auto space-y-2"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============ TRACES TAB ============ -->
+        <div data-tab-content="traces" class="tab-section traces-section">
+          <section class="traces-layout grid grid-cols-1 2xl:grid-cols-12 gap-gutter min-h-0">
+            <div class="table-panel trace-table-panel 2xl:col-span-8 bg-surface-container-low border border-outline-variant flex flex-col min-h-0">
               <div class="border-b border-outline-variant p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <h3 class="font-headline-md text-sm text-on-surface">Recent Requests</h3>
+                  <h3 class="font-headline-md text-sm text-on-surface">Trace Requests</h3>
                   <span id="recentCount" class="font-label-xs text-label-xs text-on-surface-variant">-</span>
                 </div>
-                <input id="traceSearch" class="bg-surface border border-outline-variant text-on-surface font-label-xs text-label-xs rounded px-2 py-1 w-56" placeholder="trace/request 검색"/>
+                <input id="traceSearch" class="surface-input bg-surface border border-outline-variant text-on-surface font-label-xs text-label-xs rounded px-2 py-1 w-56 max-w-full" placeholder="request id, trace id 검색" />
               </div>
-              <div class="flex-1 overflow-auto">
+              <div class="trace-table-scroll flex-1 min-h-0 overflow-auto">
                 <table class="w-full text-left border-collapse">
                   <thead class="bg-surface-container sticky top-0 z-10">
                     <tr>
@@ -290,20 +971,20 @@
               </div>
             </div>
 
-            <div class="col-span-4 flex flex-col gap-gutter">
-              <div class="bg-surface-container-low border border-outline-variant p-4 flex-1 flex flex-col">
+            <div class="trace-side-panel 2xl:col-span-4 flex flex-col gap-gutter min-h-0">
+              <div class="soft-card trace-detail-card bg-surface-container-low border border-outline-variant p-4 flex-1 flex flex-col min-h-0">
                 <div class="border-b border-outline-variant pb-2 mb-4 flex justify-between items-center">
                   <span class="font-headline-md text-sm text-on-surface">Trace Detail</span>
                   <a id="jaegerLink" href="http://localhost:16686" target="_blank" rel="noreferrer" class="material-symbols-outlined text-outline text-sm cursor-pointer hover:text-on-surface">open_in_new</a>
                 </div>
                 <div id="detailMeta" class="font-data-mono text-label-xs text-on-surface-variant mb-3 hidden"></div>
-                <div id="waterfall" class="space-y-4 mb-4 flex-1">
+                <div id="waterfall" class="trace-waterfall space-y-4 mb-4 flex-1 min-h-0 overflow-auto pr-1">
                   <div class="text-on-surface-variant text-sm flex flex-col items-center gap-2 py-8">
                     <span class="material-symbols-outlined text-4xl text-outline">timeline</span>
                     <p>좌측 표에서 요청을 선택하면 단계별 처리 시간이 표시됩니다.</p>
                   </div>
                 </div>
-                <div id="bottleneckBox" class="bg-tertiary/10 border border-tertiary/40 p-3 flex gap-3 mt-auto hidden">
+                <div id="bottleneckBox" class="trace-bottleneck bg-tertiary/10 border border-tertiary/40 p-3 flex gap-3 mt-auto hidden">
                   <span class="material-symbols-outlined text-tertiary">insights</span>
                   <div>
                     <h4 class="text-tertiary text-sm font-medium mb-1">Bottleneck</h4>
@@ -314,60 +995,34 @@
             </div>
           </section>
 
-          <section class="grid grid-cols-2 gap-gutter">
-            <div class="bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
-              <div class="border-b border-outline-variant pb-2 mb-4">
-                <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Analysis (Tokens vs Infra)</h3>
-              </div>
-              <div class="grid grid-cols-2 gap-4 mb-3">
-                <div class="bg-surface border border-outline-variant p-3">
-                  <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">Token Cost</div>
-                  <div id="tokenCost" class="font-data-mono text-data-mono text-primary mt-2"><span class="skeleton">$0.00</span></div>
-                </div>
-                <div class="bg-surface border border-outline-variant p-3">
-                  <div class="font-label-xs text-label-xs text-on-surface-variant uppercase">Infra Cost</div>
-                  <div id="infraCost" class="font-data-mono text-data-mono text-tertiary mt-2"><span class="skeleton">$0.00</span></div>
-                </div>
-              </div>
-              <div id="costBars" class="flex-1 flex items-end gap-2 px-2 pb-2 relative"></div>
-            </div>
-
-            <div class="bg-surface-container-low border border-outline-variant p-4 h-64 flex flex-col">
-              <div class="border-b border-outline-variant pb-2 mb-4 flex justify-between items-center">
-                <h3 class="font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Active Prometheus Alerts</h3>
-                <span id="alertCount" class="font-label-xs text-label-xs text-tertiary">0</span>
-              </div>
-              <div id="alertList" class="flex-1 overflow-auto space-y-2"></div>
-            </div>
-          </section>
         </div>
 
-        <!-- ============ CHARTS TAB ============ -->
-        <div data-tab-content="charts" class="tab-section space-y-gutter">
-          <section class="bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-3">
+        <!-- ============ SIGNALS TAB ============ -->
+        <div data-tab-content="signals" class="tab-section space-y-gutter">
+          <section class="soft-card bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-3">
             <div class="border-b border-outline-variant pb-2 flex items-center justify-between">
               <div>
-                <h3 class="font-headline-md text-sm text-on-surface">Live Charts</h3>
-                <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Prometheus 원본 데이터를 Grafana가 실시간 렌더링합니다. 패널을 클릭하면 Grafana에서 자세히 볼 수 있습니다.</p>
+                <h3 class="font-headline-md text-sm text-on-surface">Live Signals</h3>
+                <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Prometheus 원본 데이터를 Grafana 패널로 확인합니다. 패널을 열면 더 자세히 볼 수 있습니다.</p>
               </div>
               <a id="grafanaOpen" href="http://localhost:3001/d/olly-mvp/olly-mvp-dashboard?theme=dark" target="_blank" rel="noopener" class="font-label-xs text-label-xs text-primary hover:underline flex items-center gap-1">
-                Grafana에서 열기 <span class="material-symbols-outlined text-sm">open_in_new</span>
+                Grafana에서 자세히 보기 <span class="material-symbols-outlined text-sm">open_in_new</span>
               </a>
             </div>
-            <div class="grid grid-cols-2 gap-gutter">
-              <div class="bg-surface border border-outline-variant overflow-hidden">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-gutter">
+              <div class="chart-frame bg-surface border border-outline-variant overflow-hidden">
                 <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">p95 Latency</div>
                 <iframe id="grafanaPanelLatency" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
               </div>
-              <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="chart-frame bg-surface border border-outline-variant overflow-hidden">
                 <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Token Usage Trend</div>
                 <iframe id="grafanaPanelTokens" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
               </div>
-              <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="chart-frame bg-surface border border-outline-variant overflow-hidden">
                 <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Cost Breakdown</div>
                 <iframe id="grafanaPanelCost" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
               </div>
-              <div class="bg-surface border border-outline-variant overflow-hidden">
+              <div class="chart-frame bg-surface border border-outline-variant overflow-hidden">
                 <div class="px-3 py-2 border-b border-outline-variant font-label-xs text-label-xs text-on-surface-variant uppercase tracking-wider">Bottleneck by Stage p95</div>
                 <iframe id="grafanaPanelBottleneck" src="" width="100%" height="240" frameborder="0" loading="lazy" class="block bg-surface"></iframe>
               </div>
@@ -377,8 +1032,8 @@
 
         <!-- ============ ALERTS TAB ============ -->
         <div data-tab-content="alerts" class="tab-section space-y-gutter">
-          <section class="grid grid-cols-12 gap-gutter">
-            <div class="col-span-5 bg-surface-container-low border border-outline-variant p-4 flex flex-col">
+          <section class="grid grid-cols-1 2xl:grid-cols-12 gap-gutter">
+            <div class="soft-card 2xl:col-span-5 bg-surface-container-low border border-outline-variant p-4 flex flex-col">
               <div class="border-b border-outline-variant pb-2 mb-4">
                 <h3 class="font-headline-md text-sm text-on-surface">Custom Alert Rule</h3>
                 <p class="font-label-xs text-label-xs text-on-surface-variant mt-1">Discord webhook으로 푸시되며 gemma3:1b가 한 줄 요약을 첨부합니다.</p>
@@ -386,16 +1041,16 @@
               <form id="ruleForm" class="flex flex-col gap-3">
                 <label class="flex flex-col gap-1">
                   <span class="font-label-xs text-label-xs text-on-surface-variant">이름</span>
-                  <input name="name" required maxlength="80" class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="예: 토큰 사용량 급증" />
+                  <input name="name" required maxlength="80" class="surface-input bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="예: 토큰 사용량 급증" />
                 </label>
                 <div class="grid grid-cols-2 gap-3">
                   <label class="flex flex-col gap-1">
                     <span class="font-label-xs text-label-xs text-on-surface-variant">지표</span>
-                    <select name="metric" id="metricSelect" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface"></select>
+                    <select name="metric" id="metricSelect" required class="surface-input bg-surface-container px-3 py-2 border border-outline-variant text-on-surface"></select>
                   </label>
                   <label class="flex flex-col gap-1">
                     <span class="font-label-xs text-label-xs text-on-surface-variant">조건</span>
-                    <select name="comparator" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
+                    <select name="comparator" required class="surface-input bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
                       <option value="gt">초과 (&gt;)</option>
                       <option value="lt">미만 (&lt;)</option>
                     </select>
@@ -404,11 +1059,11 @@
                 <div class="grid grid-cols-3 gap-3">
                   <label class="flex flex-col gap-1">
                     <span class="font-label-xs text-label-xs text-on-surface-variant">임계값</span>
-                    <input name="threshold" type="number" step="any" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
+                    <input name="threshold" type="number" step="any" required class="surface-input bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
                   </label>
                   <label class="flex flex-col gap-1">
                     <span class="font-label-xs text-label-xs text-on-surface-variant">윈도우</span>
-                    <select name="window" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
+                    <select name="window" required class="surface-input bg-surface-container px-3 py-2 border border-outline-variant text-on-surface">
                       <option value="1m">1m</option>
                       <option value="5m" selected>5m</option>
                       <option value="15m">15m</option>
@@ -416,14 +1071,14 @@
                   </label>
                   <label class="flex flex-col gap-1">
                     <span class="font-label-xs text-label-xs text-on-surface-variant">쿨다운(초)</span>
-                    <input name="cooldown_seconds" type="number" min="10" max="86400" value="300" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
+                    <input name="cooldown_seconds" type="number" min="10" max="86400" value="300" required class="surface-input bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" />
                   </label>
                 </div>
                 <label class="flex flex-col gap-1">
                   <span class="font-label-xs text-label-xs text-on-surface-variant">Discord Webhook URL</span>
-                  <input name="webhook_url" type="url" required class="bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="https://discord.com/api/webhooks/..." />
+                  <input name="webhook_url" type="url" required class="surface-input bg-surface-container px-3 py-2 border border-outline-variant text-on-surface" placeholder="https://discord.com/api/webhooks/..." />
                 </label>
-                <button type="submit" id="ruleSubmitBtn" class="bg-secondary-container text-on-secondary font-label-xs text-label-xs uppercase tracking-wider py-2 hover:opacity-90 flex items-center justify-center gap-2">
+                <button type="submit" id="ruleSubmitBtn" class="rounded-xl bg-primary-container text-on-primary-container font-label-xs text-label-xs uppercase tracking-wider py-3 hover:opacity-90 flex items-center justify-center gap-2 shadow-lg shadow-primary/10">
                   <span class="material-symbols-outlined text-sm">add_alert</span>
                   규칙 추가
                 </button>
@@ -431,7 +1086,7 @@
               </form>
             </div>
 
-            <div class="col-span-7 bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-4">
+            <div class="soft-card 2xl:col-span-7 bg-surface-container-low border border-outline-variant p-4 flex flex-col gap-4">
               <div class="border-b border-outline-variant pb-2 flex justify-between items-center">
                 <h3 class="font-headline-md text-sm text-on-surface">Custom Rules</h3>
                 <span id="ruleCount" class="font-label-xs text-label-xs text-tertiary">0</span>
@@ -530,10 +1185,18 @@
 
     // ============ TAB NAV ============
     const TAB_META = {
-      overview: { title: "Overview", subtitle: "실시간 LLM 서비스 상태" },
-      charts: { title: "Live Charts", subtitle: "Grafana 패널 임베드" },
-      alerts: { title: "Alerts", subtitle: "사용자 정의 알림 규칙 + 발화 이력" },
+      overview: { title: "Overview", subtitle: "Soft widget board for your LLM observability summary." },
+      traces: { title: "Traces", subtitle: "Request and span details with bottleneck markers." },
+      signals: { title: "Signals", subtitle: "Live cost, performance, and quality signals." },
+      alerts: { title: "Alerts", subtitle: "Alert rules and recent firings." },
     };
+
+    Object.assign(TAB_META, {
+      overview: { title: "운영 요약", subtitle: "Olly가 최근 LLM 요청 상태를 정리했어요." },
+      traces: { title: "요청 추적", subtitle: "Trace ID, span, 병목 단서를 한곳에서 확인합니다." },
+      signals: { title: "실시간 지표", subtitle: "지연 시간, 토큰 흐름, 비용 변화를 실시간으로 관찰합니다." },
+      alerts: { title: "알림 관리", subtitle: "Olly가 지표를 지켜보고 필요한 규칙을 관리합니다." },
+    });
 
     function selectTab(name) {
       if (!TAB_META[name]) return;
@@ -576,7 +1239,7 @@
       const text = document.getElementById("systemStatusText");
       if (ok) {
         dot.className = "w-2 h-2 rounded-full bg-secondary pulse-dot";
-        text.textContent = "System Active";
+        text.textContent = "신호 정상";
         text.className = "text-on-surface-variant";
       } else {
         dot.className = "w-2 h-2 rounded-full bg-error";
@@ -585,6 +1248,7 @@
       }
     }
 
+    // Grafana embeds are kept on the original dark theme because this was the known-working panel render path.
     const GRAFANA_BASE_URL = `${window.location.protocol}//${window.location.hostname}:3001`;
     const GRAFANA_DASHBOARD_PATH = "/d-solo/olly-mvp/olly-mvp-dashboard";
     const GRAFANA_PANELS = {
@@ -699,7 +1363,7 @@
         }[row.scenario] || "text-on-surface-variant border-outline-variant bg-surface-container";
 
         return `
-          <tr data-trace="${escapeHtml(row.trace_id)}" class="border-b border-outline-variant ${selected ? "bg-surface-bright/30" : ""} hover:bg-surface-bright/50 transition-colors cursor-pointer">
+          <tr data-trace="${escapeHtml(row.trace_id)}" class="border-b border-outline-variant ${selected ? "selected" : ""} hover:bg-surface-bright/50 transition-colors cursor-pointer">
             <td class="p-3 font-data-mono text-xs text-on-surface-variant" title="${escapeHtml(fmt.timeOfDay(row.start_time_us))}">${escapeHtml(fmt.relativeTime(row.start_time_us))}</td>
             <td class="p-3 font-data-mono text-xs text-primary">${escapeHtml(row.request_id)}</td>
             <td class="p-3 text-sm">${escapeHtml(row.feature)}</td>
@@ -807,6 +1471,219 @@
       `).join("");
     }
 
+    function setSystemStatus(ok) {
+      const dot = document.getElementById("systemStatusDot");
+      const text = document.getElementById("systemStatusText");
+      if (ok) {
+        dot.className = "w-2 h-2 rounded-full bg-secondary pulse-dot";
+        text.textContent = "신호 정상";
+        text.className = "text-on-surface-variant";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-error";
+        text.textContent = "Olly가 신호를 놓쳤어요.";
+        text.className = "text-error";
+      }
+    }
+
+    function renderDashboard() {
+      const { kpis, recent_requests, alerts, breakdowns } = state.data;
+      const successRate = 100 - Number(kpis.error_rate_percent || 0);
+      const avgLatencyMs = Number(kpis.avg_latency_seconds || 0) * 1000;
+
+      setKPI("avgLatency", fmt.seconds(kpis.avg_latency_seconds), () =>
+        avgLatencyMs >= 5000 ? "error" : avgLatencyMs >= 2000 ? "warn" : null,
+      );
+      setKPI("totalTokens", fmt.number(kpis.total_tokens));
+      setKPI("totalCost", fmt.usd(kpis.estimated_cost_usd));
+      setKPI("successRate", fmt.percent(successRate), () =>
+        successRate < 90 ? "error" : successRate < 99 ? "warn" : null,
+      );
+
+      document.getElementById("tokenCost").textContent = fmt.usd(kpis.token_cost_usd);
+      document.getElementById("infraCost").textContent = fmt.usd(kpis.infra_cost_usd);
+      document.getElementById("recentCount").textContent = `${(recent_requests || []).length} traces`;
+      const insightTitle = document.getElementById("ollyInsightTitle");
+      const insightBody = document.getElementById("ollyInsightBody");
+      if (insightTitle && insightBody) {
+        if (!recent_requests?.length) {
+          insightTitle.textContent = "지금은 신호가 조용해요.";
+          insightBody.textContent = "최근 요청을 기다리는 중이에요.";
+        } else if (successRate < 95 || avgLatencyMs >= 1000) {
+          insightTitle.textContent = "느린 span 하나가 보여요.";
+          insightBody.textContent = avgLatencyMs >= 1000
+            ? "Olly가 지연 증가 신호를 발견했어요."
+            : "실패 신호가 조금 높아졌어요.";
+        } else {
+          insightTitle.textContent = "신호 정상";
+          insightBody.textContent = "지금은 신호가 조용해요.";
+        }
+      }
+
+      renderRequests(recent_requests || []);
+      renderOverviewRecentList(recent_requests || []);
+      renderCostBars(breakdowns?.cost_by_feature || []);
+      renderAlerts(alerts || []);
+
+      if (!state.selectedTraceId && recent_requests?.length) {
+        selectTrace(recent_requests[0].trace_id);
+      } else if (state.selectedTraceId) {
+        selectTrace(state.selectedTraceId);
+      }
+    }
+
+    function renderRequests(rows) {
+      const search = document.getElementById("traceSearch").value.trim().toLowerCase();
+      const filtered = rows.filter((row) => {
+        if (!search) return true;
+        return `${row.trace_id} ${row.request_id} ${row.feature} ${row.scenario} ${row.status}`.toLowerCase().includes(search);
+      });
+      const body = document.getElementById("requestRows");
+      if (!filtered.length) {
+        body.innerHTML = `
+          <tr><td colspan="6" class="p-8 text-center">
+            <div class="subtle-empty flex flex-col items-center gap-3 text-on-surface-variant">
+              <span class="material-symbols-outlined text-4xl text-outline">inbox</span>
+              <p>${search ? "No traces matched that filter." : "Waiting for your first trace."}</p>
+              <a href="/chat-ui" class="rounded-full bg-primary-container text-on-primary-container text-xs font-medium px-3 py-1.5 hover:opacity-90">Open chat</a>
+            </div>
+          </td></tr>`;
+        return;
+      }
+      body.innerHTML = filtered.map((row) => {
+        const selected = row.trace_id === state.selectedTraceId;
+        const slow = Number(row.latency_ms || 0) >= 3000;
+        const moderate = Number(row.latency_ms || 0) >= 1000;
+        const latencyClass = slow ? "text-error" : moderate ? "text-tertiary" : "text-secondary";
+        const isError = row.status === "error";
+        const statusClass = isError
+          ? "bg-error-container/30 border-error text-error"
+          : "bg-secondary-container/15 border-secondary text-secondary";
+        const scenarioColor = {
+          slow_retrieve: "text-tertiary border-tertiary/50 bg-tertiary/10",
+          slow_llm: "text-tertiary border-tertiary/50 bg-tertiary/10",
+          high_token: "text-primary border-primary/50 bg-primary/10",
+          error: "text-error border-error/50 bg-error/10",
+          normal: "text-on-surface-variant border-outline-variant bg-surface-container",
+        }[row.scenario] || "text-on-surface-variant border-outline-variant bg-surface-container";
+
+        return `
+          <tr data-trace="${escapeHtml(row.trace_id)}" class="border-b border-outline-variant ${selected ? "selected" : ""} hover:bg-surface-bright/50 transition-colors cursor-pointer">
+            <td class="p-3 font-data-mono text-xs text-on-surface-variant" title="${escapeHtml(fmt.timeOfDay(row.start_time_us))}">${escapeHtml(fmt.relativeTime(row.start_time_us))}</td>
+            <td class="p-3 font-data-mono text-xs text-primary">${escapeHtml(row.request_id)}</td>
+            <td class="p-3 text-sm">${escapeHtml(row.feature)}</td>
+            <td class="p-3"><span class="inline-block px-2 py-0.5 border ${scenarioColor} font-label-xs text-label-xs rounded-full">${escapeHtml(row.scenario || "-")}</span></td>
+            <td class="p-3 font-data-mono text-xs text-right ${latencyClass}">${fmt.ms(row.latency_ms)}</td>
+            <td class="p-3"><span class="status-badge inline-block px-2 py-1 border ${statusClass} font-label-xs text-label-xs">${escapeHtml(row.status.toUpperCase())}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderOverviewRecentList(rows) {
+      const el = document.getElementById("overviewRecentList");
+      if (!el) return;
+      const top = (rows || []).slice(0, 6);
+      if (!top.length) {
+        el.innerHTML = `<div class="subtle-empty col-span-full text-on-surface-variant text-sm">최근 요청을 기다리는 중이에요.</div>`;
+        return;
+      }
+      el.innerHTML = top.map((row) => {
+        const ms = Number(row.latency_ms || 0);
+        const tone = row.status === "error" ? "text-error border-error/30 bg-error/10" : ms >= 1000 ? "text-tertiary border-tertiary/40 bg-tertiary/10" : "text-secondary border-secondary/30 bg-secondary/10";
+        return `
+          <button data-trace="${escapeHtml(row.trace_id)}" class="overview-trace-btn text-left rounded-2xl border border-outline-variant bg-white/70 p-3 hover:bg-white transition-colors">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-data-mono text-xs text-primary truncate">${escapeHtml(row.request_id)}</span>
+              <span class="text-[11px] px-2 py-0.5 rounded-full border ${tone}">${escapeHtml(row.status)}</span>
+            </div>
+            <div class="mt-2 text-xs text-on-surface-variant">${escapeHtml(row.feature)} · ${escapeHtml(row.scenario)}</div>
+            <div class="mt-1 font-data-mono text-sm text-on-surface">${fmt.ms(ms)}</div>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderWaterfall(trace) {
+      const stages = trace.stages || [];
+      if (!stages.length) {
+        document.getElementById("waterfall").innerHTML = `<div class="subtle-empty text-on-surface-variant text-sm">Olly is waiting for span details.</div>`;
+        document.getElementById("bottleneckBox").classList.add("hidden");
+        return;
+      }
+      const total = stages.reduce((sum, s) => sum + Number(s.duration_ms || 0), 0) || 1;
+      const slowest = stages.reduce((winner, s) =>
+        Number(s.duration_ms || 0) > Number(winner.duration_ms || 0) ? s : winner,
+        stages[0],
+      );
+
+      document.getElementById("waterfall").innerHTML = stages.map((stage) => {
+        const duration = Number(stage.duration_ms || 0);
+        const widthPercent = Math.max(2, Math.round((duration / total) * 100));
+        const isSlowest = stage.name === slowest.name && duration > 0;
+        const label = stage.name === "llm_call" ? "LLM Generation" : stage.name === "postprocess" ? "Post-process" : "Retrieve";
+        const barColor = isSlowest ? "bg-tertiary" : stage.name === "llm_call" ? "bg-primary" : "bg-secondary";
+        return `
+          <div class="subtle-empty">
+            <div class="flex justify-between text-xs mb-1">
+              <span class="${isSlowest ? "text-tertiary font-semibold" : "text-on-surface"}">
+                ${escapeHtml(label)}${isSlowest ? " - longest span" : ""}
+              </span>
+              <span class="font-data-mono text-data-mono">${fmt.ms(duration)} <span class="text-on-surface-variant">(${Math.round((duration/total)*100)}%)</span></span>
+            </div>
+            <div class="w-full bg-surface-bright h-2 overflow-hidden rounded-full">
+              <div class="${barColor} h-full transition-all rounded-full" style="width:${widthPercent}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      const percent = Math.round((Number(slowest.duration_ms || 0) / total) * 100);
+      const stageLabel = slowest.name === "llm_call" ? "LLM generation" : slowest.name === "postprocess" ? "post-process" : "retrieve";
+      document.getElementById("bottleneckBox").classList.remove("hidden");
+      document.getElementById("bottleneckText").textContent =
+        `Olly noticed a latency spike around ${stageLabel}. It accounts for about ${percent}% of the total trace time.`;
+    }
+
+    function renderCostBars(rows) {
+      const el = document.getElementById("costBars");
+      if (!rows.length) {
+        el.innerHTML = `<div class="subtle-empty w-full text-center text-on-surface-variant text-sm flex flex-col items-center gap-2">
+          <span class="material-symbols-outlined text-2xl text-outline">bar_chart</span>
+          <span>Olly is waiting for feature cost signals.</span>
+        </div>`;
+        return;
+      }
+      const values = rows.slice(0, 6);
+      const max = Math.max(...values.map((item) => item.value), 0.000001);
+      el.innerHTML = values.map((item) => {
+        const height = Math.max(8, Math.round((item.value / max) * 100));
+        return `
+          <div class="cost-bar-item tooltip-host">
+            <div class="cost-bar-track">
+              <div class="cost-bar-fill" style="height:${height}%"></div>
+            </div>
+            <div class="cost-bar-label" title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</div>
+            <span class="tooltip">${escapeHtml(item.label)} - ${fmt.usd(item.value)}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAlerts(alerts) {
+      document.getElementById("alertCount").textContent = `${alerts.length} active`;
+      const el = document.getElementById("alertList");
+      if (!alerts.length) {
+        el.innerHTML = `<div class="subtle-empty text-on-surface-variant text-sm flex items-center gap-2"><span class="material-symbols-outlined text-secondary">check_circle</span><span>신호 정상</span></div>`;
+        return;
+      }
+      el.innerHTML = alerts.slice(0, 5).map((alert) => `
+        <div class="soft-card border border-tertiary/50 bg-tertiary/10 p-3">
+          <div class="font-label-xs text-label-xs text-tertiary">${escapeHtml(alert.name)} - ${escapeHtml(alert.severity)}</div>
+          <div class="text-xs text-on-surface-variant mt-1">${escapeHtml(alert.summary || alert.state)}</div>
+        </div>
+      `).join("");
+    }
+
     // ============ EVENT WIRING ============
     document.getElementById("windowSelect").addEventListener("change", loadDashboard);
     document.getElementById("refreshButton").addEventListener("click", () => {
@@ -819,6 +1696,12 @@
       const row = event.target.closest("tr[data-trace]");
       if (!row) return;
       selectTrace(row.dataset.trace);
+    });
+    document.getElementById("overviewRecentList")?.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-trace]");
+      if (!btn) return;
+      selectTab("traces");
+      selectTrace(btn.dataset.trace);
     });
 
     loadDashboard().catch(console.error);
