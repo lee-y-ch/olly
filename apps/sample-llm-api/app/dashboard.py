@@ -123,12 +123,13 @@ async def collect_dashboard_summary(window: str = "1h") -> dict[str, Any]:
         }
         alerts = await _prometheus_alerts(client)
         recent_requests = await _jaeger_recent_requests(client, window)
-    primary_insight = _build_primary_insight(
+    stage_bottleneck_summary = _build_stage_bottleneck_summary(recent_requests)
+    primary_insight = _build_primary_insight_aggregate(
         kpis=scalars,
         recent_requests=recent_requests,
         alerts=alerts,
+        stage_bottleneck_summary=stage_bottleneck_summary,
     )
-    stage_bottleneck_summary = _build_stage_bottleneck_summary(recent_requests)
 
     return {
         "window": window,
@@ -579,6 +580,250 @@ def _build_stage_bottleneck_summary(recent_requests: list[dict[str, Any]] | None
         "p95_duration_ms": dominant["p95_duration_ms"],
         "ratio": dominant["ratio"],
         "stage_stats": sorted(stage_stats, key=lambda item: item["total_duration_ms"], reverse=True),
+    }
+
+
+def _pick_representative_by_stage(rows: list[dict[str, Any]], stage_name: str) -> dict[str, Any] | None:
+    representative: dict[str, Any] | None = None
+    best_duration = -1.0
+    for row in rows:
+        stages = row.get("stages")
+        if not isinstance(stages, list):
+            continue
+        for stage in stages:
+            if not isinstance(stage, dict):
+                continue
+            if str(stage.get("name")) != stage_name:
+                continue
+            duration = _safe_float(stage.get("duration_ms"), 0.0)
+            if duration > best_duration:
+                best_duration = duration
+                representative = row
+    return representative
+
+
+def _build_primary_insight_aggregate(
+    *,
+    kpis: dict[str, Any] | None,
+    recent_requests: list[dict[str, Any]] | None,
+    alerts: list[dict[str, Any]] | None,
+    stage_bottleneck_summary: dict[str, Any] | None,
+) -> dict[str, Any]:
+    rows = recent_requests or []
+    alert_rows = alerts or []
+    sample_size = len(rows)
+    error_rows = [row for row in rows if str(row.get("status", "")).lower() == "error"]
+    slow_rows = [row for row in rows if _safe_float(row.get("latency_ms"), 0.0) >= 3000]
+    high_token_rows = [row for row in rows if str(row.get("scenario") or "") == "high_token"]
+    error_count = len(error_rows)
+    error_rate = (error_count / sample_size) if sample_size else 0.0
+    high_token_count = len(high_token_rows)
+    high_token_rate = (high_token_count / sample_size) if sample_size else 0.0
+    total_tokens = int(sum(int(row.get("tokens") or 0) for row in rows))
+
+    if sample_size > 0 and (error_count >= 2 or error_rate >= 0.1):
+        rep = error_rows[0] if error_rows else None
+        return {
+            "severity": "critical",
+            "type": "error_rate",
+            "badge": "needs attention",
+            "title": "실패 요청 비율이 높아졌어요.",
+            "summary": (
+                f"최근 {sample_size}개 요청 중 {error_count}건이 실패했습니다. "
+                f"실패율이 {error_rate * 100:.1f}%로 올라가 요청 안정성을 먼저 확인하는 것이 좋습니다."
+            ),
+            "evidence": [
+                f"sample_size={sample_size}",
+                f"error_requests={error_count}",
+                f"error_rate={error_rate * 100:.1f}%",
+            ],
+            "target_trace_id": rep.get("trace_id") if rep else None,
+            "target_request_id": rep.get("request_id") if rep else None,
+            "recommended_action": "대표 실패 trace를 확인하고 error span과 예외 메시지를 점검하세요.",
+            "scope": "aggregate",
+            "basis": "recent_requests",
+            "sample_size": sample_size,
+        }
+
+    stage_summary = stage_bottleneck_summary or {}
+    stage_sample_size = int(stage_summary.get("sample_size") or 0)
+    dominant_stage = str(stage_summary.get("dominant_stage") or "")
+    dominant_label = str(stage_summary.get("dominant_stage_label") or _stage_label(dominant_stage) or "")
+    dominant_p95 = _safe_float(stage_summary.get("p95_duration_ms"), 0.0)
+    dominant_avg = _safe_float(stage_summary.get("avg_duration_ms"), 0.0)
+    if stage_sample_size > 0 and dominant_stage and dominant_p95 >= 2000:
+        severity = "critical" if dominant_p95 >= 5000 else "warning"
+        if dominant_stage == "llm_call":
+            title = "LLM 생성 지연이 두드러져요."
+            action = "대표 trace를 확인하고 프롬프트 길이, 출력 길이, 모델 응답 시간을 점검하세요."
+        elif dominant_stage == "retrieve":
+            title = "RAG 검색 지연이 두드러져요."
+            action = "대표 trace를 확인하고 검색 단계, 문서 수, retrieval latency를 점검하세요."
+        elif dominant_stage == "postprocess":
+            title = "후처리 지연이 두드러져요."
+            action = "대표 trace를 확인하고 응답 후처리 로직을 점검하세요."
+        else:
+            title = "단계 지연이 두드러져요."
+            action = "대표 trace를 확인하고 해당 단계의 처리 시간을 점검하세요."
+        rep = _pick_representative_by_stage(rows, dominant_stage)
+        return {
+            "severity": severity,
+            "type": "stage_latency",
+            "badge": "stage latency",
+            "title": title,
+            "summary": (
+                f"최근 {stage_sample_size}개 요청 기준 {dominant_label} 단계의 p95가 {_format_ms(dominant_p95)}로 가장 높습니다. "
+                "느린 요청에서는 해당 구간이 주요 병목일 가능성이 큽니다."
+            ),
+            "evidence": [
+                f"sample_size={stage_sample_size}",
+                f"dominant_stage={dominant_label}",
+                f"p95={_format_ms(dominant_p95)}",
+                f"avg={_format_ms(dominant_avg)}",
+            ],
+            "target_trace_id": rep.get("trace_id") if rep else None,
+            "target_request_id": rep.get("request_id") if rep else None,
+            "recommended_action": action,
+            "scope": "aggregate",
+            "basis": "stage_bottleneck_summary",
+            "sample_size": stage_sample_size,
+        }
+
+    if sample_size > 0 and (high_token_count >= 2 or high_token_rate >= 0.1):
+        rep = max(high_token_rows, key=lambda row: int(row.get("tokens") or 0), default=None)
+        return {
+            "severity": "warning",
+            "type": "token_usage",
+            "badge": "token spike",
+            "title": "토큰 사용량이 높아졌어요.",
+            "summary": (
+                f"최근 {sample_size}개 요청 중 {high_token_count}건에서 high_token 시나리오가 감지됐습니다. "
+                "프롬프트 길이나 응답 길이 증가로 비용이 늘 수 있습니다."
+            ),
+            "evidence": [
+                f"sample_size={sample_size}",
+                f"high_token_requests={high_token_count}",
+                f"high_token_rate={high_token_rate * 100:.1f}%",
+                f"total_tokens={total_tokens}",
+            ],
+            "target_trace_id": rep.get("trace_id") if rep else None,
+            "target_request_id": rep.get("request_id") if rep else None,
+            "recommended_action": "대표 요청의 입력/출력 토큰 수를 확인하고 프롬프트 또는 응답 길이를 조정하세요.",
+            "scope": "aggregate",
+            "basis": "recent_requests",
+            "sample_size": sample_size,
+        }
+
+    if alert_rows:
+        critical = next((a for a in alert_rows if str(a.get("severity", "")).lower() == "critical"), None)
+        selected = critical or alert_rows[0]
+        alert_severity = str(selected.get("severity") or "warning").lower()
+        return {
+            "severity": "critical" if alert_severity == "critical" else "warning",
+            "type": "active_alert",
+            "badge": "alert active",
+            "title": "활성 알림이 있어요.",
+            "summary": (
+                f"현재 Prometheus 알림 {selected.get('name', 'UnknownAlert')}가 활성 상태입니다. "
+                "알림 규칙과 최근 발화 이력을 확인하세요."
+            ),
+            "evidence": [
+                f"alert={selected.get('name', 'UnknownAlert')}",
+                f"severity={selected.get('severity', 'warning')}",
+                f"state={selected.get('state', 'unknown')}",
+            ],
+            "target_trace_id": None,
+            "target_request_id": None,
+            "recommended_action": "알림 관리 탭에서 발화 조건과 최근 이력을 확인하세요.",
+            "scope": "aggregate",
+            "basis": "alerts",
+            "sample_size": sample_size,
+        }
+
+    if sample_size > 0 and error_count == 1:
+        rep = error_rows[0]
+        return {
+            "severity": "warning",
+            "type": "single_error_request",
+            "badge": "single issue",
+            "title": "실패 요청 1건이 확인됐어요.",
+            "summary": "최근 요청 중 실패 요청 1건이 확인됐습니다. 전체 실패율은 높지 않지만 대표 trace를 확인해보는 것이 좋습니다.",
+            "evidence": [
+                f"sample_size={sample_size}",
+                "error_requests=1",
+                f"error_rate={error_rate * 100:.1f}%",
+            ],
+            "target_trace_id": rep.get("trace_id"),
+            "target_request_id": rep.get("request_id"),
+            "recommended_action": "대표 실패 trace를 확인하고 error span과 예외 메시지를 점검하세요.",
+            "scope": "single_trace",
+            "basis": "recent_requests",
+            "sample_size": sample_size,
+        }
+
+    if slow_rows:
+        rep = max(slow_rows, key=lambda row: _safe_float(row.get("latency_ms"), 0.0))
+        return {
+            "severity": "warning",
+            "type": "single_slow_request",
+            "badge": "single slow trace",
+            "title": "느린 요청 1건이 감지됐어요.",
+            "summary": "최근 요청 중 지연이 큰 요청 1건이 확인됐습니다. 전체 경향으로 보긴 어렵지만 대표 trace를 확인해보는 것이 좋습니다.",
+            "evidence": [
+                f"sample_size={sample_size}",
+                f"latency={_format_ms(rep.get('latency_ms'))}",
+                f"scenario={rep.get('scenario') or 'unknown'}",
+            ],
+            "target_trace_id": rep.get("trace_id"),
+            "target_request_id": rep.get("request_id"),
+            "recommended_action": "대표 trace를 확인하고 가장 오래 걸린 span을 점검하세요.",
+            "scope": "single_trace",
+            "basis": "recent_requests",
+            "sample_size": sample_size,
+        }
+
+    if sample_size > 0 and high_token_count == 1:
+        rep = high_token_rows[0]
+        return {
+            "severity": "warning",
+            "type": "single_high_token_request",
+            "badge": "single token spike",
+            "title": "토큰 사용량이 높은 요청 1건이 감지됐어요.",
+            "summary": "최근 요청 중 토큰 사용량이 높은 요청 1건이 확인됐습니다. 전체 경향은 아니지만 대표 요청을 점검해보는 것이 좋습니다.",
+            "evidence": [
+                f"sample_size={sample_size}",
+                "high_token_requests=1",
+                f"tokens={int(rep.get('tokens') or 0)}",
+            ],
+            "target_trace_id": rep.get("trace_id"),
+            "target_request_id": rep.get("request_id"),
+            "recommended_action": "대표 요청의 입력/출력 토큰 수를 확인하고 길이를 조정하세요.",
+            "scope": "single_trace",
+            "basis": "recent_requests",
+            "sample_size": sample_size,
+        }
+
+    stage_normal = "normal"
+    if stage_sample_size > 0 and dominant_p95 >= 2000:
+        stage_normal = "elevated"
+    return {
+        "severity": "info",
+        "type": "calm",
+        "badge": "calm mode",
+        "title": "신호가 조용해요.",
+        "summary": "최근 요청에서 실패율 증가, 큰 지연, 토큰 급증 신호는 보이지 않아요.",
+        "evidence": [
+            f"sample_size={sample_size}",
+            f"error_rate={error_rate * 100:.1f}%",
+            f"stage_p95={stage_normal}",
+            f"high_token_requests={high_token_count}",
+        ],
+        "target_trace_id": None,
+        "target_request_id": None,
+        "recommended_action": "현재 상태를 유지하면서 새 요청을 관찰하세요.",
+        "scope": "aggregate",
+        "basis": "recent_requests",
+        "sample_size": sample_size,
     }
 
 

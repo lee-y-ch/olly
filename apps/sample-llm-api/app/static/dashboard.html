@@ -1940,11 +1940,19 @@
         traceBtn.id = "ollyInsightTraceButton";
         traceBtn.type = "button";
         traceBtn.className = "hidden mt-3 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs px-3 py-1.5 hover:bg-primary/15 transition-colors";
-        traceBtn.textContent = "Trace 보기";
+        traceBtn.textContent = "대표 Trace 보기";
         cardWrap.appendChild(traceBtn);
       }
 
-      return { evidenceEl, traceBtn };
+      let scopeEl = document.getElementById("ollyInsightScope");
+      if (!scopeEl) {
+        scopeEl = document.createElement("div");
+        scopeEl.id = "ollyInsightScope";
+        scopeEl.className = "mt-2 text-[11px] text-on-surface-variant";
+        cardWrap.appendChild(scopeEl);
+      }
+
+      return { evidenceEl, traceBtn, scopeEl };
     }
 
     function applyPrimaryInsight(insight) {
@@ -1972,6 +1980,10 @@
         ui.evidenceEl.innerHTML = items
           .map((item) => `<span class="inline-flex items-center rounded-full border border-outline-variant bg-white/70 px-2.5 py-1 text-[11px] text-on-surface-variant">${escapeHtml(String(item))}</span>`)
           .join("");
+      }
+
+      if (ui?.scopeEl) {
+        ui.scopeEl.textContent = resolved.scope === "single_trace" ? "단일 요청 확인" : "전체 요청 기준";
       }
 
       if (ui?.traceBtn) {
