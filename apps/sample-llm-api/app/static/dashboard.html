@@ -1090,6 +1090,15 @@
             <div id="overviewRecentList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
           </section>
 
+          <section class="soft-card bg-surface-container-low border border-outline-variant p-4">
+            <div class="border-b border-outline-variant pb-2 mb-3">
+              <h3 class="font-headline-md text-sm text-on-surface">전체 단계 병목</h3>
+              <p id="stageBottleneckSummaryText" class="text-xs text-on-surface-variant mt-1">아직 단계별 병목을 계산할 trace가 없습니다.</p>
+              <p id="stageBottleneckSummaryMeta" class="text-xs text-on-surface-variant mt-1"></p>
+            </div>
+            <div id="stageBottleneckBars" class="space-y-2"></div>
+          </section>
+
           <section class="grid grid-cols-1 xl:grid-cols-2 gap-gutter">
             <div class="soft-card bg-surface-container-low border border-outline-variant p-4 min-h-[305px] flex flex-col">
               <div class="border-b border-outline-variant pb-2 mb-4">
@@ -1784,6 +1793,52 @@
       }).join("");
     }
 
+    function renderStageBottleneckSummary(summary) {
+      const textEl = document.getElementById("stageBottleneckSummaryText");
+      const metaEl = document.getElementById("stageBottleneckSummaryMeta");
+      const barsEl = document.getElementById("stageBottleneckBars");
+      if (!textEl || !metaEl || !barsEl) return;
+
+      if (!summary || Number(summary.sample_size || 0) === 0) {
+        textEl.textContent = "아직 단계별 병목을 계산할 trace가 없습니다.";
+        metaEl.textContent = "";
+        barsEl.innerHTML = "";
+        return;
+      }
+
+      const sampleSize = Number(summary.sample_size || 0);
+      const dominantLabel = summary.dominant_stage_label || summary.dominant_stage || "-";
+      const avg = fmt.ms(summary.avg_duration_ms || 0);
+      const p95 = fmt.ms(summary.p95_duration_ms || 0);
+      const ratioPct = Math.round(Number(summary.ratio || 0) * 100);
+
+      textEl.textContent = `최근 ${sampleSize}개 요청 기준, ${dominantLabel} 단계가 가장 오래 걸렸습니다.`;
+      metaEl.textContent = `평균 ${avg}, p95 ${p95}, 전체 span 시간의 ${ratioPct}%`;
+
+      const stats = Array.isArray(summary.stage_stats) ? summary.stage_stats : [];
+      if (!stats.length) {
+        barsEl.innerHTML = "";
+        return;
+      }
+
+      barsEl.innerHTML = stats.map((row) => {
+        const label = row.label || row.name || "-";
+        const width = Math.max(4, Math.round(Number(row.ratio || 0) * 100));
+        const barTone = row.name === "llm_call" ? "bg-primary/70" : row.name === "retrieve" ? "bg-secondary/70" : "bg-tertiary/70";
+        return `
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="text-on-surface">${escapeHtml(label)}</span>
+              <span class="font-data-mono text-on-surface-variant">${Math.round(Number(row.ratio || 0) * 100)}%</span>
+            </div>
+            <div class="h-2 rounded-full bg-surface-bright overflow-hidden">
+              <div class="h-full rounded-full ${barTone}" style="width:${width}%"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
     function renderWaterfall(trace) {
       const stages = trace.stages || [];
       if (!stages.length) {
@@ -1936,7 +1991,7 @@
 
     // Final override to prefer backend-provided primary_insight while preserving KPI rendering.
     renderDashboard = function() {
-      const { kpis, recent_requests, alerts, breakdowns, primary_insight } = state.data;
+      const { kpis, recent_requests, alerts, breakdowns, primary_insight, stage_bottleneck_summary } = state.data;
       const successRate = 100 - Number(kpis.error_rate_percent || 0);
       const avgLatencyMs = Number(kpis.avg_latency_seconds || 0) * 1000;
 
@@ -1957,6 +2012,7 @@
 
       renderRequests(recent_requests || []);
       renderOverviewRecentList(recent_requests || []);
+      renderStageBottleneckSummary(stage_bottleneck_summary);
       renderCostBars(breakdowns?.cost_by_feature || []);
       renderAlerts(alerts || []);
 

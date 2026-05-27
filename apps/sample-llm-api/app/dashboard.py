@@ -128,6 +128,7 @@ async def collect_dashboard_summary(window: str = "1h") -> dict[str, Any]:
         recent_requests=recent_requests,
         alerts=alerts,
     )
+    stage_bottleneck_summary = _build_stage_bottleneck_summary(recent_requests)
 
     return {
         "window": window,
@@ -137,6 +138,7 @@ async def collect_dashboard_summary(window: str = "1h") -> dict[str, Any]:
         "alerts": alerts,
         "recent_requests": recent_requests,
         "primary_insight": primary_insight,
+        "stage_bottleneck_summary": stage_bottleneck_summary,
         "links": {
             "jaeger": settings.public_jaeger_url,
             "prometheus": settings.prometheus_url,
@@ -494,6 +496,89 @@ def _build_primary_insight(
         "target_trace_id": None,
         "target_request_id": None,
         "recommended_action": "현재 상태를 유지하면서 새 요청을 관찰하세요.",
+    }
+
+
+def _stage_label(name: str) -> str:
+    if name == "retrieve":
+        return "RAG 검색"
+    if name == "llm_call":
+        return "LLM 생성"
+    if name == "postprocess":
+        return "후처리"
+    return name
+
+
+def _p95(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    sorted_values = sorted(values)
+    idx = max(0, min(len(sorted_values) - 1, int((len(sorted_values) - 1) * 0.95)))
+    return sorted_values[idx]
+
+
+def _build_stage_bottleneck_summary(recent_requests: list[dict[str, Any]] | None) -> dict[str, Any]:
+    rows = recent_requests or []
+    bucket: dict[str, list[float]] = {}
+    sample_size = 0
+    for row in rows:
+        stages = row.get("stages")
+        if not isinstance(stages, list) or not stages:
+            continue
+        valid = False
+        for stage in stages:
+            if not isinstance(stage, dict):
+                continue
+            name = str(stage.get("name") or "")
+            duration = _safe_float(stage.get("duration_ms"), 0.0)
+            if not name or duration < 0:
+                continue
+            bucket.setdefault(name, []).append(duration)
+            valid = True
+        if valid:
+            sample_size += 1
+
+    if not bucket:
+        return {
+            "sample_size": 0,
+            "dominant_stage": None,
+            "dominant_stage_label": None,
+            "avg_duration_ms": 0,
+            "p95_duration_ms": 0,
+            "ratio": 0,
+            "stage_stats": [],
+        }
+
+    stage_stats: list[dict[str, Any]] = []
+    grand_total = 0.0
+    for name, durations in bucket.items():
+        total = sum(durations)
+        grand_total += total
+        count = len(durations)
+        stage_stats.append(
+            {
+                "name": name,
+                "label": _stage_label(name),
+                "count": count,
+                "avg_duration_ms": round(total / count, 2) if count else 0.0,
+                "p95_duration_ms": round(_p95(durations), 2),
+                "total_duration_ms": round(total, 2),
+                "ratio": 0.0,
+            }
+        )
+
+    for item in stage_stats:
+        item["ratio"] = round((item["total_duration_ms"] / grand_total), 4) if grand_total > 0 else 0.0
+
+    dominant = max(stage_stats, key=lambda item: item["total_duration_ms"])
+    return {
+        "sample_size": sample_size,
+        "dominant_stage": dominant["name"],
+        "dominant_stage_label": dominant["label"],
+        "avg_duration_ms": dominant["avg_duration_ms"],
+        "p95_duration_ms": dominant["p95_duration_ms"],
+        "ratio": dominant["ratio"],
+        "stage_stats": sorted(stage_stats, key=lambda item: item["total_duration_ms"], reverse=True),
     }
 
 
