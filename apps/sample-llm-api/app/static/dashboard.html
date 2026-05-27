@@ -1812,8 +1812,8 @@
       const p95 = fmt.ms(summary.p95_duration_ms || 0);
       const ratioPct = Math.round(Number(summary.ratio || 0) * 100);
 
-      textEl.textContent = `최근 ${sampleSize}개 요청 기준, ${dominantLabel} 단계가 가장 오래 걸렸습니다.`;
-      metaEl.textContent = `평균 ${avg}, p95 ${p95}, 전체 span 시간의 ${ratioPct}%`;
+      textEl.textContent = `최근 ${sampleSize}개 요청 기준, ${dominantLabel} 단계의 p95가 가장 높습니다.`;
+      metaEl.textContent = `p95 ${p95} · 평균 ${avg} · 전체 span 시간의 ${ratioPct}%`;
 
       const stats = Array.isArray(summary.stage_stats) ? summary.stage_stats : [];
       if (!stats.length) {

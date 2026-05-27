@@ -570,7 +570,7 @@ def _build_stage_bottleneck_summary(recent_requests: list[dict[str, Any]] | None
     for item in stage_stats:
         item["ratio"] = round((item["total_duration_ms"] / grand_total), 4) if grand_total > 0 else 0.0
 
-    dominant = max(stage_stats, key=lambda item: item["total_duration_ms"])
+    dominant = max(stage_stats, key=lambda item: item["p95_duration_ms"])
     return {
         "sample_size": sample_size,
         "dominant_stage": dominant["name"],
