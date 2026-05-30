@@ -345,7 +345,97 @@ OLLY 관측 계층
             "확장 가능한 배포 단위: Docker Compose와 Kubernetes manifest를 모두 제공해 로컬 검증과 클러스터 배포를 구분했다.",
         ],
     )
-    doc.add_heading("2.5 관측 범위의 기준", level=2)
+    doc.add_heading("2.5 제약 조건을 반영한 설계 의사결정", level=2)
+    add_paragraph(
+        doc,
+        "OLLY의 구현 결과는 초기 아이디어를 그대로 코드로 옮긴 것이 아니라, 비용, 기간, 시연 가능성, 운영 흐름이라는 현실적 제약을 "
+        "고려해 팀이 여러 차례 설계 방향을 조정한 결과이다. 이 절에서는 최종 결과물에 직접 영향을 준 핵심 의사결정을 정리한다.",
+    )
+    doc.add_heading("2.5.1 웹 기반 서비스로 구현", level=3)
+    add_paragraph(
+        doc,
+        "제약: 관측성 결과를 코드나 로그만으로 설명하면 발표 시 요청 생성부터 원인 분석까지의 흐름을 직관적으로 보여주기 어렵다.",
+        bold_prefix="제약:",
+    )
+    add_paragraph(
+        doc,
+        "판단: 팀은 Chat UI, Dashboard, 분석 챗봇을 포함한 웹 서비스 형태로 OLLY를 구현하기로 결정하였다.",
+        bold_prefix="판단:",
+    )
+    add_paragraph(
+        doc,
+        "구현 결과: 사용자가 질문을 보내면 request_id, trace_id, latency, token, cost가 생성되고, 운영자는 같은 요청을 대시보드와 Jaeger에서 이어서 확인할 수 있다.",
+        bold_prefix="구현 결과:",
+    )
+    add_paragraph(
+        doc,
+        "실무적 의미: 단순 백엔드 기능이 아니라 운영자가 실제로 확인하는 화면과 장애 대응 흐름까지 고려한 관측성 서비스로 구체화되었다.",
+        bold_prefix="실무적 의미:",
+    )
+    doc.add_heading("2.5.2 외부 LLM API 대신 로컬 SLM 도입", level=3)
+    add_paragraph(
+        doc,
+        "제약: Claude, Gemini, OpenAI 같은 외부 LLM API를 직접 연결하면 반복 시연 과정에서 비용과 호출량 제한 문제가 발생할 수 있다.",
+        bold_prefix="제약:",
+    )
+    add_paragraph(
+        doc,
+        "판단: 프로젝트에서는 Ollama gemma3:1b 기반 로컬 SLM을 MVP 관측 대상으로 사용하기로 선택하였다.",
+        bold_prefix="판단:",
+    )
+    add_paragraph(
+        doc,
+        "구현 결과: 외부 API 비용 없이 반복 시연이 가능해졌고, 로컬 모델 실행 시간을 기반으로 local infra cost를 추정하는 metric을 구현할 수 있었다.",
+        bold_prefix="구현 결과:",
+    )
+    add_paragraph(
+        doc,
+        "실무적 의미: 비용 관측이라는 주제를 단순 설명에 그치지 않고, 비용 제약 자체를 설계 변수로 다루어 MVP의 재현성과 운영성을 확보하였다.",
+        bold_prefix="실무적 의미:",
+    )
+    doc.add_heading("2.5.3 시연 가능한 샘플 챗봇까지 함께 구현", level=3)
+    add_paragraph(
+        doc,
+        "제약: LLM을 관측한다는 개념만으로는 request_id, trace_id, token, cost가 실제 요청에서 어떻게 생성되는지 보여주기 어렵다.",
+        bold_prefix="제약:",
+    )
+    add_paragraph(
+        doc,
+        "판단: 팀은 OLLY 대시보드만 만드는 대신, 관측 대상이 되는 샘플 /chat API와 Chat UI를 함께 구현하기로 결정하였다.",
+        bold_prefix="판단:",
+    )
+    add_paragraph(
+        doc,
+        "구현 결과: 채팅 요청 하나마다 비용, 토큰, latency, trace가 생성되고, normal, slow_retrieve, slow_llm, high_token, error 시나리오로 검증할 수 있게 되었다.",
+        bold_prefix="구현 결과:",
+    )
+    add_paragraph(
+        doc,
+        "실무적 의미: 관측 플랫폼을 설명하기 위해 필요한 관측 대상 서비스를 함께 설계함으로써, OLLY가 실제 사용자용 챗봇 API에 붙는 구조를 명확히 보여주었다.",
+        bold_prefix="실무적 의미:",
+    )
+    doc.add_heading("2.5.4 웹 알림의 한계를 Discord webhook으로 보완", level=3)
+    add_paragraph(
+        doc,
+        "제약: 웹 화면 내부 알림만으로는 실제 운영 환경의 장애 전파 흐름을 충분히 설명하기 어렵다.",
+        bold_prefix="제약:",
+    )
+    add_paragraph(
+        doc,
+        "판단: 프로젝트에서는 Prometheus alert와 커스텀 alert rule을 Discord webhook과 연결해 외부 알림 채널까지 포함하기로 하였다.",
+        bold_prefix="판단:",
+    )
+    add_paragraph(
+        doc,
+        "구현 결과: 임계값 초과 시 Discord로 알림을 전송하고, 선택적으로 LLM 한 줄 요약을 붙여 운영자가 이상 신호의 의미를 빠르게 파악할 수 있게 했다.",
+        bold_prefix="구현 결과:",
+    )
+    add_paragraph(
+        doc,
+        "실무적 의미: 장애 신호가 대시보드 안에 머무르지 않고 팀이 사용하는 커뮤니케이션 채널로 전달되는 운영 흐름을 반영하였다.",
+        bold_prefix="실무적 의미:",
+    )
+    doc.add_heading("2.6 관측 범위의 기준", level=2)
     add_paragraph(
         doc,
         "본 프로젝트는 프롬프트 내용과 모델 응답의 의미적 품질을 모두 자동 판정하는 시스템이 아니라, 운영자가 비용과 성능 문제를 "
@@ -593,7 +683,7 @@ request_id + trace_id
     doc.add_heading("8.3 발표 이후 정리한 설계 기준", level=2)
     add_paragraph(
         doc,
-        "주제 발표 이후에는 OLLY의 범위를 더 명확히 정리했다. 첫째, OLLY가 말하는 LLM 서비스는 특정 제품 하나가 아니라 "
+        "이 절은 팀 내부 의사결정보다는 주제 발표 이후 명확해진 프로젝트 범위와 답변 기준을 정리한다. 첫째, OLLY가 말하는 LLM 서비스는 특정 제품 하나가 아니라 "
         "외부 LLM API, RAG 기반 챗봇, 로컬 SLM 서비스를 포함하는 운영 대상이다. 둘째, OpenTelemetry는 프롬프트를 자동으로 "
         "보여주는 도구가 아니므로 서비스 코드가 prompt template, token count, feature, model 같은 메타데이터를 직접 남겨야 한다. "
         "셋째, 할루시네이션 검출은 이번 구현 범위가 아니며 향후 품질 평가 기능으로 확장할 항목이다.",
@@ -629,6 +719,10 @@ request_id + trace_id
         "또한 OLLY는 실무 적용을 전제로 기존 서비스에 붙는 관측성 계층으로 설계되었다. 운영자는 request_id와 trace_id를 기준으로 "
         "사용자 요청, 비용, 토큰, 단계별 병목, 알림을 연결해서 확인할 수 있으며, 이는 실제 LLM 서비스 운영에서 필요한 장애 대응과 "
         "비용 통제 절차에 직접 대응한다.",
+    )
+    add_paragraph(
+        doc,
+        "OLLY의 구현 결과는 도구 선택뿐 아니라 비용, 시연 가능성, 운영 흐름이라는 현실적 제약을 반영한 팀의 설계 판단이 누적된 결과이다.",
     )
     add_paragraph(
         doc,
