@@ -14,6 +14,23 @@ COMPARE_KEYWORDS = ("어제", "전일", "지난", "이전", "비교", "대비", 
 RANKING_KEYWORDS = ("순위", "랭킹", "top", "상위", "목록", "리스트")
 MODEL_KEYWORDS = ("모델", "model", "gemma", "openai")
 REQUEST_KEYWORDS = ("요청", "request", "trace", "트레이스", "req_")
+ERROR_OBSERVABILITY_KEYWORDS = (
+    "에러율",
+    "실패율",
+    "실패 요청",
+    "오류율",
+    "장애",
+    "incident",
+    "status=error",
+    "request",
+    "요청",
+    "trace",
+    "트레이스",
+    "대시보드",
+    "olly",
+    "최근",
+    "방금",
+)
 TRACE_ID_RE = re.compile(r"\b[0-9a-f]{16,32}\b", re.IGNORECASE)
 REQUEST_ID_RE = re.compile(r"\breq_[0-9a-f]{8}\b", re.IGNORECASE)
 VALID_WINDOWS = {"15m", "1h", "6h", "24h"}
@@ -26,6 +43,16 @@ def classify_intent(request: ChatRequest) -> str | None:
     has_cost = contains(question, COST_KEYWORDS)
     has_latency = contains(question, LATENCY_KEYWORDS)
     mentions_rag_or_llm = contains(question, RAG_VS_LLM_KEYWORDS)
+    has_observability_subject = (
+        has_token
+        or has_cost
+        or has_latency
+        or mentions_rag_or_llm
+        or contains(question, ALERT_KEYWORDS)
+        or contains(question, REQUEST_KEYWORDS)
+        or contains(question, MODEL_KEYWORDS)
+        or contains(question, ("olly", "대시보드", "지표", "메트릭", "관측", "운영"))
+    )
 
     if contains(question, ("가장 느린", "느린 요청", "slowest", "최근 요청", "요청 목록")):
         return "slowest_requests"
@@ -33,17 +60,17 @@ def classify_intent(request: ChatRequest) -> str | None:
         contains(question, REQUEST_KEYWORDS) and contains(question, ("이", "해당", "방금"))
     ):
         return "trace_detail"
-    if contains(question, COMPARE_KEYWORDS):
+    if contains(question, COMPARE_KEYWORDS) and has_observability_subject:
         return "compare"
     if contains(question, ALERT_KEYWORDS):
         return "alerts"
-    if contains(question, ERROR_KEYWORDS):
+    if contains(question, ERROR_KEYWORDS) and contains(question, ERROR_OBSERVABILITY_KEYWORDS):
         return "error"
     if mentions_rag_or_llm and (has_latency or "느린 것" in question):
         return "rag_vs_llm"
     if contains(question, MODEL_KEYWORDS) and (has_cost or has_token or has_latency or "상태" in question):
         return "models"
-    if contains(question, RANKING_KEYWORDS):
+    if contains(question, RANKING_KEYWORDS) and has_observability_subject:
         return "ranking"
     if has_token and asks_top_feature:
         return "top_tokens"
@@ -54,16 +81,9 @@ def classify_intent(request: ChatRequest) -> str | None:
     if has_latency:
         return "latency"
 
-    if request.scenario == "high_token":
-        return "top_tokens"
-    if request.scenario == "error":
-        return "error"
-    if request.scenario in {"slow_retrieve", "slow_llm"}:
-        return "latency"
     return (
         "overview"
-        if request.scenario != "normal"
-        or "olly" in question
+        if "olly" in question
         or "대시보드" in question
         or contains(question, ("상태", "요약", "현황", "health", "summary", "overview"))
         else None
