@@ -73,6 +73,14 @@ class PromptRoutingTest(unittest.TestCase):
                 self.assertIn("일반 질문", prompt)
                 self.assertNotIn("OLLY 데모 요청", prompt)
 
+    def test_olly_intro_question_is_not_status_overview(self) -> None:
+        for question in ("olly가 뭐야?", "OLLY가 뭐야?", "올리가 뭐야?", "긴 답변으로 OLLY의 기능을 설명해줘"):
+            with self.subTest(question=question):
+                request = self.request(question)
+
+                self.assertEqual(classify_intent(request), "intro")
+                self.assertTrue(ollama_llm.is_observability_request(request))
+
     def test_rag_vs_finetuning_question_stays_general(self) -> None:
         request = self.request("RAG랑 파인튜닝 차이가 뭐야?")
 
@@ -167,6 +175,48 @@ class PromptRoutingTest(unittest.TestCase):
             self.assertEqual(output_tokens, 6)
         finally:
             ollama_llm.get_client = old_get_client
+
+    def test_error_rate_question_in_error_scenario_does_not_force_demo_failure(self) -> None:
+        class FakeResponse:
+            def raise_for_status(self) -> None:
+                return None
+
+            def json(self) -> dict:
+                return {
+                    "message": {"content": "현재 오류율은 3.2%입니다."},
+                    "prompt_eval_count": 9,
+                    "eval_count": 8,
+                }
+
+        class FakeClient:
+            async def post(self, _url, json):
+                self.payload = json
+                return FakeResponse()
+
+        old_get_client = ollama_llm.get_client
+        old_stable_answers = ollama_llm.STABLE_DEMO_ANSWERS
+        fake_client = FakeClient()
+        ollama_llm.get_client = lambda: fake_client
+        ollama_llm.STABLE_DEMO_ANSWERS = False
+        try:
+            request = self.request("현재 에러율을 알려줘", scenario="error")
+
+            answer, input_tokens, output_tokens, _metadata = asyncio.run(ollama_llm.llm_call(request, []))
+
+            self.assertEqual(classify_intent(request), "error")
+            self.assertEqual(answer, "현재 오류율은 3.2%입니다.")
+            self.assertEqual(input_tokens, 9)
+            self.assertEqual(output_tokens, 8)
+        finally:
+            ollama_llm.get_client = old_get_client
+            ollama_llm.STABLE_DEMO_ANSWERS = old_stable_answers
+
+    def test_intro_question_in_error_scenario_still_forces_demo_failure(self) -> None:
+        request = self.request("OLLY가 뭐야?", scenario="error")
+
+        self.assertEqual(classify_intent(request), "intro")
+        with self.assertRaises(RuntimeError):
+            asyncio.run(ollama_llm.llm_call(request, []))
 
     def test_general_question_uses_general_system_prompt_and_normal_output_limit(self) -> None:
         class FakeResponse:

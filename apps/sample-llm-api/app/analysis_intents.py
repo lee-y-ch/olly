@@ -34,6 +34,26 @@ ERROR_OBSERVABILITY_KEYWORDS = (
 TRACE_ID_RE = re.compile(r"\b[0-9a-f]{16,32}\b", re.IGNORECASE)
 REQUEST_ID_RE = re.compile(r"\breq_[0-9a-f]{8}\b", re.IGNORECASE)
 VALID_WINDOWS = {"15m", "1h", "6h", "24h"}
+INTRO_KEYWORDS = (
+    "olly가 뭐",
+    "olly는 뭐",
+    "olly란",
+    "olly 소개",
+    "olly 기능",
+    "olly의 기능",
+    "olly를 설명",
+    "olly 설명",
+    "올리가 뭐",
+    "올리는 뭐",
+    "올리란",
+    "올리 소개",
+    "올리 기능",
+    "올리의 기능",
+    "올리를 설명",
+    "올리 설명",
+    "이 서비스 뭐",
+    "이 프로젝트 뭐",
+)
 
 
 def classify_intent(request: ChatRequest) -> str | None:
@@ -54,6 +74,8 @@ def classify_intent(request: ChatRequest) -> str | None:
         or contains(question, ("olly", "대시보드", "지표", "메트릭", "관측", "운영"))
     )
 
+    if contains(question, INTRO_KEYWORDS):
+        return "intro"
     if contains(question, ("가장 느린", "느린 요청", "slowest", "최근 요청", "요청 목록")):
         return "slowest_requests"
     if extract_trace_id(question) or extract_request_id(question) or (

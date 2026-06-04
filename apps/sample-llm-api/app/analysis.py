@@ -22,6 +22,9 @@ async def build_observability_answer(request: ChatRequest, window: str = "1h") -
         return None
 
     window = extract_window(request.question, window)
+    if intent == "intro":
+        return _answer_intro(detailed=_wants_detailed_intro(request))
+
     snapshot = await collect_dashboard_summary(window)
     if intent == "trace_detail":
         return await _answer_trace_detail(request.question, snapshot, window)
@@ -66,18 +69,18 @@ def _answer_latency(snapshot: dict[str, Any], window: str) -> str:
         )
         action = "따라서 응답 포맷팅, 필터링, 후처리 코드를 먼저 줄이거나 최적화해야 합니다."
     else:
-        cause = "최근 trace 데이터가 충분하지 않아 어느 단계가 가장 느린지 아직 단정하기 어렵습니다."
+        cause = "최근 트레이스 데이터가 충분하지 않아 어느 단계가 가장 느린지 아직 단정하기 어렵습니다."
         action = "몇 번 더 요청을 보낸 뒤 다시 분석하는 것이 좋습니다."
 
     evidence = [
-        f"최근 {window} 기준 평균 latency는 {_seconds(kpis.get('avg_latency_seconds'))}, p95 latency는 {_seconds(kpis.get('p95_latency_seconds'))}입니다.",
+        f"최근 {window} 기준 평균 응답 시간은 {_seconds(kpis.get('avg_latency_seconds'))}, p95 응답 시간은 {_seconds(kpis.get('p95_latency_seconds'))}입니다.",
         f"단계별 p95 중 가장 큰 값은 {stage_name}={_seconds(stage_seconds)}입니다.",
     ]
     if stage_percent > 0:
         evidence.append(f"단계별 합계 기준으로 {stage_name}가 약 {stage_percent:.0f}%를 차지합니다.")
     if recent:
         evidence.append(
-            f"최근 가장 느린 요청은 {recent.get('request_id')}이고 latency는 {_ms(recent.get('latency_ms'))}입니다."
+            f"최근 가장 느린 요청은 {recent.get('request_id')}이고 응답 시간은 {_ms(recent.get('latency_ms'))}입니다."
         )
 
     return "\n\n".join([cause, "\n".join(f"- {item}" for item in evidence), action])
@@ -108,9 +111,9 @@ def _answer_cost(snapshot: dict[str, Any], window: str, question: str = "") -> s
         cost_reason = "현재 비용 증가는 token_cost_usd와 infra_cost_usd를 함께 비교해서 봐야 합니다."
 
     evidence = [
-        f"Total Tokens는 {_number(kpis.get('total_tokens'))}입니다.",
-        f"Total Cost는 {_usd(kpis.get('estimated_cost_usd'))}입니다.",
-        f"Token Cost는 {_usd(token_cost)}, Infra Cost는 {_usd(infra_cost)}입니다.",
+        f"총 토큰은 {_number(kpis.get('total_tokens'))}입니다.",
+        f"총 비용은 {_usd(kpis.get('estimated_cost_usd'))}입니다.",
+        f"토큰 비용은 {_usd(token_cost)}, 인프라 비용은 {_usd(infra_cost)}입니다.",
     ]
     if top_cost:
         evidence.append(f"비용을 가장 많이 만든 기능은 {top_cost['label']}={_usd(top_cost['value'])}입니다.")
@@ -136,11 +139,11 @@ def _answer_comparison(
         formatter = _number
     elif contains(text, LATENCY_KEYWORDS):
         metric_name = "avg_latency_seconds"
-        label = "평균 latency"
+        label = "평균 응답 시간"
         formatter = _seconds
     elif contains(text, ERROR_KEYWORDS):
         metric_name = "error_rate_percent"
-        label = "error rate"
+        label = "오류율"
         formatter = _percent
     elif contains(text, ("요청", "request", "트래픽")):
         metric_name = "total_requests"
@@ -191,7 +194,7 @@ def _comparison_cause(snapshot: dict[str, Any], metric_name: str) -> str:
         top = stages[0] if stages else {"label": "unknown", "value": 0.0}
         return f"지연 원인 후보는 {top['label']} 단계입니다. 단계 p95는 {_seconds(top['value'])}입니다."
     if metric_name == "error_rate_percent":
-        return "실패 원인은 Recent Requests의 error 요청과 해당 trace_id를 열어 확인해야 합니다."
+        return "실패 원인은 최근 요청의 실패 항목과 해당 트레이스 ID를 열어 확인해야 합니다."
     return "요청 수 변화는 기능별 트래픽 증가나 데모 시나리오 실행 횟수와 함께 봐야 합니다."
 
 
@@ -259,14 +262,14 @@ def _answer_rag_vs_llm(snapshot: dict[str, Any], window: str) -> str:
     else:
         verdict = "최근 데이터 기준으로는 RAG 검색과 LLM 답변 생성 시간이 거의 비슷합니다."
         cause = "retrieve와 llm_call p95가 비슷해서 한쪽만 병목이라고 보기 어렵습니다."
-        action = "따라서 두 단계의 trace를 함께 보고 요청별로 어느 쪽이 튀는지 확인해야 합니다."
+        action = "따라서 두 단계의 트레이스를 함께 보고 요청별로 어느 쪽이 튀는지 확인해야 합니다."
 
     evidence = [
         f"retrieve p95는 {_seconds(retrieve)}입니다.",
         f"llm_call p95는 {_seconds(llm_call)}입니다.",
     ]
     if recent:
-        evidence.append(f"최근 가장 느린 요청은 {recent.get('request_id')}이고 latency는 {_ms(recent.get('latency_ms'))}입니다.")
+        evidence.append(f"최근 가장 느린 요청은 {recent.get('request_id')}이고 응답 시간은 {_ms(recent.get('latency_ms'))}입니다.")
 
     return "\n\n".join([verdict, "\n".join(f"- {item}" for item in evidence), cause, action])
 
@@ -279,7 +282,7 @@ async def _answer_trace_detail(question: str, snapshot: dict[str, Any], window: 
     if trace_id:
         trace_data = await dashboard_trace(trace_id)
         if not trace_data.get("found"):
-            return f"trace_id={trace_id}를 Jaeger에서 찾지 못했습니다. 최근 {window} 안에 수집된 trace인지 먼저 확인해야 합니다."
+            return f"트레이스 ID {trace_id}를 Jaeger에서 찾지 못했습니다. 최근 {window} 안에 수집된 트레이스인지 먼저 확인해야 합니다."
     else:
         recent = snapshot.get("recent_requests", [])
         if request_id:
@@ -293,12 +296,12 @@ async def _answer_trace_detail(question: str, snapshot: dict[str, Any], window: 
     slowest = max(stages, key=lambda row: float(row.get("duration_ms") or 0.0), default={"name": "unknown", "duration_ms": 0})
     status = trace_data.get("status", "unknown")
     evidence = [
-        f"request_id: {trace_data.get('request_id')}",
-        f"trace_id: {trace_data.get('trace_id')}",
+        f"요청 ID: {trace_data.get('request_id')}",
+        f"트레이스 ID: {trace_data.get('trace_id')}",
         f"status: {status}",
-        f"latency: {_ms(trace_data.get('latency_ms'))}",
-        f"tokens: {_number(trace_data.get('tokens'))}",
-        f"cost: {_usd(trace_data.get('cost_usd'))}",
+        f"응답 시간: {_ms(trace_data.get('latency_ms'))}",
+        f"토큰: {_number(trace_data.get('tokens'))}",
+        f"비용: {_usd(trace_data.get('cost_usd'))}",
         f"가장 긴 단계: {slowest.get('name')}={_ms(slowest.get('duration_ms'))}",
     ]
     return "\n\n".join(
@@ -319,8 +322,8 @@ def _answer_alerts(snapshot: dict[str, Any], window: str) -> str:
                 f"현재 Prometheus 기준 활성 알림은 없습니다.",
                 "\n".join(
                     [
-                        f"- 최근 {window} error rate: {_percent(kpis.get('error_rate_percent'))}",
-                        f"- 최근 {window} p95 latency: {_seconds(kpis.get('p95_latency_seconds'))}",
+                        f"- 최근 {window} 오류율: {_percent(kpis.get('error_rate_percent'))}",
+                        f"- 최근 {window} p95 응답 시간: {_seconds(kpis.get('p95_latency_seconds'))}",
                     ]
                 ),
                 "따라서 지금은 알림이 울린 상태라기보다 일반 성능/비용 지표를 확인하는 상태입니다.",
@@ -330,7 +333,7 @@ def _answer_alerts(snapshot: dict[str, Any], window: str) -> str:
         f"- {alert.get('name')} / {alert.get('state')} / {alert.get('severity')}: {alert.get('summary')}"
         for alert in alerts
     ]
-    return "\n\n".join(["현재 활성 알림이 있습니다.", "\n".join(lines), "먼저 같은 시간대의 Recent Requests와 trace_id를 확인해야 합니다."])
+    return "\n\n".join(["현재 활성 알림이 있습니다.", "\n".join(lines), "먼저 같은 시간대의 최근 요청과 트레이스 ID를 확인해야 합니다."])
 
 
 def _answer_models(snapshot: dict[str, Any], window: str) -> str:
@@ -353,7 +356,7 @@ def _answer_ranking(snapshot: dict[str, Any], window: str) -> str:
     sections = [
         ("비용 상위 기능", _rank_lines(breakdowns.get("cost_by_feature", []), _usd)),
         ("토큰 상위 기능", _rank_lines(breakdowns.get("tokens_by_feature", []), _number)),
-        ("단계별 p95 latency", _rank_lines(breakdowns.get("stage_p95_seconds", []), _seconds)),
+        ("단계별 p95 응답 시간", _rank_lines(breakdowns.get("stage_p95_seconds", []), _seconds)),
     ]
     rendered = []
     for title, lines in sections:
@@ -399,14 +402,14 @@ def _answer_error(snapshot: dict[str, Any], window: str) -> str:
             f"가장 최근 실패 요청은 {latest_error.get('request_id')}이고, scenario는 {latest_error.get('scenario')}입니다."
         )
         evidence = [
-            f"현재 error rate는 {_percent(kpis.get('error_rate_percent'))}입니다.",
+            f"현재 오류율은 {_percent(kpis.get('error_rate_percent'))}입니다.",
             f"해당 trace_id는 {latest_error.get('trace_id')}입니다.",
             f"실패 요청 latency는 {_ms(latest_error.get('latency_ms'))}입니다.",
         ]
         action = "따라서 이 요청은 성공 응답 문제가 아니라 실제 실패 이벤트로 분류해야 하며, trace_id로 실패 단계까지 추적할 수 있습니다."
     else:
         cause = f"최근 {window} 기준으로 Jaeger 최근 요청 목록에서는 실패 요청이 뚜렷하게 보이지 않습니다."
-        evidence = [f"현재 error rate는 {_percent(kpis.get('error_rate_percent'))}입니다."]
+        evidence = [f"현재 오류율은 {_percent(kpis.get('error_rate_percent'))}입니다."]
         action = "만약 방금 실패 시나리오를 실행했다면 trace export가 반영될 때까지 몇 초 뒤 다시 확인해야 합니다."
     return "\n\n".join([cause, "\n".join(f"- {item}" for item in evidence), action])
 
@@ -418,9 +421,43 @@ def _answer_overview(snapshot: dict[str, Any], window: str) -> str:
     return (
         f"최근 {window} 기준 OLLY 상태는 요청 {_number(kpis.get('total_requests'))}건, "
         f"토큰 {_number(kpis.get('total_tokens'))}, 비용 {_usd(kpis.get('estimated_cost_usd'))} 수준입니다.\n\n"
-        f"평균 latency는 {_seconds(kpis.get('avg_latency_seconds'))}, p95 latency는 {_seconds(kpis.get('p95_latency_seconds'))}입니다. "
+        f"평균 응답 시간은 {_seconds(kpis.get('avg_latency_seconds'))}, p95 응답 시간은 {_seconds(kpis.get('p95_latency_seconds'))}입니다. "
         f"현재 가장 큰 병목 후보는 {top_stage['label']} 단계이며 p95는 {_seconds(top_stage['value'])}입니다.\n\n"
         "즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다."
+    )
+
+
+def _wants_detailed_intro(request: ChatRequest) -> bool:
+    question = request.question.lower()
+    return request.scenario == "high_token" or contains(question, ("긴", "길게", "자세", "상세"))
+
+
+def _answer_intro(*, detailed: bool = False) -> str:
+    if not detailed:
+        return (
+            "OLLY는 LLM 서비스의 운영 상태를 확인하기 위한 관측성 대시보드와 분석 챗봇입니다.\n\n"
+            "사용자가 질문을 보내면 OLLY는 답변만 보여주는 것이 아니라 request_id, trace_id, 응답 시간, 토큰, 비용, 실패 여부를 함께 기록합니다.\n\n"
+            "그래서 운영자는 요청이 느릴 때 RAG 검색이 문제인지, 모델 답변 생성이 문제인지, 토큰 사용량이나 실패가 원인인지 대시보드와 trace로 확인할 수 있습니다."
+        )
+
+    return (
+        "OLLY는 LLM 서비스를 운영할 때 필요한 관측성 대시보드와 분석 챗봇입니다. "
+        "일반 챗봇은 사용자의 질문에 답변만 돌려주지만, OLLY는 그 요청이 내부에서 어떻게 처리됐는지까지 함께 기록합니다. "
+        "각 요청에는 request_id와 trace_id가 붙고, 응답 시간, 입력 토큰, 출력 토큰, 비용, 성공 또는 실패 상태가 저장됩니다.\n\n"
+        "첫 번째 기능은 요청 추적입니다. 운영자는 사용자가 보낸 특정 요청을 request_id로 찾고, 같은 요청의 trace_id를 통해 Jaeger에서 세부 실행 흐름을 확인할 수 있습니다. "
+        "요청은 retrieve, llm_call, postprocess 단계로 나뉘며, 각 단계가 몇 초 걸렸는지 비교할 수 있습니다. "
+        "그래서 응답이 느릴 때 단순히 'LLM이 느리다'고 추측하지 않고, RAG 검색이 느린지, 모델 생성이 느린지, 후처리 로직이 느린지 구분할 수 있습니다.\n\n"
+        "두 번째 기능은 비용과 토큰 분석입니다. OLLY는 기능별 토큰 사용량과 비용 추정치를 보여줍니다. "
+        "현재 로컬 gemma3:1b 모델은 외부 API 토큰 과금이 없기 때문에 token_cost_usd는 0에 가깝고, 대신 모델 실행 시간에 기반한 infra_cost_usd를 계산합니다. "
+        "토큰이 많은 요청은 처리 시간이 길어지고, 그 결과 로컬 추론 비용 추정치도 커질 수 있습니다.\n\n"
+        "세 번째 기능은 병목 분석입니다. 대시보드는 최근 요청 목록과 trace detail을 함께 보여주며, retrieve, llm_call, postprocess 중 가장 오래 걸린 단계를 강조합니다. "
+        "retrieve가 길면 문서 검색, 벡터 DB 인덱스, top_k, 청크 크기 같은 RAG 파이프라인을 먼저 점검해야 합니다. "
+        "llm_call이 길면 프롬프트 길이, 출력 토큰 수, 모델 크기, CPU 또는 GPU 자원을 확인해야 합니다.\n\n"
+        "네 번째 기능은 사용자 정의 알림입니다. 운영자는 대시보드에서 직접 알림 규칙을 만들 수 있습니다. "
+        "요청 수, 토큰 수, p95 응답 시간, 에러율, 추정 비용, retrieve p95 같은 지표를 선택하고, 임계값과 평가 윈도우를 설정한 뒤 Discord webhook을 연결할 수 있습니다. "
+        "조건이 만족되면 OLLY가 Prometheus 지표를 평가해 Discord로 알림을 보내고, gemma3:1b가 만든 한 줄 요약도 함께 첨부합니다.\n\n"
+        "정리하면 OLLY는 LLM 서비스에서 발생하는 지연, 토큰 증가, 비용 증가, 실패 요청을 request 단위로 추적하고 설명하는 MVP입니다. "
+        "운영자는 OLLY를 통해 문제가 생긴 요청을 찾고, trace로 병목 단계를 확인하고, 알림으로 장애 징후를 빠르게 받을 수 있습니다."
     )
 
 

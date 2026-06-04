@@ -1,5 +1,6 @@
 import asyncio
 
+from app.analysis_intents import classify_intent
 from app.demo_answers import build_demo_answer, build_demo_context, estimate_demo_output_tokens
 from app.pricing import estimate_tokens
 from app.schemas import ChatRequest
@@ -19,7 +20,7 @@ def model_name() -> str:
 
 
 async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, int, dict[str, float]]:
-    if request.scenario == "error":
+    if request.scenario == "error" and classify_intent(request) == "intro":
         await asyncio.sleep(0.2)
         raise RuntimeError("mock LLM failure")
 

@@ -1,0 +1,578 @@
+PPTX: /Users/choi/Downloads/OLLY_최종발표_통합_수정중.pptx
+Slides: 16
+
+--- Slide 1 ---
+images=3, graphics=0, notes_chars=1
+OLLY
+CNCF 오픈소스 기반  
+LLM 운영 관측성 MVP
+비용 · 지연 · 병목 · 실패를 request_id 와 trace_id 로 추적하는 관측성 플랫폼
+Kubernetes
+OpenTelemetry
+Prometheus
+Jaeger
+오픈소스SW분석 (클라우드)  ·  5조
+최호준 32215116   ·   이용찬 32213336   ·   박주희 32221902   ·   조하은 32234364
+NORMAL p50
+1.47s
+HIGH_TOKEN p50
+34.58s
+ERROR 추적
+100%
+RECENT TRACES
+req_6cc69475
+error
+req_b7a3a1ba
+success
+[NOTES]
+1
+
+--- Slide 2 ---
+images=11, graphics=0, notes_chars=1
+01  문제 정의
+우리가 풀려던 문제: LLM은 일반 API와 다르다
+사용자는 “느리다·실패했다”만 보지만, 운영자는 검색·모델 호출·토큰 증가 중 어느 단계인지 
+구분해야
+ 
+합니다
+.
+OLLY
+  ·  LLM 운영 관측성 MVP
+02 / 15
+기존 APM 모니터링
+요청이 성공했는지, 얼마나 걸렸는지 중심
+HTTP Status
+성공 / 실패 여부
+Latency
+전체 응답 시간
+Error rate
+오류 비율
++
+LLM 운영에 필요한 관측
+성공해도 비용·토큰·병목 단계까지 
+알아야
+ 
+함
+Latency
+Token
+Cost
+Stage duration
+Error
+Alert
+HTTP 200이어도 운영 관점에서는 
+성공이
+ 아
+님
+.  
+OLLY의 목표는 단순 모니터링이 아니라, 
+요청 하나를 따라가며 원인을 
+좁히는
+ 것
+[NOTES]
+2
+
+--- Slide 3 ---
+images=4, graphics=0, notes_chars=1
+02  변화
+1차 발표 이후 바뀐 점
+OLLY
+  ·  LLM 운영 관측성 MVP
+03 / 15
+01
+아이디어
+  →  
+실행 환경
+Ollama gemma3:1b 기반 샘플 /chat API를 만들고 반복 검증이 가능하게 했습니다.
+02
+기능 설명
+  →  
+원인 추적
+request_id와 trace_id를 응답, metric, trace에 함께 남겼습니다.
+03
+화면 안 알림
+  →  
+운영 알림
+Prometheus alert와 Discord webhook으로 이상 신호를 외부 채널까지 보냈습니다.
+발표의 초점도 바뀌었습니다.  
+“무엇을 만들겠다”가 아니라 “문제를 주입했고, 원인을 끝까지 추적했다”를 보여줍니다.
+[NOTES]
+3
+
+--- Slide 4 ---
+images=4, graphics=0, notes_chars=1
+03  운영 효과
+OLLY로 얻는 운영 효과
+LLM 요청을 운영자가 추적 가능한 데이터로 바꾼다
+OLLY
+  ·  LLM 운영 관측성 MVP
+04 / 15
+01
+요청 단위 추적
+request_id와 trace_id로 하나의 요청을
+Dashboard · Jaeger · Prometheus까지 연결
+02
+병목 원인 분리
+전체 latency만 보는 것이 아니라
+retrieve · llm_call · postprocess 중 느린 단계를 확인
+03
+비용·토큰 가시화
+input/output token과 cost를 기록해
+토큰 과다 사용과 비용 증가 원인을 파악
+04
+이상 상황 대응
+error나 threshold 초과 상황을 감지하고
+Discord 알림으로 운영자에게 전달
+[NOTES]
+4
+
+--- Slide 5 ---
+images=1, graphics=0, notes_chars=1
+04  구조
+최종 아키텍처
+OLLY
+  ·  LLM 운영 관측성 MVP
+05 / 15
+요청 처리
+Chat UI에서 /chat API로 들어온 요청이 retrieve, llm_call, postprocess를 거칩니다.
+관측 수집
+OpenTelemetry와 Prometheus가 trace와 metric을 따로 수집합니다.
+운영 분석
+대시보드와 분석 챗봇은 저장된 데이터를 조회해 원인을 설명합니다.
+핵심은 
+서비스 로직과 관측 파이프라인을 분리
+한 것입니다.
+[NOTES]
+5
+
+--- Slide 6 ---
+images=6, graphics=0, notes_chars=1
+05  CNCF 적용
+CNCF 프로젝트가 실제로 맡은 역할
+도구 이름을 나열한 것이 아니라, 각 도구가 관측성 파이프라인의 한 역할을 
+맡도록
+ 
+설계
+OLLY
+  ·  LLM 운영 관측성 MVP
+06 / 15
+Kubernetes
+전체 스택 배포와 서비스 연결
+컨테이너 기반 재현 가능한 실행 환경
+OpenTelemetry
+/chat 요청과 내부 stage 계측
+trace_id 기반 요청 흐름 생성
+Prometheus
+latency·token·cost·error metric 저장
+운영 지표 조회·alert rule 기반
+Jaeger
+요청 단위 trace 시각화
+retrieve·llm_call·postprocess 병목 확인
+Grafana
+Prometheus metric 시각화
+latency·token·cost 변화 확인
+Discord Webhook
+ 은 CNCF 프로젝트가 아니므로, 알림 흐름의 
+외부 알림 채널
+ 로만 사용한다.
+[NOTES]
+6
+
+--- Slide 7 ---
+images=0, graphics=0, notes_chars=1
+06  Trace-Metric 연결
+요청 하나를 끝까지 연결하는 방식
+OLLY
+  ·  LLM 운영 관측성 MVP
+07 / 15
+공통 식별자
+request_id + trace_id
+Prometheus
+Metric
+latency, token, cost
+Jaeger
+Trace
+단계별 span 확인
+Dashboard
+Insight
+최근 요청과 병목 요약
+사용자 질문
+/chat
+retrieve
+응답
+postprocess
+llm_call
+[NOTES]
+7
+
+--- Slide 8 ---
+images=4, graphics=0, notes_chars=1
+07  데모 시나리오
+데모를 위해 정의한 4가지 운영 상황
+정상 · 병목 · 비용 증가 · 실패를 재현하고, 관측 
+데이터로
+ 
+확인
+OLLY
+  ·  LLM 운영 관측성 MVP
+08 / 15
+normal
+정상 요청
+관측 결과
+기준 상태 확인
+metadata 정상 생성
+slow_retrieve
+검색 단계 병목
+관측 결과
+retrieve span 증가
+병목 단계 확인
+high_token
+토큰 과다 사용
+관측 결과
+token·cost 증가
+비용 지표로 확인
+error
+실패 요청 추적
+관측 결과
+error metric·trace
+alert 연결 확인
+[NOTES]
+8
+
+--- Slide 9 ---
+images=1, graphics=0, notes_chars=1
+08  데모
+Demo: 4가지 운영 상황을 관측 흐름으로 연결
+OLLY
+  ·  LLM 운영 관측성 MVP
+09 / 15
+데모 영상  ·  3분 구성
+발표 당일 영상 재생  ·  핵심 화면 캡처로 대체 가능
+0:00
+문제 주입
+0:40
+요청 연결
+1:30
+원인 고립
+2:20
+알림 확인
+1
+Chat UI
+3개 시나리오 요청 생성
+2
+Dashboard
+Recent Requests 수집 확인
+3
+Trace / Jaeger
+slow_retrieve 병목 확인
+4
+Grafana
+latency · token · cost 확인
+5
+Discord
+error 알림 수신
+6
+Dashboard
+운영 요약으로 마무리
+[NOTES]
+9
+
+--- Slide 10 ---
+images=5, graphics=0, notes_chars=2
+08  결과 해석
+데모에서 운영자가 얻는 판단
+화면이 많다는 것이 아니라, 원인을 단계로 좁힐 수 있다는 점이 핵심
+OLLY
+  ·  LLM 운영 관측성 MVP
+09 / 1
+5
+시나리오
+관측 결과
+운영자가 할 수 있는 판단
+normal
+latency·token·cost 정상
+기준 상태 확인
+slow_retrieve
+retrieve span 증가
+RAG·문서 검색 계층 점검
+slow_llm
+llm_call span 증가
+모델 리소스·외부 LLM API 지연 점검
+high_token
+token·cost 증가
+프롬프트 템플릿·검색 문맥 과다 주입 점검
+error
+error metric·trace 생성
+실패 요청의 원인 trace 추적
+[NOTES]
+10
+
+--- Slide 11 ---
+images=0, graphics=0, notes_chars=2
+09  
+시나리오 검증
+ 결과
+high_token
+ 
+시나리오 검증
+: 병목이 의도한 단계에서 드러났다
+정상적으로 집계됨을 확인하기 위해 
+high_token
+ 
+시나리오 
+10
+회 연속 부하 발생
+OLLY
+  ·  LLM 운영 관측성 MVP
+10 / 15
+p50 Latency
+단위: 초
+normal
+1.47s
+slow_retrieve
+3.96s
+slow_llm
+2.23s
+high_token
+34.58s
+error
+0.15s
+단계·토큰 진단
+RAG 검색 지연
+retrieve span · 정상 대비 약 12배
+1.80s
+모델 호출 지연
+llm_call 구간이 전체 지연의 대부분
+1.99s
+토큰 과다
+평균 토큰 수 · high_token p50 34.58s
+457
+측정의 목적은 성능 자랑이 아니다.  
+같은 p50이라도 retrieve 병목과 llm_call 지연, 토큰 과다를 단계로 분리해 보여주는 
+것이
+ 
+핵심
+[NOTES]
+11
+
+--- Slide 12 ---
+images=7, graphics=0, notes_chars=2
+10  검증
+End-to-End 검증: 의도한 관측 신호가 정상 생성됐다
+ID가 
+끝까지
+ 
+유지되고
+, 시나리오별로 다르게 나타나며, 실패도 
+보존되는지
+ 
+확인
+OLLY
+  ·  LLM 운영 관측성 MVP
+11 / 15
+ID 유지
+Chat UI에서 생성된 request_id·trace_id가 Dashboard와 Jaeger까지 그대로 남았다
+시나리오 일치
+slow_retrieve·high_token·error가 metric·span 구조에 서로 다르게 나타났다
+실패 보존
+실패 요청도 사라지지 않고 status=error로 추적됐다 (실패 추적 100%)
+시나리오
+기대 신호
+확인 결과
+normal
+id·latency·token·cost metadata 생성
+기준 metadata 정상 생성
+slow_retrieve
+retrieve stage duration 증가
+Jaeger에서 retrieve 병목 확인 · 정상 대비 약 12배
+high_token
+token·cost 증가
+Dashboard·Grafana에서 증가 확인 · 평균 457토큰
+error
+error metric·trace·alert 생성
+Discord 알림 수신·trace 추적 확인
+[NOTES]
+12
+
+--- Slide 13 ---
+images=3, graphics=0, notes_chars=2
+11  비용
+비용과 토큰도 같은 관측 단위로 본다
+외부 API 과금이 없는 로컬 SLM도 모델 실행 시간을 비용으로 환산해 
+함께
+ 
+추적
+OLLY
+  ·  LLM 운영 관측성 MVP
+12 / 15
+비용 계산 기준
+compute_seconds  /  3600  ×  0.05 USD/hour
+로컬 SLM 비용
+외부 API 과금은 없지만, 모델 실행 시간을 인프라 비용으로 환산해 기록한다
+확장 방식
+외부 LLM API로 바꾸면 토큰 단가 테이블만 교체하면 그대로 적용된다
+핵심 metric
+latency · stage duration · tokens · cost · errors 를 한 화면에서 본다
+운영자는 비용 증가가 토큰 때문인지, 모델 실행 시간 때문인지, 실패와 연결되는지를 같은 관측 단위에서 
+함께
+ 
+확인
+[NOTES]
+13
+
+--- Slide 14 ---
+images=3, graphics=0, notes_chars=2
+12  팀의 판단
+팀의 판단: 관측 가능한 요청 흐름으로 방향을 좁히다
+AI는 구현 보조였고, 프로젝트의 범위와 우선순위는 
+팀이
+ 
+결정
+OLLY
+  ·  LLM 운영 관측성 MVP
+13 / 15
+초기 검토
+외부 LLM API 호출을 감싸는 래퍼형 구조 검토
+내부 stage·token·trace를 
+안정적으로
+ 
+얻으려면
+ 서버 내부 계측 필요
+팀의 핵심 판단
+반복 시연 위해 로컬 SLM·샘플 Chat UI 구성
+할루시네이션 자동 판정보다 운영 관측성에 집중
+request_id·trace_id를 모든 
+화면·지표의
+ 
+연결
+ 기준으로 고정
+normal·slow_retrieve·high_token·error
+ 
+시나리오
+ 직접 설계
+완수 결과
+OpenTelemetry 계측으로 stage별 trace 생성
+Prometheus metric과 Jaeger 
+trace를
+ 
+같은
+ 요청으로 연결
+Dashboard → Trace → Metric → Alert 
+흐름
+ 구성
+Discord 알림까지 
+연결해
+ 
+탐지→알림→trace
+ 추적 완성
+[NOTES]
+14
+
+--- Slide 15 ---
+images=6, graphics=0, notes_chars=2
+13  범위와 확장
+한계 및 향후 과제
+이번 MVP의 범위를 분명히 하고, request_id·trace_id 구조 위에서 다음 
+단계를
+ 
+설계
+OLLY
+  ·  LLM 운영 관측성 MVP
+14 / 15
+이번 MVP의 범위
+요청 단위 추적 (request_id / trace_id)
+metric · trace 수집
+stage별 병목 확인
+Discord 외부 알림
+데모 시나리오 기반 검증
+데이터 · 연동
+실제 Vector DB · RAG 서비스 연동
+서비스별 stage mapping 설정화
+저장 · 운영
+장기 저장소 · retention 정책
+장기 metric 저장 · SLO 기준 정의
+보안
+raw prompt 대신 템플릿 ID·토큰 수·익명화 식별자 우선
+Secret · RBAC · TLS · Ingress · 감사 로그
+품질 평가 (향후)
+RAG 근거 일치도 · 인용 검증
+LLM-as-a-judge · semantic quality monitoring
+현재는 로컬 SLM 기반 MVP라 외부 API 과금·장기 저장은 
+검증하지
+ 않
+음
+.  
+다만 request_id · trace_id 기반 구조는 
+그대로
+ 
+확장
+ 
+가능
+[NOTES]
+15
+
+--- Slide 16 ---
+images=3, graphics=0, notes_chars=2
+결론
+LLM 시대의 운영 핵심은 
+“요청 단위 운영 가시성”
+OLLY는 LLM 요청 하나를 
+비용 · 지연 · 병목 · 실패 · 알림
+까지 연결해 보여주는 
+관측성
+ MVP
+핵심 성과
+1
+요청 연결
+request_id / trace_id로
+Chat UI · Dashboard · Jaeger · Prometheus 연결
+2
+CNCF 접목
+Kubernetes · OpenTelemetry · Prometheus · Jaeger를
+LLM 운영 흐름에 적용
+3
+운영 판단
+느린 요청, 비용 증가, 실패 요청을
+데이터 기반으로 추적
+즉, 
+OLLY는
+ 
+LLM 서비스를 운영하기 위한 관측성 계층
+입니다.
+OLLY  ·  오픈소스SW분석 (클라우드) 5조
+[NOTES]
+16
+
+--- MEDIA INVENTORY ---
+ppt/media/image22.png
+ppt/media/image33.png
+ppt/media/image1.png
+ppt/media/image23.png
+ppt/media/image24.png
+ppt/media/image25.png
+ppt/media/image27.png
+ppt/media/image2.png
+ppt/media/image28.png
+ppt/media/image29.png
+ppt/media/image3.png
+ppt/media/image30.png
+ppt/media/image15.png
+ppt/media/image31.png
+ppt/media/image32.png
+ppt/media/image4.png
+ppt/media/image5.png
+ppt/media/image6.png
+ppt/media/image7.png
+ppt/media/image8.png
+ppt/media/image9.png
+ppt/media/image10.png
+ppt/media/image11.png
+ppt/media/image12.png
+ppt/media/image26.png
+ppt/media/image13.png
+ppt/media/image14.png
+ppt/media/image16.png
+ppt/media/image17.png
+ppt/media/image18.png
+ppt/media/image19.png
+ppt/media/image20.png
+ppt/media/image21.png

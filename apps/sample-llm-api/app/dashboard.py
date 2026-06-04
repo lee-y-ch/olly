@@ -210,7 +210,7 @@ async def _prometheus_alerts(client: httpx.AsyncClient) -> list[dict[str, str]]:
         annotations = alert.get("annotations", {})
         alerts.append(
             {
-                "name": labels.get("alertname", "UnknownAlert"),
+                "name": labels.get("alertname", "이름 없는 알림"),
                 "state": alert.get("state", "unknown"),
                 "severity": labels.get("severity", "warning"),
                 "summary": annotations.get("summary") or annotations.get("description", ""),
@@ -376,7 +376,7 @@ def _build_primary_insight(
             ],
             "target_trace_id": target.get("trace_id"),
             "target_request_id": target.get("request_id"),
-            "recommended_action": "요청 추적 탭에서 해당 trace의 실패 span을 확인하세요.",
+            "recommended_action": "요청 추적 탭에서 해당 트레이스의 실패 구간을 확인하세요.",
         }
 
     slow_rows = [row for row in rows if _safe_float(row.get("latency_ms"), 0.0) >= 3000]
@@ -386,15 +386,15 @@ def _build_primary_insight(
         if scenario == "slow_retrieve":
             insight_type = "slow_retrieve"
             title = "RAG 검색 지연이 보여요."
-            recommended_action = "요청 추적 탭에서 retrieve span과 문서 검색 단계를 확인하세요."
+            recommended_action = "요청 추적 탭에서 RAG 검색 구간과 문서 검색 단계를 확인하세요."
         elif scenario == "slow_llm":
             insight_type = "slow_llm"
             title = "LLM 응답 지연이 보여요."
-            recommended_action = "요청 추적 탭에서 llm_call span과 모델 응답 시간을 확인하세요."
+            recommended_action = "요청 추적 탭에서 LLM 생성 구간과 모델 응답 시간을 확인하세요."
         else:
             insight_type = "slow_request"
             title = "느린 요청이 보여요."
-            recommended_action = "요청 추적 탭에서 가장 오래 걸린 span을 확인하세요."
+            recommended_action = "요청 추적 탭에서 가장 오래 걸린 처리 구간을 확인하세요."
 
         dom = _dominant_stage(target.get("stages"))
         request_id = str(target.get("request_id") or "-")
@@ -416,7 +416,7 @@ def _build_primary_insight(
         else:
             summary = (
                 f"{request_id} 요청이 {latency_text}로 가장 느렸어요. "
-                "span detail이 없어 전체 latency 기준으로 판단했어요."
+                "span 상세 정보가 없어 전체 응답 시간 기준으로 판단했어요."
             )
 
         return {
@@ -442,8 +442,8 @@ def _build_primary_insight(
             "badge": "token spike",
             "title": "토큰 사용량이 높은 요청이 있어요.",
             "summary": (
-                f"최근 요청 중 high_token 시나리오가 {len(high_token_rows)}건 감지됐어요. "
-                f"{request_id} 요청은 {token_count} tokens를 사용했어요."
+                f"최근 요청 중 토큰 과다 사용 시나리오가 {len(high_token_rows)}건 감지됐어요. "
+                f"{request_id} 요청은 토큰 {token_count}개를 사용했어요."
             ),
             "evidence": [
                 f"high_token_requests={len(high_token_rows)}",
@@ -470,11 +470,11 @@ def _build_primary_insight(
             "badge": "alert active",
             "title": "활성 알림이 있어요.",
             "summary": (
-                f"{selected.get('name', 'UnknownAlert')} 알림이 "
-                f"{selected.get('summary') or selected.get('state') or 'firing'} 상태예요."
+                f"{selected.get('name', '이름 없는 알림')} 알림이 "
+                f"{selected.get('summary') or selected.get('state') or '발생 중'} 상태예요."
             ),
             "evidence": [
-                f"alert={selected.get('name', 'UnknownAlert')}",
+                f"alert={selected.get('name', '이름 없는 알림')}",
                 f"severity={selected.get('severity', 'warning')}",
                 f"state={selected.get('state', 'unknown')}",
             ],
@@ -639,7 +639,7 @@ def _build_primary_insight_aggregate(
             ],
             "target_trace_id": rep.get("trace_id") if rep else None,
             "target_request_id": rep.get("request_id") if rep else None,
-            "recommended_action": "대표 실패 trace를 확인하고 error span과 예외 메시지를 점검하세요.",
+            "recommended_action": "대표 실패 트레이스를 확인하고 오류 구간과 예외 메시지를 점검하세요.",
             "scope": "aggregate",
             "basis": "recent_requests",
             "sample_size": sample_size,
@@ -655,16 +655,16 @@ def _build_primary_insight_aggregate(
         severity = "critical" if dominant_p95 >= 5000 else "warning"
         if dominant_stage == "llm_call":
             title = "LLM 생성 지연이 두드러져요."
-            action = "대표 trace를 확인하고 프롬프트 길이, 출력 길이, 모델 응답 시간을 점검하세요."
+            action = "대표 트레이스를 확인하고 프롬프트 길이, 출력 길이, 모델 응답 시간을 점검하세요."
         elif dominant_stage == "retrieve":
             title = "RAG 검색 지연이 두드러져요."
-            action = "대표 trace를 확인하고 검색 단계, 문서 수, retrieval latency를 점검하세요."
+            action = "대표 트레이스를 확인하고 검색 단계, 문서 수, RAG 검색 지연 시간을 점검하세요."
         elif dominant_stage == "postprocess":
             title = "후처리 지연이 두드러져요."
-            action = "대표 trace를 확인하고 응답 후처리 로직을 점검하세요."
+            action = "대표 트레이스를 확인하고 응답 후처리 로직을 점검하세요."
         else:
             title = "단계 지연이 두드러져요."
-            action = "대표 trace를 확인하고 해당 단계의 처리 시간을 점검하세요."
+            action = "대표 트레이스를 확인하고 해당 단계의 처리 시간을 점검하세요."
         rep = _pick_representative_by_stage(rows, dominant_stage)
         return {
             "severity": severity,
@@ -697,7 +697,7 @@ def _build_primary_insight_aggregate(
             "badge": "token spike",
             "title": "토큰 사용량이 높아졌어요.",
             "summary": (
-                f"최근 {sample_size}개 요청 중 {high_token_count}건에서 high_token 시나리오가 감지됐습니다. "
+                f"최근 {sample_size}개 요청 중 {high_token_count}건에서 토큰 과다 사용 시나리오가 감지됐습니다. "
                 "프롬프트 길이나 응답 길이 증가로 비용이 늘 수 있습니다."
             ),
             "evidence": [
@@ -724,11 +724,11 @@ def _build_primary_insight_aggregate(
             "badge": "alert active",
             "title": "활성 알림이 있어요.",
             "summary": (
-                f"현재 Prometheus 알림 {selected.get('name', 'UnknownAlert')}가 활성 상태입니다. "
+                f"현재 Prometheus 알림 {selected.get('name', '이름 없는 알림')}가 활성 상태입니다. "
                 "알림 규칙과 최근 발화 이력을 확인하세요."
             ),
             "evidence": [
-                f"alert={selected.get('name', 'UnknownAlert')}",
+                f"alert={selected.get('name', '이름 없는 알림')}",
                 f"severity={selected.get('severity', 'warning')}",
                 f"state={selected.get('state', 'unknown')}",
             ],
@@ -747,7 +747,7 @@ def _build_primary_insight_aggregate(
             "type": "single_error_request",
             "badge": "single issue",
             "title": "실패 요청 1건이 확인됐어요.",
-            "summary": "최근 요청 중 실패 요청 1건이 확인됐습니다. 전체 실패율은 높지 않지만 대표 trace를 확인해보는 것이 좋습니다.",
+            "summary": "최근 요청 중 실패 요청 1건이 확인됐습니다. 전체 실패율은 높지 않지만 대표 트레이스를 확인해보는 것이 좋습니다.",
             "evidence": [
                 f"sample_size={sample_size}",
                 "error_requests=1",
@@ -755,7 +755,7 @@ def _build_primary_insight_aggregate(
             ],
             "target_trace_id": rep.get("trace_id"),
             "target_request_id": rep.get("request_id"),
-            "recommended_action": "대표 실패 trace를 확인하고 error span과 예외 메시지를 점검하세요.",
+            "recommended_action": "대표 실패 트레이스를 확인하고 오류 구간과 예외 메시지를 점검하세요.",
             "scope": "single_trace",
             "basis": "recent_requests",
             "sample_size": sample_size,
@@ -768,7 +768,7 @@ def _build_primary_insight_aggregate(
             "type": "single_slow_request",
             "badge": "single slow trace",
             "title": "느린 요청 1건이 감지됐어요.",
-            "summary": "최근 요청 중 지연이 큰 요청 1건이 확인됐습니다. 전체 경향으로 보긴 어렵지만 대표 trace를 확인해보는 것이 좋습니다.",
+            "summary": "최근 요청 중 지연이 큰 요청 1건이 확인됐습니다. 전체 경향으로 보긴 어렵지만 대표 트레이스를 확인해보는 것이 좋습니다.",
             "evidence": [
                 f"sample_size={sample_size}",
                 f"latency={_format_ms(rep.get('latency_ms'))}",
@@ -776,7 +776,7 @@ def _build_primary_insight_aggregate(
             ],
             "target_trace_id": rep.get("trace_id"),
             "target_request_id": rep.get("request_id"),
-            "recommended_action": "대표 trace를 확인하고 가장 오래 걸린 span을 점검하세요.",
+            "recommended_action": "대표 트레이스를 확인하고 가장 오래 걸린 구간을 점검하세요.",
             "scope": "single_trace",
             "basis": "recent_requests",
             "sample_size": sample_size,

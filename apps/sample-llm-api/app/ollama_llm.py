@@ -43,6 +43,14 @@ def is_observability_request(request: ChatRequest) -> bool:
     return classify_intent(request) is not None
 
 
+def should_force_error_scenario(request: ChatRequest, intent: str | None = None) -> bool:
+    if request.scenario != "error":
+        return False
+    if intent is None:
+        intent = classify_intent(request)
+    return intent == "intro"
+
+
 def build_user_prompt(
     request: ChatRequest,
     context: list[str],
@@ -104,8 +112,9 @@ async def close() -> None:
 
 
 async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, int, dict[str, float]]:
-    observability_request = is_observability_request(request)
-    if request.scenario == "error" and observability_request:
+    intent = classify_intent(request)
+    observability_request = intent is not None
+    if should_force_error_scenario(request, intent):
         raise RuntimeError("forced Ollama failure scenario")
 
     enriched_context = context + build_demo_context(request)
