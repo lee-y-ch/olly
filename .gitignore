@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Internal docs (회의/설계/팀 공유 자료 — 외부 공개 대상 아님)
+docs/
+
+# Final report source (배포본은 별도 PDF로 제공)
+OLLY_5조_최종보고서.pdf
+
+# Heavy presentation source (PDF로 대체 제공)
+olly_발표자료/OLLY_최종발표.pptx
+
+# Lock / temp files
+*.lock
+*~
+~$*
