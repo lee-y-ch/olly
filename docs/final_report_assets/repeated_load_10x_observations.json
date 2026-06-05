@@ -1,0 +1,4942 @@
+{
+  "generated_at": "2026-05-30T17:39:10.343770+00:00",
+  "started_at": "2026-05-30T17:32:05.465111+00:00",
+  "base_url": "http://localhost:8001",
+  "runs_per_scenario": 10,
+  "health": {
+    "ok": true,
+    "http_status": 200,
+    "data": {
+      "status": "ok",
+      "llm_backend": "ollama",
+      "model": "gemma3:1b",
+      "compute_resource": "cpu",
+      "compute_hourly_usd": "0.05"
+    }
+  },
+  "dashboard_before": {
+    "ok": true,
+    "http_status": 200,
+    "data": {
+      "window": "1h",
+      "generated_at": 1780162325,
+      "kpis": {
+        "total_requests": 0.0,
+        "total_tokens": 0.0,
+        "estimated_cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "p95_latency_seconds": null,
+        "avg_latency_seconds": 0.0,
+        "error_rate_percent": 0.0,
+        "tokens_per_second": null
+      },
+      "breakdowns": {
+        "cost_by_feature": [
+          {
+            "label": "chat",
+            "value": 0.0
+          }
+        ],
+        "cost_by_model": [
+          {
+            "label": "gemma3:1b",
+            "value": 0.0
+          }
+        ],
+        "tokens_by_feature": [
+          {
+            "label": "chat",
+            "value": 0.0
+          }
+        ],
+        "requests_by_scenario": [
+          {
+            "label": "normal",
+            "value": 0.0
+          },
+          {
+            "label": "slow_retrieve",
+            "value": 0.0
+          },
+          {
+            "label": "slow_llm",
+            "value": 0.0
+          },
+          {
+            "label": "high_token",
+            "value": 0.0
+          },
+          {
+            "label": "error",
+            "value": 0.0
+          }
+        ],
+        "stage_p95_seconds": [
+          {
+            "label": "retrieve",
+            "value": null
+          },
+          {
+            "label": "llm_call",
+            "value": null
+          },
+          {
+            "label": "postprocess",
+            "value": null
+          }
+        ]
+      },
+      "alerts": [],
+      "recent_requests": [
+        {
+          "trace_id": "db3036ca2c8674a9623114e7282ea2e8",
+          "request_id": "req_c6c92b59",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 151.73,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780151629535492,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.43
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.41
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/db3036ca2c8674a9623114e7282ea2e8"
+        },
+        {
+          "trace_id": "a1ed31f140abf474e9f3ae22ef28228a",
+          "request_id": "req_fdebcd5a",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1295.38,
+          "input_tokens": 152,
+          "output_tokens": 102,
+          "tokens": 254,
+          "cost_usd": 1.377e-05,
+          "infra_cost_usd": 1.377e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780151624035100,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.86
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1055.35
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 85.93
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/a1ed31f140abf474e9f3ae22ef28228a"
+        },
+        {
+          "trace_id": "e832a231c0d0593f4b36a6b6c26fcc04",
+          "request_id": "req_a25dfcff",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1067.33,
+          "input_tokens": 153,
+          "output_tokens": 86,
+          "tokens": 239,
+          "cost_usd": 1.096e-05,
+          "infra_cost_usd": 1.096e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780151619291358,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.98
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 829.11
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 84.2
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/e832a231c0d0593f4b36a6b6c26fcc04"
+        },
+        {
+          "trace_id": "23043ddc30146af5f82e9d775a7b1560",
+          "request_id": "req_636f39af",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3062.68,
+          "input_tokens": 157,
+          "output_tokens": 108,
+          "tokens": 265,
+          "cost_usd": 1.571e-05,
+          "infra_cost_usd": 1.571e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780151614647352,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1801.09
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1178.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.01
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/23043ddc30146af5f82e9d775a7b1560"
+        },
+        {
+          "trace_id": "56cca83fd62266fa9491cbe8103911c6",
+          "request_id": "req_0a860127",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 4015.65,
+          "input_tokens": 148,
+          "output_tokens": 82,
+          "tokens": 230,
+          "cost_usd": 5.094e-05,
+          "infra_cost_usd": 5.094e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780151610618201,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 154.2
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 3779.49
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.5
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/56cca83fd62266fa9491cbe8103911c6"
+        },
+        {
+          "trace_id": "603a90776af0a93217717b6013abb0da",
+          "request_id": "req_9138afc4",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1742.37,
+          "input_tokens": 148,
+          "output_tokens": 82,
+          "tokens": 230,
+          "cost_usd": 1.997e-05,
+          "infra_cost_usd": 1.997e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780146743370791,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.5
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1507.33
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.95
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/603a90776af0a93217717b6013abb0da"
+        },
+        {
+          "trace_id": "9f2041e1a1ee6f9149b2d86a1ee84a31",
+          "request_id": "req_3665669c",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 156.72,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780146684713252,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 153.43
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1.5
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/9f2041e1a1ee6f9149b2d86a1ee84a31"
+        },
+        {
+          "trace_id": "76a66da01b95fa10fce7923c8dbc0971",
+          "request_id": "req_21f206fe",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1186.06,
+          "input_tokens": 152,
+          "output_tokens": 102,
+          "tokens": 254,
+          "cost_usd": 1.209e-05,
+          "infra_cost_usd": 1.209e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780146679846054,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.49
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 950.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.2
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/76a66da01b95fa10fce7923c8dbc0971"
+        },
+        {
+          "trace_id": "bdc18c1f39fd9ed1c1a837540d314db8",
+          "request_id": "req_65de15c3",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1050.97,
+          "input_tokens": 153,
+          "output_tokens": 86,
+          "tokens": 239,
+          "cost_usd": 1.073e-05,
+          "infra_cost_usd": 1.073e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780146674574041,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 153.14
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 815.53
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.29
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/bdc18c1f39fd9ed1c1a837540d314db8"
+        },
+        {
+          "trace_id": "3d256a4097f02c9c4b1fd96a31dd33cd",
+          "request_id": "req_a06a9259",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 2896.33,
+          "input_tokens": 157,
+          "output_tokens": 92,
+          "tokens": 249,
+          "cost_usd": 1.308e-05,
+          "infra_cost_usd": 1.308e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780146671130631,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1801.48
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1008.2
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 84.06
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/3d256a4097f02c9c4b1fd96a31dd33cd"
+        },
+        {
+          "trace_id": "4b6a646d1d08f44b26e947aa11c3b072",
+          "request_id": "req_41605ed9",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 4793.01,
+          "input_tokens": 148,
+          "output_tokens": 82,
+          "tokens": 230,
+          "cost_usd": 6.193e-05,
+          "infra_cost_usd": 6.193e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780146666318749,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.64
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 4553.76
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.46
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/4b6a646d1d08f44b26e947aa11c3b072"
+        }
+      ],
+      "primary_insight": {
+        "severity": "critical",
+        "type": "error_rate",
+        "badge": "needs attention",
+        "title": "실패 요청 비율이 높아졌어요.",
+        "summary": "최근 11개 요청 중 2건이 실패했습니다. 실패율이 18.2%로 올라가 요청 안정성을 먼저 확인하는 것이 좋습니다.",
+        "evidence": [
+          "sample_size=11",
+          "error_requests=2",
+          "error_rate=18.2%"
+        ],
+        "target_trace_id": "db3036ca2c8674a9623114e7282ea2e8",
+        "target_request_id": "req_c6c92b59",
+        "recommended_action": "대표 실패 trace를 확인하고 error span과 예외 메시지를 점검하세요.",
+        "scope": "aggregate",
+        "basis": "recent_requests",
+        "sample_size": 11
+      },
+      "stage_bottleneck_summary": {
+        "sample_size": 11,
+        "dominant_stage": "llm_call",
+        "dominant_stage_label": "LLM 생성",
+        "avg_duration_ms": 1425.49,
+        "p95_duration_ms": 3779.49,
+        "ratio": 0.7328,
+        "stage_stats": [
+          {
+            "name": "llm_call",
+            "label": "LLM 생성",
+            "count": 11,
+            "avg_duration_ms": 1425.49,
+            "p95_duration_ms": 3779.49,
+            "total_duration_ms": 15680.4,
+            "ratio": 0.7328
+          },
+          {
+            "name": "retrieve",
+            "label": "RAG 검색",
+            "count": 11,
+            "avg_duration_ms": 452.2,
+            "p95_duration_ms": 1801.09,
+            "total_duration_ms": 4974.24,
+            "ratio": 0.2325
+          },
+          {
+            "name": "postprocess",
+            "label": "후처리",
+            "count": 11,
+            "avg_duration_ms": 67.51,
+            "p95_duration_ms": 84.2,
+            "total_duration_ms": 742.6,
+            "ratio": 0.0347
+          }
+        ]
+      },
+      "links": {
+        "jaeger": "http://localhost:16686",
+        "prometheus": "http://prometheus:9090"
+      }
+    }
+  },
+  "dashboard_after": {
+    "ok": true,
+    "http_status": 200,
+    "data": {
+      "window": "1h",
+      "generated_at": 1780162750,
+      "kpis": {
+        "total_requests": 50.070488120498524,
+        "total_tokens": 12427.495151507734,
+        "estimated_cost_usd": 0.005266413940514036,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.005266413940514036,
+        "compute_seconds": 379.18112885896034,
+        "p95_latency_seconds": 10.0,
+        "avg_latency_seconds": 8.194855312921282,
+        "error_rate_percent": 20.0,
+        "tokens_per_second": 76.4123963055247
+      },
+      "breakdowns": {
+        "cost_by_feature": [
+          {
+            "label": "chat",
+            "value": 0.005266413940514036
+          }
+        ],
+        "cost_by_model": [
+          {
+            "label": "gemma3:1b",
+            "value": 0.005266413940514036
+          }
+        ],
+        "tokens_by_feature": [
+          {
+            "label": "chat",
+            "value": 12427.495151507734
+          }
+        ],
+        "requests_by_scenario": [
+          {
+            "label": "normal",
+            "value": 10.014097624099705
+          },
+          {
+            "label": "slow_retrieve",
+            "value": 10.014097624099705
+          },
+          {
+            "label": "slow_llm",
+            "value": 10.014097624099705
+          },
+          {
+            "label": "high_token",
+            "value": 10.014097624099705
+          },
+          {
+            "label": "error",
+            "value": 10.014097624099705
+          }
+        ],
+        "stage_p95_seconds": [
+          {
+            "label": "llm_call",
+            "value": 51.66666666666666
+          },
+          {
+            "label": "retrieve",
+            "value": 1.7499999999999996
+          },
+          {
+            "label": "postprocess",
+            "value": 0.0975
+          }
+        ]
+      },
+      "alerts": [
+        {
+          "name": "OllyHighP95Latency",
+          "state": "firing",
+          "severity": "warning",
+          "summary": "OLLY p95 latency is high"
+        },
+        {
+          "name": "OllyTokenUsageSpike",
+          "state": "firing",
+          "severity": "info",
+          "summary": "OLLY token usage spike"
+        },
+        {
+          "name": "OllyLocalInferenceCostSpike",
+          "state": "firing",
+          "severity": "info",
+          "summary": "OLLY local inference cost rate is high"
+        }
+      ],
+      "recent_requests": [
+        {
+          "trace_id": "6d60b98f0add17225e8dfb118779912a",
+          "request_id": "req_cc6346f0",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.72,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162742887713,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.41
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.53
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/6d60b98f0add17225e8dfb118779912a"
+        },
+        {
+          "trace_id": "ec33a9ddfe826de7b9532c03e7232539",
+          "request_id": "req_d371e614",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.7,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162742572920,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.23
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.89
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/ec33a9ddfe826de7b9532c03e7232539"
+        },
+        {
+          "trace_id": "aa0e6daa85b88b4313386cb1ae4b5806",
+          "request_id": "req_0e5bd20a",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 155.02,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162742261527,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.12
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1.07
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/aa0e6daa85b88b4313386cb1ae4b5806"
+        },
+        {
+          "trace_id": "9354f9bb58e4237866ddb7b57027bea9",
+          "request_id": "req_1d46183f",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.33,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162741951042,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.14
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.96
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/9354f9bb58e4237866ddb7b57027bea9"
+        },
+        {
+          "trace_id": "54aff243686e256fc51f140440ac5b60",
+          "request_id": "req_b35802d7",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 151.81,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162741641510,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 149.86
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.58
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/54aff243686e256fc51f140440ac5b60"
+        },
+        {
+          "trace_id": "b30a28d1e001557731e0696156f7ceb0",
+          "request_id": "req_01d1934f",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 153.6,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162741328190,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.06
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.69
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/b30a28d1e001557731e0696156f7ceb0"
+        },
+        {
+          "trace_id": "41100bc0de23f4643af493840ad0b28e",
+          "request_id": "req_6a46251b",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.34,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162741017364,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.47
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1.21
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/41100bc0de23f4643af493840ad0b28e"
+        },
+        {
+          "trace_id": "cc1fb86bbd5e6eb94d9952066c36fb68",
+          "request_id": "req_6d71e0c7",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 153.95,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162740703316,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.55
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.72
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/cc1fb86bbd5e6eb94d9952066c36fb68"
+        },
+        {
+          "trace_id": "6f1a999cc5c5ee48d9648e8df1a01f98",
+          "request_id": "req_6dd5f5aa",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 150.46,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162740397771,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 148.99
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.33
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/6f1a999cc5c5ee48d9648e8df1a01f98"
+        },
+        {
+          "trace_id": "28f55215aa17579d68b730355f8a54b6",
+          "request_id": "req_c777b4f6",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.28,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162740086695,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.08
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2.05
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/28f55215aa17579d68b730355f8a54b6"
+        },
+        {
+          "trace_id": "7216946c7647b0f0fbb6908f0400ae5b",
+          "request_id": "req_d9514afd",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 35973.74,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00049467,
+          "infra_cost_usd": 0.00049467,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162703952293,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.47
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 35735.81
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 84.28
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/7216946c7647b0f0fbb6908f0400ae5b"
+        },
+        {
+          "trace_id": "d5d2999bd5bb624d725f65a0863b9974",
+          "request_id": "req_ccff09f2",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34319.96,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.0004719,
+          "infra_cost_usd": 0.0004719,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162669477291,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.85
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34086.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 79.92
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/d5d2999bd5bb624d725f65a0863b9974"
+        },
+        {
+          "trace_id": "ff7fe7420d70e3e6b51f9417c3aa249f",
+          "request_id": "req_2ccdd3a8",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 37583.59,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.0005169,
+          "infra_cost_usd": 0.0005169,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162631735853,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.71
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 37350.5
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 79.88
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/ff7fe7420d70e3e6b51f9417c3aa249f"
+        },
+        {
+          "trace_id": "57c50966f3837ae3f14bc5fa4697c6dc",
+          "request_id": "req_5a6fc738",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34266.67,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00047054,
+          "infra_cost_usd": 0.00047054,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162597311042,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 156.44
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34026.83
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.28
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/57c50966f3837ae3f14bc5fa4697c6dc"
+        },
+        {
+          "trace_id": "c1b5711fcf24460ac45047c585bd0f48",
+          "request_id": "req_66e75c28",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 7953.11,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00010527,
+          "infra_cost_usd": 0.00010527,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162589193468,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.83
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 7714.69
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.43
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/c1b5711fcf24460ac45047c585bd0f48"
+        },
+        {
+          "trace_id": "4fd755d9e6776497925ad198772a22d7",
+          "request_id": "req_637b0f37",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34931.56,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00048037,
+          "infra_cost_usd": 0.00048037,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162554101583,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.75
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34697.5
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.14
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/4fd755d9e6776497925ad198772a22d7"
+        },
+        {
+          "trace_id": "925f20f76b5a6e5143acceb048b3553a",
+          "request_id": "req_ab24928b",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34518.5,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00047483,
+          "infra_cost_usd": 0.00047483,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162519424729,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.22
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34283.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.9
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/925f20f76b5a6e5143acceb048b3553a"
+        },
+        {
+          "trace_id": "6b61cdac72779ca9c7e83e21b40dfae1",
+          "request_id": "req_358d9adb",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 35270.4,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00048544,
+          "infra_cost_usd": 0.00048544,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162483995545,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.23
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 35035.92
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 83.27
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/6b61cdac72779ca9c7e83e21b40dfae1"
+        },
+        {
+          "trace_id": "0a787966072720019bc66c2e004bef7d",
+          "request_id": "req_caf66a13",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34366.94,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00047311,
+          "infra_cost_usd": 0.00047311,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162449471453,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.63
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34132.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.31
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/0a787966072720019bc66c2e004bef7d"
+        },
+        {
+          "trace_id": "ba23ae21bd555a6d661a57688749226c",
+          "request_id": "req_23da7f20",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34643.71,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00047641,
+          "infra_cost_usd": 0.00047641,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162414674061,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.1
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34409.13
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.28
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/ba23ae21bd555a6d661a57688749226c"
+        }
+      ],
+      "primary_insight": {
+        "severity": "critical",
+        "type": "error_rate",
+        "badge": "needs attention",
+        "title": "실패 요청 비율이 높아졌어요.",
+        "summary": "최근 20개 요청 중 10건이 실패했습니다. 실패율이 50.0%로 올라가 요청 안정성을 먼저 확인하는 것이 좋습니다.",
+        "evidence": [
+          "sample_size=20",
+          "error_requests=10",
+          "error_rate=50.0%"
+        ],
+        "target_trace_id": "6d60b98f0add17225e8dfb118779912a",
+        "target_request_id": "req_cc6346f0",
+        "recommended_action": "대표 실패 trace를 확인하고 error span과 예외 메시지를 점검하세요.",
+        "scope": "aggregate",
+        "basis": "recent_requests",
+        "sample_size": 20
+      },
+      "stage_bottleneck_summary": {
+        "sample_size": 20,
+        "dominant_stage": "llm_call",
+        "dominant_stage_label": "LLM 생성",
+        "avg_duration_ms": 16074.15,
+        "p95_duration_ms": 35735.81,
+        "ratio": 0.9882,
+        "stage_stats": [
+          {
+            "name": "llm_call",
+            "label": "LLM 생성",
+            "count": 20,
+            "avg_duration_ms": 16074.15,
+            "p95_duration_ms": 35735.81,
+            "total_duration_ms": 321482.99,
+            "ratio": 0.9882
+          },
+          {
+            "name": "retrieve",
+            "label": "RAG 검색",
+            "count": 20,
+            "avg_duration_ms": 151.56,
+            "p95_duration_ms": 152.83,
+            "total_duration_ms": 3031.14,
+            "ratio": 0.0093
+          },
+          {
+            "name": "postprocess",
+            "label": "후처리",
+            "count": 20,
+            "avg_duration_ms": 40.88,
+            "p95_duration_ms": 83.27,
+            "total_duration_ms": 817.69,
+            "ratio": 0.0025
+          }
+        ]
+      },
+      "links": {
+        "jaeger": "http://localhost:16686",
+        "prometheus": "http://prometheus:9090"
+      }
+    }
+  },
+  "summary": {
+    "normal": {
+      "runs": 10,
+      "successful_http_runs": 10,
+      "status_counts": {
+        "success": 10
+      },
+      "trace_found": 10,
+      "latency_ms_avg": 1749.9,
+      "latency_ms_p50": 1430,
+      "latency_ms_p95": 4111,
+      "client_elapsed_ms_avg": 1754.93,
+      "input_tokens_avg": 161.0,
+      "output_tokens_avg": 82.0,
+      "cost_usd_avg": 1.997e-05,
+      "token_cost_usd_avg": 0.0,
+      "infra_cost_usd_avg": 1.997e-05,
+      "stage_duration_ms_avg": {
+        "retrieve": 151.94,
+        "llm_call": 1516.7,
+        "postprocess": 81.45
+      },
+      "dominant_stage_by_avg": "llm_call"
+    },
+    "slow_retrieve": {
+      "runs": 10,
+      "successful_http_runs": 10,
+      "status_counts": {
+        "success": 10
+      },
+      "trace_found": 10,
+      "latency_ms_avg": 4327.4,
+      "latency_ms_p50": 3920,
+      "latency_ms_p95": 6804,
+      "client_elapsed_ms_avg": 4333.04,
+      "input_tokens_avg": 162.0,
+      "output_tokens_avg": 108.0,
+      "cost_usd_avg": 3.278e-05,
+      "token_cost_usd_avg": 0.0,
+      "infra_cost_usd_avg": 3.278e-05,
+      "stage_duration_ms_avg": {
+        "retrieve": 1801.39,
+        "llm_call": 2443.81,
+        "postprocess": 82.28
+      },
+      "dominant_stage_by_avg": "llm_call"
+    },
+    "slow_llm": {
+      "runs": 10,
+      "successful_http_runs": 10,
+      "status_counts": {
+        "success": 10
+      },
+      "trace_found": 10,
+      "latency_ms_avg": 2360.9,
+      "latency_ms_p50": 2203,
+      "latency_ms_p95": 3114,
+      "client_elapsed_ms_avg": 2366.07,
+      "input_tokens_avg": 163.0,
+      "output_tokens_avg": 108.0,
+      "cost_usd_avg": 2.821e-05,
+      "token_cost_usd_avg": 0.0,
+      "infra_cost_usd_avg": 2.821e-05,
+      "stage_duration_ms_avg": {
+        "retrieve": 151.66,
+        "llm_call": 2128.06,
+        "postprocess": 81.5
+      },
+      "dominant_stage_by_avg": "llm_call"
+    },
+    "high_token": {
+      "runs": 10,
+      "successful_http_runs": 10,
+      "status_counts": {
+        "success": 10
+      },
+      "trace_found": 10,
+      "latency_ms_avg": 32381.7,
+      "latency_ms_p50": 34508,
+      "latency_ms_p95": 37577,
+      "client_elapsed_ms_avg": 32388.8,
+      "input_tokens_avg": 307.0,
+      "output_tokens_avg": 150.0,
+      "cost_usd_avg": 0.00044494,
+      "token_cost_usd_avg": 0.0,
+      "infra_cost_usd_avg": 0.00044494,
+      "stage_duration_ms_avg": {
+        "retrieve": 152.02,
+        "llm_call": 32147.4,
+        "postprocess": 81.77
+      },
+      "dominant_stage_by_avg": "llm_call"
+    },
+    "error": {
+      "runs": 10,
+      "successful_http_runs": 10,
+      "status_counts": {
+        "error": 10
+      },
+      "trace_found": 10,
+      "latency_ms_avg": 151.7,
+      "latency_ms_p50": 152,
+      "latency_ms_p95": 153,
+      "client_elapsed_ms_avg": 158.4,
+      "input_tokens_avg": 0.0,
+      "output_tokens_avg": 108.0,
+      "cost_usd_avg": 0.0,
+      "token_cost_usd_avg": 0.0,
+      "infra_cost_usd_avg": 0.0,
+      "stage_duration_ms_avg": {
+        "retrieve": 151.09,
+        "llm_call": 0.9,
+        "postprocess": null
+      },
+      "dominant_stage_by_avg": "retrieve"
+    }
+  },
+  "observations": [
+    {
+      "scenario": "normal",
+      "run_index": 1,
+      "started_at": "2026-05-30T17:32:05.528618+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 4115.03,
+      "response": {
+        "request_id": "req_61321c44",
+        "trace_id": "3dfa735030aef2ffc22d0bccf5f63585",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 0건, 토큰 0, 비용 $0.000000 수준입니다.\n\n평균 latency는 0ms, p95 latency는 nanms입니다. 현재 가장 큰 병목 후보는 retrieve 단계이며 p95는 290ms입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 5.241e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 5.241e-05,
+        "compute_seconds": 3.7735,
+        "compute_resource": "cpu",
+        "latency_ms": 4111,
+        "status": "success"
+      },
+      "request_id": "req_61321c44",
+      "trace_id": "3dfa735030aef2ffc22d0bccf5f63585",
+      "status": "success",
+      "latency_ms": 4111,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 5.241e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 5.241e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "3dfa735030aef2ffc22d0bccf5f63585",
+          "request_id": "req_61321c44",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 4112.24,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 5.241e-05,
+          "infra_cost_usd": 5.241e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162325529115,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.92
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 3877.33
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.76
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/3dfa735030aef2ffc22d0bccf5f63585",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 2,
+      "started_at": "2026-05-30T17:32:09.798739+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1428.29,
+      "response": {
+        "request_id": "req_e2060246",
+        "trace_id": "608fe5880f0fb53102add106c3c4f9d1",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 0건, 토큰 0, 비용 $0.000000 수준입니다.\n\n평균 latency는 0ms, p95 latency는 nanms입니다. 현재 가장 큰 병목 후보는 retrieve 단계이며 p95는 290ms입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.573e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.573e-05,
+        "compute_seconds": 1.1324,
+        "compute_resource": "cpu",
+        "latency_ms": 1423,
+        "status": "success"
+      },
+      "request_id": "req_e2060246",
+      "trace_id": "608fe5880f0fb53102add106c3c4f9d1",
+      "status": "success",
+      "latency_ms": 1423,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.573e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.573e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "608fe5880f0fb53102add106c3c4f9d1",
+          "request_id": "req_e2060246",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1423.98,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.573e-05,
+          "infra_cost_usd": 1.573e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162329801731,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.41
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1190.63
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.06
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/608fe5880f0fb53102add106c3c4f9d1",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 3,
+      "started_at": "2026-05-30T17:32:11.377145+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1272.08,
+      "response": {
+        "request_id": "req_4da3f6c9",
+        "trace_id": "667d383814b8277126d23a6b3c4cd893",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 0건, 토큰 0, 비용 $0.000000 수준입니다.\n\n평균 latency는 0ms, p95 latency는 nanms입니다. 현재 가장 큰 병목 후보는 postprocess 단계이며 p95는 nanms입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.317e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.317e-05,
+        "compute_seconds": 0.9479,
+        "compute_resource": "cpu",
+        "latency_ms": 1267,
+        "status": "success"
+      },
+      "request_id": "req_4da3f6c9",
+      "trace_id": "667d383814b8277126d23a6b3c4cd893",
+      "status": "success",
+      "latency_ms": 1267,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.317e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.317e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "667d383814b8277126d23a6b3c4cd893",
+          "request_id": "req_4da3f6c9",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1268.0,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.317e-05,
+          "infra_cost_usd": 1.317e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162331379994,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.21
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1035.51
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.45
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/667d383814b8277126d23a6b3c4cd893",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 4,
+      "started_at": "2026-05-30T17:32:12.803871+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1434.26,
+      "response": {
+        "request_id": "req_e96a4d63",
+        "trace_id": "8a7b6e3745e2dd9338cd194b249d57a2",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 2건, 토큰 486, 비용 $0.000068 수준입니다.\n\n평균 latency는 2.77초, p95 latency는 4.80초입니다. 현재 가장 큰 병목 후보는 llm_call 단계이며 p95는 4.70초입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.566e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.566e-05,
+        "compute_seconds": 1.1277,
+        "compute_resource": "cpu",
+        "latency_ms": 1430,
+        "status": "success"
+      },
+      "request_id": "req_e96a4d63",
+      "trace_id": "8a7b6e3745e2dd9338cd194b249d57a2",
+      "status": "success",
+      "latency_ms": 1430,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.566e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.566e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "8a7b6e3745e2dd9338cd194b249d57a2",
+          "request_id": "req_e96a4d63",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1431.34,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.566e-05,
+          "infra_cost_usd": 1.566e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162332805611,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.04
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1198.82
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.51
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/8a7b6e3745e2dd9338cd194b249d57a2",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 5,
+      "started_at": "2026-05-30T17:32:14.392049+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1695.11,
+      "response": {
+        "request_id": "req_320fba3b",
+        "trace_id": "bb5c25b15c74af1cb1bfc23d19a31f71",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 2건, 토큰 487, 비용 $0.000068 수준입니다.\n\n평균 latency는 2.77초, p95 latency는 4.80초입니다. 현재 가장 큰 병목 후보는 llm_call 단계이며 p95는 4.70초입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.927e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.927e-05,
+        "compute_seconds": 1.3873,
+        "compute_resource": "cpu",
+        "latency_ms": 1690,
+        "status": "success"
+      },
+      "request_id": "req_320fba3b",
+      "trace_id": "bb5c25b15c74af1cb1bfc23d19a31f71",
+      "status": "success",
+      "latency_ms": 1690,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.927e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.927e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "bb5c25b15c74af1cb1bfc23d19a31f71",
+          "request_id": "req_320fba3b",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1691.44,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.927e-05,
+          "infra_cost_usd": 1.927e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162334394479,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.74
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1459.12
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.43
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/bb5c25b15c74af1cb1bfc23d19a31f71",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 6,
+      "started_at": "2026-05-30T17:32:16.238056+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1505.99,
+      "response": {
+        "request_id": "req_488380f1",
+        "trace_id": "a66682b644c939a26635efebe430f6c4",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 2건, 토큰 487, 비용 $0.000068 수준입니다.\n\n평균 latency는 2.77초, p95 latency는 4.80초입니다. 현재 가장 큰 병목 후보는 llm_call 단계이며 p95는 4.70초입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.646e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.646e-05,
+        "compute_seconds": 1.1854,
+        "compute_resource": "cpu",
+        "latency_ms": 1500,
+        "status": "success"
+      },
+      "request_id": "req_488380f1",
+      "trace_id": "a66682b644c939a26635efebe430f6c4",
+      "status": "success",
+      "latency_ms": 1500,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.646e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.646e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "a66682b644c939a26635efebe430f6c4",
+          "request_id": "req_488380f1",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1501.51,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.646e-05,
+          "infra_cost_usd": 1.646e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162336241159,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.25
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1265.23
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.72
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/a66682b644c939a26635efebe430f6c4",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 7,
+      "started_at": "2026-05-30T17:32:17.899152+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1425.28,
+      "response": {
+        "request_id": "req_3cc6f847",
+        "trace_id": "19e9f13bd1d03ccf3fae228d6ae43987",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 5건, 토큰 1.2k, 비용 $0.000116 수준입니다.\n\n평균 latency는 1.98초, p95 latency는 4.50초입니다. 현재 가장 큰 병목 후보는 llm_call 단계이며 p95는 4.40초입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.539e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.539e-05,
+        "compute_seconds": 1.1079,
+        "compute_resource": "cpu",
+        "latency_ms": 1420,
+        "status": "success"
+      },
+      "request_id": "req_3cc6f847",
+      "trace_id": "19e9f13bd1d03ccf3fae228d6ae43987",
+      "status": "success",
+      "latency_ms": 1420,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.539e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.539e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "19e9f13bd1d03ccf3fae228d6ae43987",
+          "request_id": "req_3cc6f847",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1421.57,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.539e-05,
+          "infra_cost_usd": 1.539e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162337901602,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.28
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1186.35
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.29
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/19e9f13bd1d03ccf3fae228d6ae43987",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 8,
+      "started_at": "2026-05-30T17:32:19.477031+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1618.98,
+      "response": {
+        "request_id": "req_6f5f37d4",
+        "trace_id": "8316abaf1f471849cb0d519de53e0f25",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 5건, 토큰 1.2k, 비용 $0.000117 수준입니다.\n\n평균 latency는 1.98초, p95 latency는 4.50초입니다. 현재 가장 큰 병목 후보는 llm_call 단계이며 p95는 4.40초입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.833e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.833e-05,
+        "compute_seconds": 1.3197,
+        "compute_resource": "cpu",
+        "latency_ms": 1613,
+        "status": "success"
+      },
+      "request_id": "req_6f5f37d4",
+      "trace_id": "8316abaf1f471849cb0d519de53e0f25",
+      "status": "success",
+      "latency_ms": 1613,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.833e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.833e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "8316abaf1f471849cb0d519de53e0f25",
+          "request_id": "req_6f5f37d4",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1614.72,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.833e-05,
+          "infra_cost_usd": 1.833e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162339480031,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.85
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1380.68
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.94
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/8316abaf1f471849cb0d519de53e0f25",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 9,
+      "started_at": "2026-05-30T17:32:21.251097+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1414.29,
+      "response": {
+        "request_id": "req_947bd1a4",
+        "trace_id": "b595443f9deec20b20c67647cd83e38b",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 5건, 토큰 1.2k, 비용 $0.000117 수준입니다.\n\n평균 latency는 1.98초, p95 latency는 4.50초입니다. 현재 가장 큰 병목 후보는 llm_call 단계이며 p95는 4.40초입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.489e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.489e-05,
+        "compute_seconds": 1.0722,
+        "compute_resource": "cpu",
+        "latency_ms": 1409,
+        "status": "success"
+      },
+      "request_id": "req_947bd1a4",
+      "trace_id": "b595443f9deec20b20c67647cd83e38b",
+      "status": "success",
+      "latency_ms": 1409,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.489e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.489e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "b595443f9deec20b20c67647cd83e38b",
+          "request_id": "req_947bd1a4",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1410.65,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.489e-05,
+          "infra_cost_usd": 1.489e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162341253779,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 156.33
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1171.66
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.55
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/b595443f9deec20b20c67647cd83e38b",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "normal",
+      "run_index": 10,
+      "started_at": "2026-05-30T17:32:22.820414+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1640.01,
+      "response": {
+        "request_id": "req_d9857fa4",
+        "trace_id": "ed7df5a9ff5f151f81a62e10d4a793cc",
+        "answer": "최근 1h 기준 OLLY 상태는 요청 8건, 토큰 1.9k, 비용 $0.000167 수준입니다.\n\n평균 latency는 1.81초, p95 latency는 4.20초입니다. 현재 가장 큰 병목 후보는 llm_call 단계이며 p95는 4.10초입니다.\n\n즉, OLLY는 단순히 답변을 생성하는 것이 아니라 최근 metric과 trace를 근거로 운영 상태를 설명합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 161,
+        "output_tokens": 82,
+        "cost_usd": 1.837e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 1.837e-05,
+        "compute_seconds": 1.3225,
+        "compute_resource": "cpu",
+        "latency_ms": 1636,
+        "status": "success"
+      },
+      "request_id": "req_d9857fa4",
+      "trace_id": "ed7df5a9ff5f151f81a62e10d4a793cc",
+      "status": "success",
+      "latency_ms": 1636,
+      "input_tokens": 161,
+      "output_tokens": 82,
+      "cost_usd": 1.837e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 1.837e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "ed7df5a9ff5f151f81a62e10d4a793cc",
+          "request_id": "req_d9857fa4",
+          "feature": "chat",
+          "scenario": "normal",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1636.89,
+          "input_tokens": 161,
+          "output_tokens": 82,
+          "tokens": 243,
+          "cost_usd": 1.837e-05,
+          "infra_cost_usd": 1.837e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162342822353,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.37
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1401.65
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 83.79
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/ed7df5a9ff5f151f81a62e10d4a793cc",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 1,
+      "started_at": "2026-05-30T17:32:24.615109+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 6809.01,
+      "response": {
+        "request_id": "req_89eb791f",
+        "trace_id": "242237411f7bba5ccaca87e7eb285c05",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.45초입니다.\n- llm_call p95는 4.00초입니다.\n- 최근 가장 느린 요청은 req_61321c44이고 latency는 4.11초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 6.735e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 6.735e-05,
+        "compute_seconds": 4.8494,
+        "compute_resource": "cpu",
+        "latency_ms": 6804,
+        "status": "success"
+      },
+      "request_id": "req_89eb791f",
+      "trace_id": "242237411f7bba5ccaca87e7eb285c05",
+      "status": "success",
+      "latency_ms": 6804,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 6.735e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 6.735e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "242237411f7bba5ccaca87e7eb285c05",
+          "request_id": "req_89eb791f",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 6805.0,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 6.735e-05,
+          "infra_cost_usd": 6.735e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162344617851,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1800.81
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 4918.58
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 84.44
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/242237411f7bba5ccaca87e7eb285c05",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 2,
+      "started_at": "2026-05-30T17:32:31.579099+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 3923.92,
+      "response": {
+        "request_id": "req_2b589afc",
+        "trace_id": "4901fb8b6db09378b0b0b0db52456ad4",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.45초입니다.\n- llm_call p95는 4.45초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 2.739e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.739e-05,
+        "compute_seconds": 1.9722,
+        "compute_resource": "cpu",
+        "latency_ms": 3920,
+        "status": "success"
+      },
+      "request_id": "req_2b589afc",
+      "trace_id": "4901fb8b6db09378b0b0b0db52456ad4",
+      "status": "success",
+      "latency_ms": 3920,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 2.739e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.739e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "4901fb8b6db09378b0b0b0db52456ad4",
+          "request_id": "req_2b589afc",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3921.27,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 2.739e-05,
+          "infra_cost_usd": 2.739e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162351580823,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1801.2
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2034.72
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 84.45
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/4901fb8b6db09378b0b0b0db52456ad4",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 3,
+      "started_at": "2026-05-30T17:32:35.653100+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 4383.21,
+      "response": {
+        "request_id": "req_5ad5fc1a",
+        "trace_id": "e83a88b72b48c7a36b69c362f0d62d30",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.78초입니다.\n- llm_call p95는 4.40초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 3.346e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 3.346e-05,
+        "compute_seconds": 2.4088,
+        "compute_resource": "cpu",
+        "latency_ms": 4379,
+        "status": "success"
+      },
+      "request_id": "req_5ad5fc1a",
+      "trace_id": "e83a88b72b48c7a36b69c362f0d62d30",
+      "status": "success",
+      "latency_ms": 4379,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 3.346e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 3.346e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "e83a88b72b48c7a36b69c362f0d62d30",
+          "request_id": "req_5ad5fc1a",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 4380.39,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 3.346e-05,
+          "infra_cost_usd": 3.346e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162355655042,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1801.39
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2496.04
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/e83a88b72b48c7a36b69c362f0d62d30",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 4,
+      "started_at": "2026-05-30T17:32:40.191324+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 4137.48,
+      "response": {
+        "request_id": "req_a2637a58",
+        "trace_id": "a2d56a5759410d70796d3b6d4f2d63ed",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.82초입니다.\n- llm_call p95는 4.35초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 3.034e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 3.034e-05,
+        "compute_seconds": 2.1844,
+        "compute_resource": "cpu",
+        "latency_ms": 4133,
+        "status": "success"
+      },
+      "request_id": "req_a2637a58",
+      "trace_id": "a2d56a5759410d70796d3b6d4f2d63ed",
+      "status": "success",
+      "latency_ms": 4133,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 3.034e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 3.034e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "a2d56a5759410d70796d3b6d4f2d63ed",
+          "request_id": "req_a2637a58",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 4133.84,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 3.034e-05,
+          "infra_cost_usd": 3.034e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162360194055,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1801.2
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2250.54
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.07
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/a2d56a5759410d70796d3b6d4f2d63ed",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 5,
+      "started_at": "2026-05-30T17:32:44.480079+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 3787.91,
+      "response": {
+        "request_id": "req_0aef993c",
+        "trace_id": "5a735c1e9c05fb5bc1b686e27fe7eba3",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.85초입니다.\n- llm_call p95는 4.30초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 2.57e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.57e-05,
+        "compute_seconds": 1.8506,
+        "compute_resource": "cpu",
+        "latency_ms": 3783,
+        "status": "success"
+      },
+      "request_id": "req_0aef993c",
+      "trace_id": "5a735c1e9c05fb5bc1b686e27fe7eba3",
+      "status": "success",
+      "latency_ms": 3783,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 2.57e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.57e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "5a735c1e9c05fb5bc1b686e27fe7eba3",
+          "request_id": "req_0aef993c",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3784.25,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 2.57e-05,
+          "infra_cost_usd": 2.57e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162364482958,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1801.16
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1899.97
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.13
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/5a735c1e9c05fb5bc1b686e27fe7eba3",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 6,
+      "started_at": "2026-05-30T17:32:48.423022+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 3999.86,
+      "response": {
+        "request_id": "req_564b1c23",
+        "trace_id": "e8be05daee5e3c90caefa25eab7ed152",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.85초입니다.\n- llm_call p95는 4.30초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 2.83e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.83e-05,
+        "compute_seconds": 2.0377,
+        "compute_resource": "cpu",
+        "latency_ms": 3994,
+        "status": "success"
+      },
+      "request_id": "req_564b1c23",
+      "trace_id": "e8be05daee5e3c90caefa25eab7ed152",
+      "status": "success",
+      "latency_ms": 3994,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 2.83e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.83e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "e8be05daee5e3c90caefa25eab7ed152",
+          "request_id": "req_564b1c23",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3996.01,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 2.83e-05,
+          "infra_cost_usd": 2.83e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162368426005,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1800.86
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2109.97
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 83.8
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/e8be05daee5e3c90caefa25eab7ed152",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 7,
+      "started_at": "2026-05-30T17:32:52.573607+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 3869.46,
+      "response": {
+        "request_id": "req_4cbce80b",
+        "trace_id": "34624fe000f608569e61702edf39b431",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.87초입니다.\n- llm_call p95는 4.20초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 2.602e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.602e-05,
+        "compute_seconds": 1.8734,
+        "compute_resource": "cpu",
+        "latency_ms": 3857,
+        "status": "success"
+      },
+      "request_id": "req_4cbce80b",
+      "trace_id": "34624fe000f608569e61702edf39b431",
+      "status": "success",
+      "latency_ms": 3857,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 2.602e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.602e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "34624fe000f608569e61702edf39b431",
+          "request_id": "req_4cbce80b",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3857.44,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 2.602e-05,
+          "infra_cost_usd": 2.602e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162372576205,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1800.78
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1974.62
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.06
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/34624fe000f608569e61702edf39b431",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 8,
+      "started_at": "2026-05-30T17:32:56.598135+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 3764.15,
+      "response": {
+        "request_id": "req_b50c5e45",
+        "trace_id": "157728e2f4212a7705990293a742f628",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.88초입니다.\n- llm_call p95는 4.15초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 2.49e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.49e-05,
+        "compute_seconds": 1.7926,
+        "compute_resource": "cpu",
+        "latency_ms": 3761,
+        "status": "success"
+      },
+      "request_id": "req_b50c5e45",
+      "trace_id": "157728e2f4212a7705990293a742f628",
+      "status": "success",
+      "latency_ms": 3761,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 2.49e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.49e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "157728e2f4212a7705990293a742f628",
+          "request_id": "req_b50c5e45",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3761.65,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 2.49e-05,
+          "infra_cost_usd": 2.49e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162376598921,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1801.92
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1877.48
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.26
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/157728e2f4212a7705990293a742f628",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 9,
+      "started_at": "2026-05-30T17:33:00.517267+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 3781.72,
+      "response": {
+        "request_id": "req_7349cb9c",
+        "trace_id": "b3eeae9249da0a41a67a5bedff8f18b0",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.89초입니다.\n- llm_call p95는 4.10초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 2.486e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.486e-05,
+        "compute_seconds": 1.7901,
+        "compute_resource": "cpu",
+        "latency_ms": 3778,
+        "status": "success"
+      },
+      "request_id": "req_7349cb9c",
+      "trace_id": "b3eeae9249da0a41a67a5bedff8f18b0",
+      "status": "success",
+      "latency_ms": 3778,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 2.486e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.486e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "b3eeae9249da0a41a67a5bedff8f18b0",
+          "request_id": "req_7349cb9c",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3779.59,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 2.486e-05,
+          "infra_cost_usd": 2.486e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162380517598,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1803.15
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1893.33
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.84
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/b3eeae9249da0a41a67a5bedff8f18b0",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_retrieve",
+      "run_index": 10,
+      "started_at": "2026-05-30T17:33:04.453974+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 4873.69,
+      "response": {
+        "request_id": "req_638fa59f",
+        "trace_id": "5922586ce2427a4a8487be9cb2572209",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.90초입니다.\n- llm_call p95는 4.05초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 162,
+        "output_tokens": 108,
+        "cost_usd": 3.948e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 3.948e-05,
+        "compute_seconds": 2.8426,
+        "compute_resource": "cpu",
+        "latency_ms": 4865,
+        "status": "success"
+      },
+      "request_id": "req_638fa59f",
+      "trace_id": "5922586ce2427a4a8487be9cb2572209",
+      "status": "success",
+      "latency_ms": 4865,
+      "input_tokens": 162,
+      "output_tokens": 108,
+      "cost_usd": 3.948e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 3.948e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "5922586ce2427a4a8487be9cb2572209",
+          "request_id": "req_638fa59f",
+          "feature": "chat",
+          "scenario": "slow_retrieve",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 4867.22,
+          "input_tokens": 162,
+          "output_tokens": 108,
+          "tokens": 270,
+          "cost_usd": 3.948e-05,
+          "infra_cost_usd": 3.948e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162384456275,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 1801.42
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2982.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.74
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/5922586ce2427a4a8487be9cb2572209",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 1,
+      "started_at": "2026-05-30T17:33:09.481348+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 3118.33,
+      "response": {
+        "request_id": "req_af43564c",
+        "trace_id": "ce25f030da0c68cd1a695f41e183cca7",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.90초입니다.\n- llm_call p95는 4.05초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 3.822e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 3.822e-05,
+        "compute_seconds": 2.752,
+        "compute_resource": "cpu",
+        "latency_ms": 3109,
+        "status": "success"
+      },
+      "request_id": "req_af43564c",
+      "trace_id": "ce25f030da0c68cd1a695f41e183cca7",
+      "status": "success",
+      "latency_ms": 3109,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 3.822e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 3.822e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "ce25f030da0c68cd1a695f41e183cca7",
+          "request_id": "req_af43564c",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3113.55,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 3.822e-05,
+          "infra_cost_usd": 3.822e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162389484339,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.03
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2877.1
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.48
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/ce25f030da0c68cd1a695f41e183cca7",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 2,
+      "started_at": "2026-05-30T17:33:12.754704+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1893.76,
+      "response": {
+        "request_id": "req_2bfb5de4",
+        "trace_id": "8eb409746d72f7d6b58ffa59461e3aa8",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.90초입니다.\n- llm_call p95는 3.95초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 2.189e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.189e-05,
+        "compute_seconds": 1.5761,
+        "compute_resource": "cpu",
+        "latency_ms": 1889,
+        "status": "success"
+      },
+      "request_id": "req_2bfb5de4",
+      "trace_id": "8eb409746d72f7d6b58ffa59461e3aa8",
+      "status": "success",
+      "latency_ms": 1889,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 2.189e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.189e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "8eb409746d72f7d6b58ffa59461e3aa8",
+          "request_id": "req_2bfb5de4",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1890.23,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 2.189e-05,
+          "infra_cost_usd": 2.189e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162392756773,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.78
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1656.08
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.33
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/8eb409746d72f7d6b58ffa59461e3aa8",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 3,
+      "started_at": "2026-05-30T17:33:14.798788+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 2381.44,
+      "response": {
+        "request_id": "req_b4e25a19",
+        "trace_id": "4fd9f3eb3f8e0faf3d4b3238e53e4f8d",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.90초입니다.\n- llm_call p95는 3.95초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 2.839e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.839e-05,
+        "compute_seconds": 2.0441,
+        "compute_resource": "cpu",
+        "latency_ms": 2377,
+        "status": "success"
+      },
+      "request_id": "req_b4e25a19",
+      "trace_id": "4fd9f3eb3f8e0faf3d4b3238e53e4f8d",
+      "status": "success",
+      "latency_ms": 2377,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 2.839e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.839e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "4fd9f3eb3f8e0faf3d4b3238e53e4f8d",
+          "request_id": "req_b4e25a19",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 2378.49,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 2.839e-05,
+          "infra_cost_usd": 2.839e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162394800119,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.3
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2144.91
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.3
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/4fd9f3eb3f8e0faf3d4b3238e53e4f8d",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 4,
+      "started_at": "2026-05-30T17:33:17.334224+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 1889.42,
+      "response": {
+        "request_id": "req_29981683",
+        "trace_id": "a9f7ee2797514680c4c7096c1b211841",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.88초입니다.\n- llm_call p95는 3.85초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 2.173e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.173e-05,
+        "compute_seconds": 1.5645,
+        "compute_resource": "cpu",
+        "latency_ms": 1885,
+        "status": "success"
+      },
+      "request_id": "req_29981683",
+      "trace_id": "a9f7ee2797514680c4c7096c1b211841",
+      "status": "success",
+      "latency_ms": 1885,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 2.173e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.173e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "a9f7ee2797514680c4c7096c1b211841",
+          "request_id": "req_29981683",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 1885.85,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 2.173e-05,
+          "infra_cost_usd": 2.173e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162397336366,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.06
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1651.65
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.08
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/a9f7ee2797514680c4c7096c1b211841",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 5,
+      "started_at": "2026-05-30T17:33:19.376435+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 2207.04,
+      "response": {
+        "request_id": "req_2bd54348",
+        "trace_id": "067ed99793e2d0f0f63dd2f86e8a0ad2",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.88초입니다.\n- llm_call p95는 3.85초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 2.63e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.63e-05,
+        "compute_seconds": 1.8935,
+        "compute_resource": "cpu",
+        "latency_ms": 2203,
+        "status": "success"
+      },
+      "request_id": "req_2bd54348",
+      "trace_id": "067ed99793e2d0f0f63dd2f86e8a0ad2",
+      "status": "success",
+      "latency_ms": 2203,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 2.63e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.63e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "067ed99793e2d0f0f63dd2f86e8a0ad2",
+          "request_id": "req_2bd54348",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 2204.39,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 2.63e-05,
+          "infra_cost_usd": 2.63e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162399377717,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 155.02
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1966.49
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.76
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/067ed99793e2d0f0f63dd2f86e8a0ad2",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 6,
+      "started_at": "2026-05-30T17:33:21.738468+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 2035.33,
+      "response": {
+        "request_id": "req_38dd39ac",
+        "trace_id": "dcf97b1e530346a173822789f75cb119",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.87초입니다.\n- llm_call p95는 3.75초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 2.351e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.351e-05,
+        "compute_seconds": 1.693,
+        "compute_resource": "cpu",
+        "latency_ms": 2031,
+        "status": "success"
+      },
+      "request_id": "req_38dd39ac",
+      "trace_id": "dcf97b1e530346a173822789f75cb119",
+      "status": "success",
+      "latency_ms": 2031,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 2.351e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.351e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "dcf97b1e530346a173822789f75cb119",
+          "request_id": "req_38dd39ac",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 2032.72,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 2.351e-05,
+          "infra_cost_usd": 2.351e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162401739854,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.71
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1797.74
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.03
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/dcf97b1e530346a173822789f75cb119",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 7,
+      "started_at": "2026-05-30T17:33:23.926400+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 3118.76,
+      "response": {
+        "request_id": "req_c2c76b94",
+        "trace_id": "16c0882756d36b2ff7dd6366aed3a8a0",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.87초입니다.\n- llm_call p95는 3.75초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 3.857e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 3.857e-05,
+        "compute_seconds": 2.7771,
+        "compute_resource": "cpu",
+        "latency_ms": 3114,
+        "status": "success"
+      },
+      "request_id": "req_c2c76b94",
+      "trace_id": "16c0882756d36b2ff7dd6366aed3a8a0",
+      "status": "success",
+      "latency_ms": 3114,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 3.857e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 3.857e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "16c0882756d36b2ff7dd6366aed3a8a0",
+          "request_id": "req_c2c76b94",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 3115.74,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 3.857e-05,
+          "infra_cost_usd": 3.857e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162403928285,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.12
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2883.69
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.9
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/16c0882756d36b2ff7dd6366aed3a8a0",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 8,
+      "started_at": "2026-05-30T17:33:27.195607+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 2722.45,
+      "response": {
+        "request_id": "req_306413b4",
+        "trace_id": "c320117c61cc38596d2d4dc83eb84f82",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.86초입니다.\n- llm_call p95는 3.65초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 3.334e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 3.334e-05,
+        "compute_seconds": 2.4004,
+        "compute_resource": "cpu",
+        "latency_ms": 2717,
+        "status": "success"
+      },
+      "request_id": "req_306413b4",
+      "trace_id": "c320117c61cc38596d2d4dc83eb84f82",
+      "status": "success",
+      "latency_ms": 2717,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 3.334e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 3.334e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "c320117c61cc38596d2d4dc83eb84f82",
+          "request_id": "req_306413b4",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 2718.72,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 3.334e-05,
+          "infra_cost_usd": 3.334e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162407198108,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 149.93
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2483.95
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 83.71
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/c320117c61cc38596d2d4dc83eb84f82",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 9,
+      "started_at": "2026-05-30T17:33:30.071425+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 2032.15,
+      "response": {
+        "request_id": "req_56355c5b",
+        "trace_id": "3e89cdf680b260bb95def2ed92b2015e",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.86초입니다.\n- llm_call p95는 3.65초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 2.392e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.392e-05,
+        "compute_seconds": 1.7223,
+        "compute_resource": "cpu",
+        "latency_ms": 2029,
+        "status": "success"
+      },
+      "request_id": "req_56355c5b",
+      "trace_id": "3e89cdf680b260bb95def2ed92b2015e",
+      "status": "success",
+      "latency_ms": 2029,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 2.392e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.392e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "3e89cdf680b260bb95def2ed92b2015e",
+          "request_id": "req_56355c5b",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 2029.92,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 2.392e-05,
+          "infra_cost_usd": 2.392e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162410072671,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.64
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1797.52
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.76
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/3e89cdf680b260bb95def2ed92b2015e",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "slow_llm",
+      "run_index": 10,
+      "started_at": "2026-05-30T17:33:32.258595+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 2262.0,
+      "response": {
+        "request_id": "req_4422ce7f",
+        "trace_id": "49d47996ea95eeb8a0f78d2ed6ff915b",
+        "answer": "최근 데이터 기준으로는 우리 RAG 검색보다 LLM 답변 생성 단계가 더 느립니다.\n\n- retrieve p95는 1.85초입니다.\n- llm_call p95는 3.55초입니다.\n- 최근 가장 느린 요청은 req_89eb791f이고 latency는 6.80초입니다.\n\nllm_call이 더 크다는 것은 gemma3:1b가 프롬프트를 처리하고 답변을 생성하는 시간이 더 많이 쓰였다는 뜻입니다.\n\n따라서 먼저 확인할 곳은 프롬프트 길이, 출력 길이, CPU/GPU 성능, 모델 크기입니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 163,
+        "output_tokens": 108,
+        "cost_usd": 2.621e-05,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 2.621e-05,
+        "compute_seconds": 1.8873,
+        "compute_resource": "cpu",
+        "latency_ms": 2255,
+        "status": "success"
+      },
+      "request_id": "req_4422ce7f",
+      "trace_id": "49d47996ea95eeb8a0f78d2ed6ff915b",
+      "status": "success",
+      "latency_ms": 2255,
+      "input_tokens": 163,
+      "output_tokens": 108,
+      "cost_usd": 2.621e-05,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 2.621e-05,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "49d47996ea95eeb8a0f78d2ed6ff915b",
+          "request_id": "req_4422ce7f",
+          "feature": "chat",
+          "scenario": "slow_llm",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 2257.34,
+          "input_tokens": 163,
+          "output_tokens": 108,
+          "tokens": 271,
+          "cost_usd": 2.621e-05,
+          "infra_cost_usd": 2.621e-05,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162412261663,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 153.03
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2021.5
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.67
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/49d47996ea95eeb8a0f78d2ed6ff915b",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 1,
+      "started_at": "2026-05-30T17:33:34.672242+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 34649.26,
+      "response": {
+        "request_id": "req_23da7f20",
+        "trace_id": "ba23ae21bd555a6d661a57688749226c",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 7.8k입니다.\n- Total Cost는 $0.000810입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.000810입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.000810입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=7.8k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.00047641,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.00047641,
+        "compute_seconds": 34.3012,
+        "compute_resource": "cpu",
+        "latency_ms": 34645,
+        "status": "success"
+      },
+      "request_id": "req_23da7f20",
+      "trace_id": "ba23ae21bd555a6d661a57688749226c",
+      "status": "success",
+      "latency_ms": 34645,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.00047641,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.00047641,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "ba23ae21bd555a6d661a57688749226c",
+          "request_id": "req_23da7f20",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34643.71,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00047641,
+          "infra_cost_usd": 0.00047641,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162414674061,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.1
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34409.13
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.28
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/ba23ae21bd555a6d661a57688749226c",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 2,
+      "started_at": "2026-05-30T17:34:09.471523+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 34371.39,
+      "response": {
+        "request_id": "req_caf66a13",
+        "trace_id": "0a787966072720019bc66c2e004bef7d",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 8.3k입니다.\n- Total Cost는 $0.001287입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.001287입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.001287입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=8.3k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.00047311,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.00047311,
+        "compute_seconds": 34.0641,
+        "compute_resource": "cpu",
+        "latency_ms": 34365,
+        "status": "success"
+      },
+      "request_id": "req_caf66a13",
+      "trace_id": "0a787966072720019bc66c2e004bef7d",
+      "status": "success",
+      "latency_ms": 34365,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.00047311,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.00047311,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "0a787966072720019bc66c2e004bef7d",
+          "request_id": "req_caf66a13",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34366.94,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00047311,
+          "infra_cost_usd": 0.00047311,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162449471453,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.63
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34132.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.31
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/0a787966072720019bc66c2e004bef7d",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 3,
+      "started_at": "2026-05-30T17:34:43.994830+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 35287.02,
+      "response": {
+        "request_id": "req_358d9adb",
+        "trace_id": "6b61cdac72779ca9c7e83e21b40dfae1",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 8.8k입니다.\n- Total Cost는 $0.001761입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.001761입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.001761입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=8.8k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.00048544,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.00048544,
+        "compute_seconds": 34.9516,
+        "compute_resource": "cpu",
+        "latency_ms": 35282,
+        "status": "success"
+      },
+      "request_id": "req_358d9adb",
+      "trace_id": "6b61cdac72779ca9c7e83e21b40dfae1",
+      "status": "success",
+      "latency_ms": 35282,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.00048544,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.00048544,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "6b61cdac72779ca9c7e83e21b40dfae1",
+          "request_id": "req_358d9adb",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 35270.4,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00048544,
+          "infra_cost_usd": 0.00048544,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162483995545,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.23
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 35035.92
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 83.27
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/6b61cdac72779ca9c7e83e21b40dfae1",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 4,
+      "started_at": "2026-05-30T17:35:19.434629+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 34514.09,
+      "response": {
+        "request_id": "req_ab24928b",
+        "trace_id": "925f20f76b5a6e5143acceb048b3553a",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 9.2k입니다.\n- Total Cost는 $0.002246입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.002246입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.002246입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=9.2k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.00047483,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.00047483,
+        "compute_seconds": 34.1875,
+        "compute_resource": "cpu",
+        "latency_ms": 34508,
+        "status": "success"
+      },
+      "request_id": "req_ab24928b",
+      "trace_id": "925f20f76b5a6e5143acceb048b3553a",
+      "status": "success",
+      "latency_ms": 34508,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.00047483,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.00047483,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "925f20f76b5a6e5143acceb048b3553a",
+          "request_id": "req_ab24928b",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34518.5,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00047483,
+          "infra_cost_usd": 0.00047483,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162519424729,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.22
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34283.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 81.9
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/925f20f76b5a6e5143acceb048b3553a",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 5,
+      "started_at": "2026-05-30T17:35:54.103303+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 34933.13,
+      "response": {
+        "request_id": "req_637b0f37",
+        "trace_id": "4fd755d9e6776497925ad198772a22d7",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 9.7k입니다.\n- Total Cost는 $0.002722입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.002722입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.002722입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=9.7k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.00048037,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.00048037,
+        "compute_seconds": 34.5864,
+        "compute_resource": "cpu",
+        "latency_ms": 34927,
+        "status": "success"
+      },
+      "request_id": "req_637b0f37",
+      "trace_id": "4fd755d9e6776497925ad198772a22d7",
+      "status": "success",
+      "latency_ms": 34927,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.00048037,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.00048037,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "4fd755d9e6776497925ad198772a22d7",
+          "request_id": "req_637b0f37",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34931.56,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00048037,
+          "infra_cost_usd": 0.00048037,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162554101583,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.75
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34697.5
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.14
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/4fd755d9e6776497925ad198772a22d7",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 6,
+      "started_at": "2026-05-30T17:36:29.189556+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 7965.01,
+      "response": {
+        "request_id": "req_66e75c28",
+        "trace_id": "c1b5711fcf24460ac45047c585bd0f48",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 10.1k입니다.\n- Total Cost는 $0.003207입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.003207입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.003207입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=10.1k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.00010527,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.00010527,
+        "compute_seconds": 7.5795,
+        "compute_resource": "cpu",
+        "latency_ms": 7948,
+        "status": "success"
+      },
+      "request_id": "req_66e75c28",
+      "trace_id": "c1b5711fcf24460ac45047c585bd0f48",
+      "status": "success",
+      "latency_ms": 7948,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.00010527,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.00010527,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "c1b5711fcf24460ac45047c585bd0f48",
+          "request_id": "req_66e75c28",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 7953.11,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00010527,
+          "infra_cost_usd": 0.00010527,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162589193468,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.83
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 7714.69
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 80.43
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/c1b5711fcf24460ac45047c585bd0f48",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 7,
+      "started_at": "2026-05-30T17:36:37.308230+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 34279.21,
+      "response": {
+        "request_id": "req_5a6fc738",
+        "trace_id": "57c50966f3837ae3f14bc5fa4697c6dc",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 10.6k입니다.\n- Total Cost는 $0.003310입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.003310입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.003310입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=10.6k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.00047054,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.00047054,
+        "compute_seconds": 33.8789,
+        "compute_resource": "cpu",
+        "latency_ms": 34272,
+        "status": "success"
+      },
+      "request_id": "req_5a6fc738",
+      "trace_id": "57c50966f3837ae3f14bc5fa4697c6dc",
+      "status": "success",
+      "latency_ms": 34272,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.00047054,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.00047054,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "57c50966f3837ae3f14bc5fa4697c6dc",
+          "request_id": "req_5a6fc738",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34266.67,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00047054,
+          "infra_cost_usd": 0.00047054,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162597311042,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 156.44
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34026.83
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 82.28
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/57c50966f3837ae3f14bc5fa4697c6dc",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 8,
+      "started_at": "2026-05-30T17:37:11.740092+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 37584.44,
+      "response": {
+        "request_id": "req_2ccdd3a8",
+        "trace_id": "ff7fe7420d70e3e6b51f9417c3aa249f",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 11.1k입니다.\n- Total Cost는 $0.003781입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.003781입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.003781입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=11.1k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.0005169,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0005169,
+        "compute_seconds": 37.2166,
+        "compute_resource": "cpu",
+        "latency_ms": 37577,
+        "status": "success"
+      },
+      "request_id": "req_2ccdd3a8",
+      "trace_id": "ff7fe7420d70e3e6b51f9417c3aa249f",
+      "status": "success",
+      "latency_ms": 37577,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.0005169,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0005169,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "ff7fe7420d70e3e6b51f9417c3aa249f",
+          "request_id": "req_2ccdd3a8",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 37583.59,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.0005169,
+          "infra_cost_usd": 0.0005169,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162631735853,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.71
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 37350.5
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 79.88
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/ff7fe7420d70e3e6b51f9417c3aa249f",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 9,
+      "started_at": "2026-05-30T17:37:49.474720+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 34328.87,
+      "response": {
+        "request_id": "req_ccff09f2",
+        "trace_id": "d5d2999bd5bb624d725f65a0863b9974",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 11.5k입니다.\n- Total Cost는 $0.004298입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.004298입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.004298입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=11.5k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.0004719,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0004719,
+        "compute_seconds": 33.9765,
+        "compute_resource": "cpu",
+        "latency_ms": 34323,
+        "status": "success"
+      },
+      "request_id": "req_ccff09f2",
+      "trace_id": "d5d2999bd5bb624d725f65a0863b9974",
+      "status": "success",
+      "latency_ms": 34323,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.0004719,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0004719,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "d5d2999bd5bb624d725f65a0863b9974",
+          "request_id": "req_ccff09f2",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 34319.96,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.0004719,
+          "infra_cost_usd": 0.0004719,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162669477291,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.85
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 34086.86
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 79.92
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/d5d2999bd5bb624d725f65a0863b9974",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "high_token",
+      "run_index": 10,
+      "started_at": "2026-05-30T17:38:23.955613+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 35975.59,
+      "response": {
+        "request_id": "req_d9514afd",
+        "trace_id": "7216946c7647b0f0fbb6908f0400ae5b",
+        "answer": "최근 1h 기준으로 비용을 가장 많이 만든 기능은 chat입니다. 현재 비용 증가는 이 기능에서 로컬 모델 실행 시간이 많이 쌓인 것이 주된 원인입니다.\n\n- Total Tokens는 12.0k입니다.\n- Total Cost는 $0.004771입니다.\n- Token Cost는 $0.000000, Infra Cost는 $0.004771입니다.\n- 비용을 가장 많이 만든 기능은 chat=$0.004771입니다.\n- 참고로 토큰을 가장 많이 쓴 기능은 chat=12.0k입니다.\n\n현재 모델은 로컬 gemma3:1b라서 OpenAI처럼 토큰당 API 비용이 붙지 않습니다. 대신 토큰이 많아질수록 llm_call 실행 시간이 길어지고, 그만큼 CPU 기반 infra_cost_usd가 증가합니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 307,
+        "output_tokens": 150,
+        "cost_usd": 0.00049467,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.00049467,
+        "compute_seconds": 35.6164,
+        "compute_resource": "cpu",
+        "latency_ms": 35970,
+        "status": "success"
+      },
+      "request_id": "req_d9514afd",
+      "trace_id": "7216946c7647b0f0fbb6908f0400ae5b",
+      "status": "success",
+      "latency_ms": 35970,
+      "input_tokens": 307,
+      "output_tokens": 150,
+      "cost_usd": 0.00049467,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.00049467,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "7216946c7647b0f0fbb6908f0400ae5b",
+          "request_id": "req_d9514afd",
+          "feature": "chat",
+          "scenario": "high_token",
+          "model": "gemma3:1b",
+          "status": "success",
+          "latency_ms": 35973.74,
+          "input_tokens": 307,
+          "output_tokens": 150,
+          "tokens": 457,
+          "cost_usd": 0.00049467,
+          "infra_cost_usd": 0.00049467,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162703952293,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.47
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 35735.81
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 84.28
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/7216946c7647b0f0fbb6908f0400ae5b",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 1,
+      "started_at": "2026-05-30T17:39:00.085918+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 159.3,
+      "response": {
+        "request_id": "req_c777b4f6",
+        "trace_id": "28f55215aa17579d68b730355f8a54b6",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_c777b4f6\n- trace_id: 28f55215aa17579d68b730355f8a54b6\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 152,
+        "status": "error"
+      },
+      "request_id": "req_c777b4f6",
+      "trace_id": "28f55215aa17579d68b730355f8a54b6",
+      "status": "error",
+      "latency_ms": 152,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "28f55215aa17579d68b730355f8a54b6",
+          "request_id": "req_c777b4f6",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.28,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162740086695,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 150.08
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 2.05
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/28f55215aa17579d68b730355f8a54b6",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 2,
+      "started_at": "2026-05-30T17:39:00.397986+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 153.65,
+      "response": {
+        "request_id": "req_6dd5f5aa",
+        "trace_id": "6f1a999cc5c5ee48d9648e8df1a01f98",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_6dd5f5aa\n- trace_id: 6f1a999cc5c5ee48d9648e8df1a01f98\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 149,
+        "status": "error"
+      },
+      "request_id": "req_6dd5f5aa",
+      "trace_id": "6f1a999cc5c5ee48d9648e8df1a01f98",
+      "status": "error",
+      "latency_ms": 149,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "6f1a999cc5c5ee48d9648e8df1a01f98",
+          "request_id": "req_6dd5f5aa",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 150.46,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162740397771,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 148.99
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.33
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/6f1a999cc5c5ee48d9648e8df1a01f98",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 3,
+      "started_at": "2026-05-30T17:39:00.701812+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 159.29,
+      "response": {
+        "request_id": "req_6d71e0c7",
+        "trace_id": "cc1fb86bbd5e6eb94d9952066c36fb68",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_6d71e0c7\n- trace_id: cc1fb86bbd5e6eb94d9952066c36fb68\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 152,
+        "status": "error"
+      },
+      "request_id": "req_6d71e0c7",
+      "trace_id": "cc1fb86bbd5e6eb94d9952066c36fb68",
+      "status": "error",
+      "latency_ms": 152,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "cc1fb86bbd5e6eb94d9952066c36fb68",
+          "request_id": "req_6d71e0c7",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 153.95,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162740703316,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.55
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.72
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/cc1fb86bbd5e6eb94d9952066c36fb68",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 4,
+      "started_at": "2026-05-30T17:39:01.016189+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 159.34,
+      "response": {
+        "request_id": "req_6a46251b",
+        "trace_id": "41100bc0de23f4643af493840ad0b28e",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_6a46251b\n- trace_id: 41100bc0de23f4643af493840ad0b28e\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 152,
+        "status": "error"
+      },
+      "request_id": "req_6a46251b",
+      "trace_id": "41100bc0de23f4643af493840ad0b28e",
+      "status": "error",
+      "latency_ms": 152,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "41100bc0de23f4643af493840ad0b28e",
+          "request_id": "req_6a46251b",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.34,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162741017364,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.47
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1.21
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/41100bc0de23f4643af493840ad0b28e",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 5,
+      "started_at": "2026-05-30T17:39:01.327388+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 158.72,
+      "response": {
+        "request_id": "req_01d1934f",
+        "trace_id": "b30a28d1e001557731e0696156f7ceb0",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_01d1934f\n- trace_id: b30a28d1e001557731e0696156f7ceb0\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 151,
+        "status": "error"
+      },
+      "request_id": "req_01d1934f",
+      "trace_id": "b30a28d1e001557731e0696156f7ceb0",
+      "status": "error",
+      "latency_ms": 151,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "b30a28d1e001557731e0696156f7ceb0",
+          "request_id": "req_01d1934f",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 153.6,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162741328190,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.06
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.69
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/b30a28d1e001557731e0696156f7ceb0",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 6,
+      "started_at": "2026-05-30T17:39:01.641215+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 156.01,
+      "response": {
+        "request_id": "req_b35802d7",
+        "trace_id": "54aff243686e256fc51f140440ac5b60",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_b35802d7\n- trace_id: 54aff243686e256fc51f140440ac5b60\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 150,
+        "status": "error"
+      },
+      "request_id": "req_b35802d7",
+      "trace_id": "54aff243686e256fc51f140440ac5b60",
+      "status": "error",
+      "latency_ms": 150,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "54aff243686e256fc51f140440ac5b60",
+          "request_id": "req_b35802d7",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 151.81,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162741641510,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 149.86
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.58
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/54aff243686e256fc51f140440ac5b60",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 7,
+      "started_at": "2026-05-30T17:39:01.950035+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 159.81,
+      "response": {
+        "request_id": "req_1d46183f",
+        "trace_id": "9354f9bb58e4237866ddb7b57027bea9",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_1d46183f\n- trace_id: 9354f9bb58e4237866ddb7b57027bea9\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 152,
+        "status": "error"
+      },
+      "request_id": "req_1d46183f",
+      "trace_id": "9354f9bb58e4237866ddb7b57027bea9",
+      "status": "error",
+      "latency_ms": 152,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "9354f9bb58e4237866ddb7b57027bea9",
+          "request_id": "req_1d46183f",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.33,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162741951042,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 151.14
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.96
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/9354f9bb58e4237866ddb7b57027bea9",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 8,
+      "started_at": "2026-05-30T17:39:02.261547+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 158.84,
+      "response": {
+        "request_id": "req_0e5bd20a",
+        "trace_id": "aa0e6daa85b88b4313386cb1ae4b5806",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_0e5bd20a\n- trace_id: aa0e6daa85b88b4313386cb1ae4b5806\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 153,
+        "status": "error"
+      },
+      "request_id": "req_0e5bd20a",
+      "trace_id": "aa0e6daa85b88b4313386cb1ae4b5806",
+      "status": "error",
+      "latency_ms": 153,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "aa0e6daa85b88b4313386cb1ae4b5806",
+          "request_id": "req_0e5bd20a",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 155.02,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162742261527,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.12
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 1.07
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/aa0e6daa85b88b4313386cb1ae4b5806",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 9,
+      "started_at": "2026-05-30T17:39:02.572256+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 159.75,
+      "response": {
+        "request_id": "req_d371e614",
+        "trace_id": "ec33a9ddfe826de7b9532c03e7232539",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_d371e614\n- trace_id: ec33a9ddfe826de7b9532c03e7232539\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 153,
+        "status": "error"
+      },
+      "request_id": "req_d371e614",
+      "trace_id": "ec33a9ddfe826de7b9532c03e7232539",
+      "status": "error",
+      "latency_ms": 153,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "ec33a9ddfe826de7b9532c03e7232539",
+          "request_id": "req_d371e614",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.7,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162742572920,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.23
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.89
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/ec33a9ddfe826de7b9532c03e7232539",
+          "found": true
+        },
+        "attempt": 1
+      }
+    },
+    {
+      "scenario": "error",
+      "run_index": 10,
+      "started_at": "2026-05-30T17:39:02.887114+00:00",
+      "ok": true,
+      "http_status": 200,
+      "client_elapsed_ms": 159.28,
+      "response": {
+        "request_id": "req_cc6346f0",
+        "trace_id": "6d60b98f0add17225e8dfb118779912a",
+        "answer": "이 요청은 실패 요청 시나리오를 보여주기 위해 일부러 실패로 기록했습니다.\n\n- request_id: req_cc6346f0\n- trace_id: 6d60b98f0add17225e8dfb118779912a\n- status: error\n\n즉, 지금 화면은 모델이 답을 몰라서 실패한 것이 아니라 OLLY가 실패 요청도 관측할 수 있는지 보여주는 데모입니다. 운영자 대시보드의 Recent Requests와 Jaeger trace에서 이 요청을 확인하면 실패 요청도 추적 대상에 남는 것을 볼 수 있습니다.",
+        "model": "gemma3:1b",
+        "feature": "chat",
+        "llm_backend": "ollama",
+        "input_tokens": 0,
+        "output_tokens": 108,
+        "cost_usd": 0.0,
+        "token_cost_usd": 0.0,
+        "infra_cost_usd": 0.0,
+        "compute_seconds": 0.0,
+        "compute_resource": "cpu",
+        "latency_ms": 153,
+        "status": "error"
+      },
+      "request_id": "req_cc6346f0",
+      "trace_id": "6d60b98f0add17225e8dfb118779912a",
+      "status": "error",
+      "latency_ms": 153,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "cost_usd": 0.0,
+      "token_cost_usd": 0.0,
+      "infra_cost_usd": 0.0,
+      "trace_lookup": {
+        "ok": true,
+        "http_status": 200,
+        "data": {
+          "trace_id": "6d60b98f0add17225e8dfb118779912a",
+          "request_id": "req_cc6346f0",
+          "feature": "chat",
+          "scenario": "error",
+          "model": "gemma3:1b",
+          "status": "error",
+          "latency_ms": 154.72,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "tokens": 0,
+          "cost_usd": 0.0,
+          "infra_cost_usd": 0.0,
+          "token_cost_usd": 0.0,
+          "start_time_us": 1780162742887713,
+          "stages": [
+            {
+              "name": "retrieve",
+              "duration_ms": 152.41
+            },
+            {
+              "name": "llm_call",
+              "duration_ms": 0.53
+            },
+            {
+              "name": "postprocess",
+              "duration_ms": 0.0
+            }
+          ],
+          "jaeger_url": "http://localhost:16686/trace/6d60b98f0add17225e8dfb118779912a",
+          "found": true
+        },
+        "attempt": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,441 @@
+{
+  "observations": [
+    {
+      "scenario": "normal",
+      "request_id": "req_0a860127",
+      "trace_id": "56cca83fd62266fa9491cbe8103911c6",
+      "status": "success",
+      "latency_ms": 4014,
+      "trace_latency_ms": 154.2,
+      "input_tokens": 148,
+      "output_tokens": 82,
+      "tokens": 230,
+      "cost_usd": 5.094e-05,
+      "dominant_stage": "retrieve",
+      "dominant_stage_ms": 154.2,
+      "stages": [
+        {
+          "name": "retrieve",
+          "duration_ms": 154.2
+        },
+        {
+          "name": "llm_call",
+          "duration_ms": 0.0
+        },
+        {
+          "name": "postprocess",
+          "duration_ms": 0.0
+        }
+      ],
+      "jaeger_url": "http://localhost:16686/trace/56cca83fd62266fa9491cbe8103911c6"
+    },
+    {
+      "scenario": "slow_retrieve",
+      "request_id": "req_636f39af",
+      "trace_id": "23043ddc30146af5f82e9d775a7b1560",
+      "status": "success",
+      "latency_ms": 3062,
+      "trace_latency_ms": 3062.68,
+      "input_tokens": 157,
+      "output_tokens": 108,
+      "tokens": 265,
+      "cost_usd": 1.571e-05,
+      "dominant_stage": "retrieve",
+      "dominant_stage_ms": 1801.09,
+      "stages": [
+        {
+          "name": "retrieve",
+          "duration_ms": 1801.09
+        },
+        {
+          "name": "llm_call",
+          "duration_ms": 1178.86
+        },
+        {
+          "name": "postprocess",
+          "duration_ms": 82.01
+        }
+      ],
+      "jaeger_url": "http://localhost:16686/trace/23043ddc30146af5f82e9d775a7b1560"
+    },
+    {
+      "scenario": "slow_llm",
+      "request_id": "req_a25dfcff",
+      "trace_id": "e832a231c0d0593f4b36a6b6c26fcc04",
+      "status": "success",
+      "latency_ms": 1066,
+      "trace_latency_ms": 1067.33,
+      "input_tokens": 153,
+      "output_tokens": 86,
+      "tokens": 239,
+      "cost_usd": 1.096e-05,
+      "dominant_stage": "llm_call",
+      "dominant_stage_ms": 829.11,
+      "stages": [
+        {
+          "name": "retrieve",
+          "duration_ms": 152.98
+        },
+        {
+          "name": "llm_call",
+          "duration_ms": 829.11
+        },
+        {
+          "name": "postprocess",
+          "duration_ms": 84.2
+        }
+      ],
+      "jaeger_url": "http://localhost:16686/trace/e832a231c0d0593f4b36a6b6c26fcc04"
+    },
+    {
+      "scenario": "high_token",
+      "request_id": "req_fdebcd5a",
+      "trace_id": "a1ed31f140abf474e9f3ae22ef28228a",
+      "status": "success",
+      "latency_ms": 1294,
+      "trace_latency_ms": 1295.38,
+      "input_tokens": 152,
+      "output_tokens": 102,
+      "tokens": 254,
+      "cost_usd": 1.377e-05,
+      "dominant_stage": "llm_call",
+      "dominant_stage_ms": 1055.35,
+      "stages": [
+        {
+          "name": "retrieve",
+          "duration_ms": 152.86
+        },
+        {
+          "name": "llm_call",
+          "duration_ms": 1055.35
+        },
+        {
+          "name": "postprocess",
+          "duration_ms": 85.93
+        }
+      ],
+      "jaeger_url": "http://localhost:16686/trace/a1ed31f140abf474e9f3ae22ef28228a"
+    },
+    {
+      "scenario": "error",
+      "request_id": "req_c6c92b59",
+      "trace_id": "db3036ca2c8674a9623114e7282ea2e8",
+      "status": "error",
+      "latency_ms": 150,
+      "trace_latency_ms": 151.73,
+      "input_tokens": 0,
+      "output_tokens": 108,
+      "tokens": 108,
+      "cost_usd": 0.0,
+      "dominant_stage": "retrieve",
+      "dominant_stage_ms": 150.43,
+      "stages": [
+        {
+          "name": "retrieve",
+          "duration_ms": 150.43
+        },
+        {
+          "name": "llm_call",
+          "duration_ms": 0.41
+        },
+        {
+          "name": "postprocess",
+          "duration_ms": 0.0
+        }
+      ],
+      "jaeger_url": "http://localhost:16686/trace/db3036ca2c8674a9623114e7282ea2e8"
+    }
+  ],
+  "dashboard_primary_insight": {
+    "severity": "critical",
+    "type": "error_rate",
+    "badge": "needs attention",
+    "title": "실패 요청 비율이 높아졌어요.",
+    "summary": "최근 11개 요청 중 2건이 실패했습니다. 실패율이 18.2%로 올라가 요청 안정성을 먼저 확인하는 것이 좋습니다.",
+    "evidence": [
+      "sample_size=11",
+      "error_requests=2",
+      "error_rate=18.2%"
+    ],
+    "target_trace_id": "db3036ca2c8674a9623114e7282ea2e8",
+    "target_request_id": "req_c6c92b59",
+    "recommended_action": "대표 실패 trace를 확인하고 error span과 예외 메시지를 점검하세요.",
+    "scope": "aggregate",
+    "basis": "recent_requests",
+    "sample_size": 11
+  },
+  "stage_bottleneck_summary": {
+    "sample_size": 11,
+    "dominant_stage": "llm_call",
+    "dominant_stage_label": "LLM 생성",
+    "avg_duration_ms": 1425.49,
+    "p95_duration_ms": 3779.49,
+    "ratio": 0.7328,
+    "stage_stats": [
+      {
+        "name": "llm_call",
+        "label": "LLM 생성",
+        "count": 11,
+        "avg_duration_ms": 1425.49,
+        "p95_duration_ms": 3779.49,
+        "total_duration_ms": 15680.4,
+        "ratio": 0.7328
+      },
+      {
+        "name": "retrieve",
+        "label": "RAG 검색",
+        "count": 11,
+        "avg_duration_ms": 452.2,
+        "p95_duration_ms": 1801.09,
+        "total_duration_ms": 4974.24,
+        "ratio": 0.2325
+      },
+      {
+        "name": "postprocess",
+        "label": "후처리",
+        "count": 11,
+        "avg_duration_ms": 67.51,
+        "p95_duration_ms": 84.2,
+        "total_duration_ms": 742.6,
+        "ratio": 0.0347
+      }
+    ]
+  },
+  "prometheus": {
+    "requests_by_scenario_status": [
+      {
+        "metric": {
+          "scenario": "normal",
+          "status": "error"
+        },
+        "value": [
+          1780151642.49,
+          "0"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "normal",
+          "status": "success"
+        },
+        "value": [
+          1780151642.49,
+          "1.0073631631178916"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "slow_retrieve",
+          "status": "success"
+        },
+        "value": [
+          1780151642.49,
+          "1.0073631631178916"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "slow_llm",
+          "status": "success"
+        },
+        "value": [
+          1780151642.49,
+          "1.0073631631178916"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "high_token",
+          "status": "success"
+        },
+        "value": [
+          1780151642.49,
+          "1.0073631631178916"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "error",
+          "status": "error"
+        },
+        "value": [
+          1780151642.49,
+          "1.0073631631178916"
+        ]
+      }
+    ],
+    "stage_p95_by_scenario_stage": [
+      {
+        "metric": {
+          "scenario": "normal",
+          "stage": "postprocess"
+        },
+        "value": [
+          1780151642.492,
+          "0.0975"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "slow_retrieve",
+          "stage": "postprocess"
+        },
+        "value": [
+          1780151642.492,
+          "0.0975"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "slow_llm",
+          "stage": "postprocess"
+        },
+        "value": [
+          1780151642.492,
+          "0.0975"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "error",
+          "stage": "llm_call"
+        },
+        "value": [
+          1780151642.492,
+          "0.0475"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "normal",
+          "stage": "retrieve"
+        },
+        "value": [
+          1780151642.492,
+          "0.29"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "slow_retrieve",
+          "stage": "retrieve"
+        },
+        "value": [
+          1780151642.492,
+          "1.95"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "slow_retrieve",
+          "stage": "llm_call"
+        },
+        "value": [
+          1780151642.492,
+          "1.95"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "slow_llm",
+          "stage": "retrieve"
+        },
+        "value": [
+          1780151642.492,
+          "0.29"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "slow_llm",
+          "stage": "llm_call"
+        },
+        "value": [
+          1780151642.492,
+          "0.975"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "high_token",
+          "stage": "retrieve"
+        },
+        "value": [
+          1780151642.492,
+          "0.29"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "high_token",
+          "stage": "postprocess"
+        },
+        "value": [
+          1780151642.492,
+          "0.0975"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "error",
+          "stage": "retrieve"
+        },
+        "value": [
+          1780151642.492,
+          "0.29"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "normal",
+          "stage": "llm_call"
+        },
+        "value": [
+          1780151642.492,
+          "4.9"
+        ]
+      },
+      {
+        "metric": {
+          "scenario": "high_token",
+          "stage": "llm_call"
+        },
+        "value": [
+          1780151642.492,
+          "0.975"
+        ]
+      }
+    ],
+    "tokens_by_feature": [
+      {
+        "metric": {
+          "feature": "chat"
+        },
+        "value": [
+          1780151642.494,
+          "995.2817385059742"
+        ]
+      }
+    ],
+    "cost_by_feature": [
+      {
+        "metric": {
+          "feature": "chat"
+        },
+        "value": [
+          1780151642.496,
+          "0.00009205380774213732"
+        ]
+      }
+    ],
+    "errors_10m": [
+      {
+        "metric": {},
+        "value": [
+          1780151642.498,
+          "1.007377198230234"
+        ]
+      }
+    ]
+  }
+}

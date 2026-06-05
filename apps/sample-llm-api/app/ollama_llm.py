@@ -3,6 +3,7 @@ import time
 
 import httpx
 
+from app.analysis_intents import classify_intent
 from app.demo_answers import build_demo_answer, build_demo_context, estimate_demo_output_tokens, is_unhelpful_answer
 from app.schemas import ChatRequest
 
@@ -21,16 +22,45 @@ def model_name() -> str:
     return OLLAMA_MODEL
 
 
-def system_prompt() -> str:
+def system_prompt(observability_request: bool = True) -> str:
+    if not observability_request:
+        return (
+            "당신은 한국어 AI 어시스턴트입니다. "
+            "사용자의 일반 질문에 간결하고 자연스럽게 답하세요. "
+            "질문에 없는 운영 지표, 대시보드, 비용, 토큰, latency 이야기를 끼워 넣지 마세요. "
+            "실시간 정보, 외부 검색, 개인 정보, 확인되지 않은 사실은 지어내지 말고 한계를 명확히 말하세요."
+        )
+
     return (
-        "당신은 OLLY LLM 운영 대시보드의 데모 어시스턴트입니다. "
-        "사용자의 질문은 OLLY의 비용, 토큰, latency, RAG 병목, LLM 병목, 실패 원인에 관한 것입니다. "
-        "반드시 한국어로 답하고, '모른다'로 끝내지 마세요. "
-        "주어진 참고 문맥과 시나리오를 바탕으로 운영자가 다음에 확인할 화면과 지표를 설명하세요."
+        "당신은 OLLY LLM 운영 대시보드의 AI 어시스턴트입니다. "
+        "사용자가 OLLY의 비용, 토큰, latency, RAG 병목, LLM 병목, 실패 원인을 질문하면 "
+        "주어진 참고 문맥과 시나리오를 바탕으로 운영자가 다음에 확인할 화면과 지표를 설명하세요. "
+        "실시간 정보, 외부 검색, 개인 정보, 확인되지 않은 운영 지표는 지어내지 말고 한계를 명확히 말하세요."
     )
 
 
-def build_user_prompt(request: ChatRequest, context: list[str]) -> str:
+def is_observability_request(request: ChatRequest) -> bool:
+    return classify_intent(request) is not None
+
+
+def build_user_prompt(
+    request: ChatRequest,
+    context: list[str],
+    *,
+    observability_request: bool | None = None,
+) -> str:
+    if observability_request is None:
+        observability_request = is_observability_request(request)
+
+    if not observability_request:
+        return (
+            "다음은 OLLY 운영 지표나 대시보드 분석이 필요하지 않은 일반 질문입니다. "
+            "모델이 알고 있는 범위에서 한국어로 자연스럽게 답하세요. "
+            "실시간 정보, 외부 검색, 제공되지 않은 운영 지표는 추측하지 말고 한계를 명확히 말하세요.\n\n"
+            "[사용자 질문]\n"
+            f"{request.question}"
+        )
+
     if STABLE_DEMO_ANSWERS:
         return (
             "OLLY 데모 요청입니다. 아래 질문에 한 문장으로 간단히 답하세요.\n\n"
@@ -74,17 +104,18 @@ async def close() -> None:
 
 
 async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, int, dict[str, float]]:
-    if request.scenario == "error":
+    observability_request = is_observability_request(request)
+    if request.scenario == "error" and observability_request:
         raise RuntimeError("forced Ollama failure scenario")
 
     enriched_context = context + build_demo_context(request)
-    prompt = build_user_prompt(request, enriched_context)
-    num_predict = MAX_NEW_TOKENS * 2 if request.scenario == "high_token" else MAX_NEW_TOKENS
+    prompt = build_user_prompt(request, enriched_context, observability_request=observability_request)
+    num_predict = MAX_NEW_TOKENS * 2 if observability_request and request.scenario == "high_token" else MAX_NEW_TOKENS
     payload = {
         "model": OLLAMA_MODEL,
         "stream": False,
         "messages": [
-            {"role": "system", "content": system_prompt()},
+            {"role": "system", "content": system_prompt(observability_request)},
             {"role": "user", "content": prompt},
         ],
         "options": {
@@ -111,8 +142,11 @@ async def llm_call(request: ChatRequest, context: list[str]) -> tuple[str, int, 
     answer = data.get("message", {}).get("content", "").strip()
     input_tokens = int(data.get("prompt_eval_count") or 0)
     output_tokens = int(data.get("eval_count") or 0)
-    if STABLE_DEMO_ANSWERS or is_unhelpful_answer(answer):
+    if observability_request and (STABLE_DEMO_ANSWERS or is_unhelpful_answer(answer)):
         answer = build_demo_answer(request)
+        output_tokens = estimate_demo_output_tokens(answer)
+    elif not answer:
+        answer = "답변을 생성하지 못했습니다. 질문을 조금 더 구체적으로 다시 보내주세요."
         output_tokens = estimate_demo_output_tokens(answer)
     eval_duration_seconds = (data.get("eval_duration") or 0) / 1_000_000_000
     total_duration_seconds = (data.get("total_duration") or 0) / 1_000_000_000
